@@ -1,5 +1,6 @@
 from flask import jsonify
 from flask_restful import Resource, reqparse, Api
+
 from src.manejo_de_usuarios.modelo.Usuario import Usuario, inicializar_base_de_datos
 from src.manejo_de_usuarios.util.validaciones.ValidacionUsuario import ValidacionUsuario
 
@@ -29,10 +30,10 @@ class UsuariosControlador(Resource):
         errores_usuario_a_registrar = ValidacionUsuario.validar_usuario(usuario=self.usuario_a_registrar)
         if len(errores_usuario_a_registrar) > 0:
             errores = {"errores": errores_usuario_a_registrar}
-            return jsonify(errores)
+            return errores, 400
         self.usuario_a_registrar.guardar()
         usuario_json = self.usuario_a_registrar.obtener_json()
-        return jsonify(usuario_json)
+        return usuario_json
 
     @staticmethod
     def exponer_endpoint(app):

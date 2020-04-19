@@ -8,7 +8,7 @@ base_de_datos = SQLAlchemy()
 
 def inicializar_base_de_datos(app):
     base_de_datos.init_app(app)
-
+    app.app_context().push()
 
 class Usuario(base_de_datos.Model):
     nombre_usuario = base_de_datos.Column(base_de_datos.String(50), primary_key=True)
@@ -25,8 +25,5 @@ class Usuario(base_de_datos.Model):
         return Usuario.query.all()
 
     def obtener_json(self):
-        json = {}
-        json['nombre_usuario'] = self.nombre_usuario
-        json['nombre'] = self.nombre
-        json['contrasena'] = self.contrasena
+        json = {'nombre_usuario': self.nombre_usuario, 'nombre': self.nombre}
         return json
