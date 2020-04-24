@@ -1,4 +1,5 @@
 from src.manejo_de_usuarios.modelo.enum.enums import TipoUsuario
+from src.manejo_de_usuarios.modelo.modelos import Usuario
 from src.util.validaciones.ValidacioCadenas import ValidacionCadenas
 
 
@@ -64,32 +65,32 @@ class ValidacionUsuario:
         if len(lista_de_errores) > 0:
             return lista_de_errores
         lista_de_errores = ValidacionUsuario._validar_tamano_modelo_usuario(usuario, lista_de_errores)
-        lista_de_errores = ValidacionUsuario._validar_nombre_usuario_disponible(usuario, lista_de_errores)
+        lista_de_errores = ValidacionUsuario.validar_existe_usuario(usuario, lista_de_errores)
         lista_de_errores = ValidacionUsuario._validar_tipo_usario(usuario, lista_de_errores)
         return lista_de_errores
 
     @staticmethod
-    def _validar_nombre_usuario_disponible(usuario, lista_de_errores):
+    def validar_nombre_usuario_disponible(nombre_usuario, lista_de_errores):
         """
         Valida si el nombre del usuario se encuentra disponible
-        :param usuario: El usuario al que se le va a validar el nombre de usuario
+        :param nombre_usuario: El nombre del usuario que se va a validar si se encuentra disponible
         :param lista_de_errores: La lista de errores del usuario
         :return: La lista de errores actualizada
         """
-        if not usuario.verificar_nombre_usuario_en_uso():
-            lista_de_errores['nombre_usuario'] = "El nombre de usuario ya se encuentra en uso"
+        if not Usuario.verificar_nombre_usuario_en_uso(nombre_usuario=nombre_usuario):
+            lista_de_errores['nombre_usuario'] = "El nombre de usuario no se encuentra registrado"
         return lista_de_errores
 
     @staticmethod
-    def validar_existe_usuario(usuario, lista_de_errores):
+    def validar_existe_usuario(nombre_usuario, lista_de_errores):
         """
         Valida que el nombre de usuario se encuentre registrado en la base de datos
-        :param usuario: El usuario que se va a validar que exista en la base de datos
+        :param nombre_usuario: El usuario que se va a validar que exista en la base de datos
         :param lista_de_errores: La lista de errores del usuario
         :return: La lista de errores actualizada
         """
-        if usuario.verificar_nombre_usuario_en_uso():
-            lista_de_errores['nombre_usuario'] = "El nombre de usuario no se encuentra registrado"
+        if Usuario.verificar_nombre_usuario_en_uso(nombre_usuario):
+            lista_de_errores['nombre_usuario'] = "El nombre de usuario se encuentra registrado"
         return lista_de_errores
 
     @staticmethod
@@ -100,6 +101,8 @@ class ValidacionUsuario:
         :param lista_de_errores: La lista de errores del usuario
         :return: La lista de errores del usuario actualizada
         """
-        if usuario.tipo_usuario not in TipoUsuario:
-            lista_de_errores['tipo_usuario'] += "El tipo de usuario no es valido"
+        try:
+            TipoUsuario(int(usuario.tipo_usuario))
+        except ValueError:
+            lista_de_errores['tipo_usuario'] = "El tipo de usuario no es valido"
         return lista_de_errores

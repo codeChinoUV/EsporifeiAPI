@@ -1,8 +1,7 @@
 """
     Se encarga de representar a un USUARIO y manejar el acceso del objeto a la base de datos
 """
-
-from src.manejo_de_usuarios import base_de_datos
+from src import base_de_datos
 
 
 class Usuario(base_de_datos.Model):
@@ -30,13 +29,14 @@ class Usuario(base_de_datos.Model):
         """
         return Usuario.query.all()
 
-    def verificar_nombre_usuario_en_uso(self):
+    @staticmethod
+    def verificar_nombre_usuario_en_uso(nombre_usuario):
         """
         Verifica si el nombre de usuario ya se encuentra en uso
         :return: Verdadero si el nombre de usuario se encuentra disponible o falso si no
         """
-        usuarios_con_el_mismo_nombre = Usuario.query.filter_by(nombre_usuario=self.nombre_usuario).count()
-        return not usuarios_con_el_mismo_nombre > 0
+        usuarios_con_el_mismo_nombre = Usuario.query.filter_by(nombre_usuario=nombre_usuario).count()
+        return usuarios_con_el_mismo_nombre > 0
 
     def obtener_json(self):
         """

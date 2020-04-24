@@ -1,3 +1,4 @@
+from src.administracion_de_contenido.modelo.modelos import CreadorDeContenido
 from src.util.JsonBool import JsonBool
 from src.util.validaciones.ValidacioCadenas import ValidacionCadenas
 from src.util.validaciones.ValidacionUsuario import ValidacionUsuario
@@ -52,14 +53,14 @@ class ValidacionCreadorDeContenido:
                                                        ValidacionCreadorDeContenido.tamano_minimo_general,
                                                        ValidacionCreadorDeContenido.tamano_maximo_nombre):
             lista_de_errores['nombre'] = "El tamaño de la cadena incorrecto"
-        if creador_de_contenido.biografia is not None and ValidacionCadenas. \
+        if creador_de_contenido.biografia is not None and not ValidacionCadenas. \
                 validar_tamano_cadena(creador_de_contenido.biografia,
                                       ValidacionCreadorDeContenido.tamano_minimo_general,
                                       ValidacionCreadorDeContenido.tamano_maximo_biografia):
             lista_de_errores['biografia'] = "El tamaño de la cadena es incorrecto"
-        if ValidacionCadenas.validar_tamano_cadena(creador_de_contenido.usuario_nombre_usuario,
-                                                   ValidacionCreadorDeContenido.tamano_minimo_general,
-                                                   ValidacionCreadorDeContenido.tamano_maximo_nombre_usuario):
+        if not ValidacionCadenas.validar_tamano_cadena(creador_de_contenido.usuario_nombre_usuario,
+                                                       ValidacionCreadorDeContenido.tamano_minimo_general,
+                                                       ValidacionCreadorDeContenido.tamano_maximo_nombre_usuario):
             lista_de_errores['nombre_usuario'] = "El tamaño de la cadena es incorreto"
         return lista_de_errores
 
@@ -71,15 +72,32 @@ class ValidacionCreadorDeContenido:
         :return: Un diccionario con los errores del modelo
         """
         lista_de_errores = ValidacionCreadorDeContenido._validar_campos_requeridos(creador_de_contenido, {})
-        if lista_de_errores is not None:
+        if len(lista_de_errores) > 0:
             return lista_de_errores
         lista_de_errores = ValidacionCreadorDeContenido._validar_tamano_modelo_creador_de_contenido(
             creador_de_contenido, lista_de_errores)
-        if lista_de_errores is not None:
+        if len(lista_de_errores) > 0:
             return lista_de_errores
         lista_de_errores = ValidacionCreadorDeContenido._validar_booleano_valido(creador_de_contenido, lista_de_errores)
-        if lista_de_errores is not None:
+        if len(lista_de_errores) > 0:
             return lista_de_errores
-        lista_de_errores = ValidacionUsuario.validar_existe_usuario(creador_de_contenido.usuario_nombre_usuario,
-                                                                    lista_de_errores)
+        lista_de_errores = ValidacionUsuario.validar_nombre_usuario_disponible(
+            creador_de_contenido.usuario_nombre_usuario,
+            lista_de_errores)
+        if len(lista_de_errores) > 0:
+            return lista_de_errores
+        lista_de_errores = ValidacionCreadorDeContenido \
+            ._validar_nombre_usuario_tiene_perfil(creador_de_contenido.usuario_nombre_usuario, lista_de_errores)
         return lista_de_errores
+
+    @staticmethod
+    def _validar_nombre_usuario_tiene_perfil(nombre_usuario, lista_errores):
+        """
+        Valida que el nombre de usuario no tenga un perfil asociado, si lo tiene agrega el error a la lista de errores
+        :param nombre_usuario: El nombre de usuario a validar
+        :param lista_errores: La lista de errores a la que se agregara el error
+        :return: La lista de errores actualizada
+        """
+        if CreadorDeContenido.verificar_usuario_ya_tiene_perfil(nombre_usuario):
+            lista_errores['nombre_usuario'] = "El usuario ya tiene un perfil registrado"
+        return lista_errores

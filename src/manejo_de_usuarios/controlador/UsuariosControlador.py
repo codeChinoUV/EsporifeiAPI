@@ -38,7 +38,7 @@ class UsuariosControlador(Resource):
         """
         usuario_a_registrar = Usuario(nombre_usuario=self.argumentos['nombre_usuario'],
                                       nombre=self.argumentos['nombre'], contrasena=self.argumentos['contrasena'],
-                                      tipo_usuario=TipoUsuario.ConsumidorDeMusica)
+                                      tipo_usuario=self.argumentos['tipo_usuario'])
         errores_usuario_a_registrar = \
             ValidacionUsuario.validar_usuario(usuario=usuario_a_registrar)
         if len(errores_usuario_a_registrar) > 0:

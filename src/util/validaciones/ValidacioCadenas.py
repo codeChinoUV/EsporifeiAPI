@@ -12,6 +12,7 @@ class ValidacionCadenas():
         :param tamano_maximo: El tamaño maximo que puede tener la cadena
         :return: Verdadero si la cadena se encuentra en el rango de la cantidad de caracteres permitidos o falso si no
         """
+        cantidad_caracteres = len(cadena)
         if cadena is None:
             return False
         else:

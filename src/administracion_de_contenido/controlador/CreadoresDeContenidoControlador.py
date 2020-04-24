@@ -27,7 +27,7 @@ class CreadoresDeContenidoControlador(Resource):
         creador_de_contenido_a_registrar = CreadorDeContenido(nombre=self.argumentos['nombre'],
                                                               biografia=self.argumentos['biografia'],
                                                               es_grupo=self.argumentos['es_grupo'],
-                                                              usuario_nombre_usuario=['nombre_usuario'])
+                                                              usuario_nombre_usuario=self.argumentos['nombre_usuario'])
         errores_creador_de_contenido = \
             ValidacionCreadorDeContenido.validar_creador_de_contenido(creador_de_contenido_a_registrar)
         if len(errores_creador_de_contenido) > 0:
