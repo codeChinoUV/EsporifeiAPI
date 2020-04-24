@@ -65,7 +65,7 @@ class ValidacionUsuario:
         if len(lista_de_errores) > 0:
             return lista_de_errores
         lista_de_errores = ValidacionUsuario._validar_tamano_modelo_usuario(usuario, lista_de_errores)
-        lista_de_errores = ValidacionUsuario.validar_existe_usuario(usuario, lista_de_errores)
+        lista_de_errores = ValidacionUsuario.validar_existe_usuario(usuario.nombre_usuario, lista_de_errores)
         lista_de_errores = ValidacionUsuario._validar_tipo_usario(usuario, lista_de_errores)
         return lista_de_errores
 

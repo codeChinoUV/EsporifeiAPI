@@ -42,3 +42,11 @@ class CreadorDeContenido(base_de_datos.Model):
         perfiles_con_el_mismo_usuario = CreadorDeContenido.query.filter_by(usuario_nombre_usuario=nombre_usuario) \
             .count()
         return perfiles_con_el_mismo_usuario > 0
+
+    @staticmethod
+    def obtener_todos_los_usuarios():
+        """
+        Recupera todos los creadores de contenido registrados en la base de datos
+        :return: Una lista con los creadore de contenido registrados
+        """
+        return CreadorDeContenido.query.all()
