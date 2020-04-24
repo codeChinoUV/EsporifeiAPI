@@ -1,8 +1,9 @@
 from flask import jsonify
 from flask_restful import Resource, reqparse, Api
 
-from src.manejo_de_usuarios.modelo.Usuario import Usuario, inicializar_base_de_datos
-from src.manejo_de_usuarios.util.validaciones.ValidacionUsuario import ValidacionUsuario
+from src.manejo_de_usuarios.modelo.modelos import Usuario
+from src.manejo_de_usuarios.modelo.enum.enums import TipoUsuario
+from src.util.validaciones.ValidacionUsuario import ValidacionUsuario
 
 
 class UsuariosControlador(Resource):
@@ -15,8 +16,8 @@ class UsuariosControlador(Resource):
         self.parser = reqparse.RequestParser()
         self.parser.add_argument('nombre_usuario')
         self.parser.add_argument('nombre')
-        self.parser.add_argument('contrasena', )
-        self.parser.add_argument('tipo_usuario', type=int)
+        self.parser.add_argument('contrasena')
+        self.parser.add_argument('tipo_usuario')
         self.argumentos = self.parser.parse_args(strict=True)
 
     def get(self):
@@ -35,25 +36,18 @@ class UsuariosControlador(Resource):
         Se encarga de agregar un nuevo usuario de tipo ConsumidorDeMusica
         :return:
         """
-        self.usuario_a_registrar = Usuario(nombre_usuario=self.argumentos['nombre_usuario'],
-                                           nombre=self.argumentos['nombre'], contrasena=self.argumentos['contrasena'],
-                                           tipo_usuario=self.argumentos['tipo_usuario'])
+        usuario_a_registrar = Usuario(nombre_usuario=self.argumentos['nombre_usuario'],
+                                      nombre=self.argumentos['nombre'], contrasena=self.argumentos['contrasena'],
+                                      tipo_usuario=TipoUsuario.ConsumidorDeMusica)
         errores_usuario_a_registrar = \
-            ValidacionUsuario.validar_usuario_consumidor_de_musica(usuario=self.usuario_a_registrar)
+            ValidacionUsuario.validar_usuario(usuario=usuario_a_registrar)
         if len(errores_usuario_a_registrar) > 0:
             errores = {"errores": errores_usuario_a_registrar}
             return errores, 400
-        self.usuario_a_registrar.guardar()
-        usuario_json = self.usuario_a_registrar.obtener_json()
-        return usuario_json
+        usuario_a_registrar.guardar()
+        return usuario_a_registrar.obtener_json()
 
     @staticmethod
-    def exponer_endpoint(app):
-        """
-        Se encarga de exponer el endpoint que manejara la clase
-        :param app: Es la app que contiene la instancia de la aplicacion Flask
-        :return: None
-        """
+    def exponer_end_point(app):
         UsuariosControlador.api.add_resource(UsuariosControlador, '/usuarios')
-        inicializar_base_de_datos(app)
         UsuariosControlador.api.init_app(app)

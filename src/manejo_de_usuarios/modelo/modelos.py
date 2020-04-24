@@ -1,18 +1,8 @@
 """
     Se encarga de representar a un USUARIO y manejar el acceso del objeto a la base de datos
 """
-from flask_sqlalchemy import SQLAlchemy
 
-base_de_datos = SQLAlchemy()
-
-
-def inicializar_base_de_datos(app):
-    """
-    Inicializa la clase SQLAlchemy al pasarle como referencia la app Flask que contiene la configuracion de la base de
-    datos
-    """
-    base_de_datos.init_app(app)
-    app.app_context().push()
+from src.manejo_de_usuarios import base_de_datos
 
 
 class Usuario(base_de_datos.Model):
@@ -40,14 +30,12 @@ class Usuario(base_de_datos.Model):
         """
         return Usuario.query.all()
 
-    @staticmethod
-    def verificar_nombre_usuario_disponible(nombre_usuario):
+    def verificar_nombre_usuario_en_uso(self):
         """
         Verifica si el nombre de usuario ya se encuentra en uso
-        :param nombre_usuario: El nombre de usuario a verificar
         :return: Verdadero si el nombre de usuario se encuentra disponible o falso si no
         """
-        usuarios_con_el_mismo_nombre = Usuario.query.filter_by(nombre_usuario=nombre_usuario).count()
+        usuarios_con_el_mismo_nombre = Usuario.query.filter_by(nombre_usuario=self.nombre_usuario).count()
         return not usuarios_con_el_mismo_nombre > 0
 
     def obtener_json(self):
@@ -55,5 +43,5 @@ class Usuario(base_de_datos.Model):
         Crea un diccionario que representa al objeto a partir de la información del mismo
         :return: Un diccionario con la información del objeto
         """
-        json = {'nombre_usuario': self.nombre_usuario, 'nombre': self.nombre}
+        json = {'nombre_usuario': self.nombre_usuario, 'nombre': self.nombre, 'tipo_usuario': self.tipo_usuario}
         return json
