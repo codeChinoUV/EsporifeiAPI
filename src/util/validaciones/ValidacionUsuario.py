@@ -57,7 +57,7 @@ class ValidacionUsuario:
     @staticmethod
     def validar_usuario(usuario):
         """
-        Valida que un usuario de tipo consumidor de musica sea valido para poder registrarlo
+        Valida que un usuario sea valido para poder registrarlo
         :param usuario: El usuario a registrar
         :return: Un diccionario con los errores de cada campo
         """
@@ -65,7 +65,14 @@ class ValidacionUsuario:
         if len(lista_de_errores) > 0:
             return lista_de_errores
         lista_de_errores = ValidacionUsuario._validar_tamano_modelo_usuario(usuario, lista_de_errores)
+        if len(lista_de_errores) > 0:
+            return lista_de_errores
+        lista_de_errores = ValidacionUsuario._validar_nombre_usuario_valido(usuario.nombre_usuario, lista_de_errores)
+        if len(lista_de_errores) > 0:
+            return lista_de_errores
         lista_de_errores = ValidacionUsuario.validar_existe_usuario(usuario.nombre_usuario, lista_de_errores)
+        if len(lista_de_errores) > 0:
+            return lista_de_errores
         lista_de_errores = ValidacionUsuario._validar_tipo_usario(usuario, lista_de_errores)
         return lista_de_errores
 
@@ -118,3 +125,15 @@ class ValidacionUsuario:
         if not Usuario.validar_usuario_creador_de_contenido(nombre_usuario):
             lista_de_errores['nombre_usuario'] = "El usuario no es un creador de contenido"
         return lista_de_errores
+
+    @staticmethod
+    def _validar_nombre_usuario_valido(nombre_usuario, lista_errores):
+        """
+        Valida que el nombre de usuario no contenga espacios ni caracteres especiales
+        :param nombre_usuario: El de usuario a validar
+        :param lista_errores: La lista de errores a la que se le agregara el error
+        :return: La lista de errores actualizados
+        """
+        if not ValidacionCadenas.validar_cadena_sin_caracteres_especiales(nombre_usuario):
+            lista_errores['nombre_usuario'] = "El nombre de usuario debe ser alfanumerico"
+        return lista_errores
