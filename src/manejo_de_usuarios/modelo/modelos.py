@@ -2,6 +2,7 @@
     Se encarga de representar a un USUARIO y manejar el acceso del objeto a la base de datos
 """
 from src import base_de_datos
+from src.manejo_de_usuarios.modelo.enum.enums import TipoUsuario
 
 
 class Usuario(base_de_datos.Model):
@@ -45,3 +46,12 @@ class Usuario(base_de_datos.Model):
         """
         json = {'nombre_usuario': self.nombre_usuario, 'nombre': self.nombre, 'tipo_usuario': self.tipo_usuario}
         return json
+
+    @staticmethod
+    def validar_usuario_creador_de_contenido(nombre_usuario):
+        """
+        Valida que el usuario sea de tipo creador de contenido
+        :return: Verdadero si el usuario es creador de contenido o falso si no
+        """
+        usuario = Usuario.query.filter_by(nombre_usuario=nombre_usuario).first()
+        return usuario.tipo_usuario == TipoUsuario.CreadorDeContenido

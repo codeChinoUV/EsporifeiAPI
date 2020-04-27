@@ -38,6 +38,16 @@ class CreadoresDeContenidoControlador(Resource):
         creador_de_contenido_a_registrar.guardar()
         return creador_de_contenido_a_registrar.obtener_json()
 
+    def get(self):
+        """
+        Se encarga de obtener todos los creadores de contenido registrados en la base de datos
+        """
+        creadores_de_contenido = CreadorDeContenido.obtener_todos_los_usuarios()
+        lista_de_creadore_de_contenido = []
+        for creador_de_contenido in creadores_de_contenido:
+            lista_de_creadore_de_contenido.append(creador_de_contenido.obtener_json())
+        return lista_de_creadore_de_contenido
+
     @staticmethod
     def exponer_end_point(app):
         CreadoresDeContenidoControlador.api.add_resource(CreadoresDeContenidoControlador, '/creadores-de-contenido')

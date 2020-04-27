@@ -65,7 +65,7 @@ class ValidacionUsuario:
         if len(lista_de_errores) > 0:
             return lista_de_errores
         lista_de_errores = ValidacionUsuario._validar_tamano_modelo_usuario(usuario, lista_de_errores)
-        lista_de_errores = ValidacionUsuario.validar_existe_usuario(usuario, lista_de_errores)
+        lista_de_errores = ValidacionUsuario.validar_existe_usuario(usuario.nombre_usuario, lista_de_errores)
         lista_de_errores = ValidacionUsuario._validar_tipo_usario(usuario, lista_de_errores)
         return lista_de_errores
 
@@ -105,4 +105,16 @@ class ValidacionUsuario:
             TipoUsuario(int(usuario.tipo_usuario))
         except ValueError:
             lista_de_errores['tipo_usuario'] = "El tipo de usuario no es valido"
+        return lista_de_errores
+
+    @staticmethod
+    def validar_tipo_usuario_creador_de_contenido(nombre_usuario, lista_de_errores):
+        """
+        Valida que el nombre_usuario sea de tipo creador de contenido
+        :param nombre_usuario: El nombre_de_usuario a validar
+        :param lista_de_errores: La lista que contiene todos los errores
+        :return: La lista de errores actualizada
+        """
+        if not Usuario.validar_usuario_creador_de_contenido(nombre_usuario):
+            lista_de_errores['nombre_usuario'] = "El usuario no es un creador de contenido"
         return lista_de_errores
