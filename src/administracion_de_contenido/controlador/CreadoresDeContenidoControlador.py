@@ -42,7 +42,7 @@ class CreadoresDeContenidoControlador(Resource):
         """
         Se encarga de obtener todos los creadores de contenido registrados en la base de datos
         """
-        creadores_de_contenido = CreadorDeContenido.obtener_todos_los_usuarios()
+        creadores_de_contenido = CreadorDeContenido.obtener_todos_los_creadores_de_contenido()
         lista_de_creadore_de_contenido = []
         for creador_de_contenido in creadores_de_contenido:
             lista_de_creadore_de_contenido.append(creador_de_contenido.obtener_json())

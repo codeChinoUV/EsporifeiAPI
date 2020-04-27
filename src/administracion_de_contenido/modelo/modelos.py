@@ -44,9 +44,19 @@ class CreadorDeContenido(base_de_datos.Model):
         return perfiles_con_el_mismo_usuario > 0
 
     @staticmethod
-    def obtener_todos_los_usuarios():
+    def obtener_todos_los_creadores_de_contenido():
         """
         Recupera todos los creadores de contenido registrados en la base de datos
         :return: Una lista con los creadore de contenido registrados
         """
         return CreadorDeContenido.query.all()
+
+    @staticmethod
+    def obtener_creador_de_contenido_por_id(id):
+        """
+        Recupera el creador de contenido que tenga el id indicado
+        :param id: El id del creador de contenido a recuperar
+        :return: El creador de contenido que tiene ese id
+        """
+        creador_de_contenido = CreadorDeContenido.query.filter_by(id_creador_de_contenido=id).first()
+        return creador_de_contenido
