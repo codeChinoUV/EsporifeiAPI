@@ -88,6 +88,10 @@ class ValidacionCreadorDeContenido:
             return lista_de_errores
         lista_de_errores = ValidacionCreadorDeContenido \
             ._validar_nombre_usuario_tiene_perfil(creador_de_contenido.usuario_nombre_usuario, lista_de_errores)
+        if len(lista_de_errores) > 0:
+            return lista_de_errores
+        lista_de_errores = ValidacionUsuario\
+            .validar_tipo_usuario_creador_de_contenido(creador_de_contenido.usuario_nombre_usuario, lista_de_errores)
         return lista_de_errores
 
     @staticmethod
