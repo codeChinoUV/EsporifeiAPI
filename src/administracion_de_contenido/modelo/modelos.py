@@ -60,3 +60,10 @@ class CreadorDeContenido(base_de_datos.Model):
         """
         creador_de_contenido = CreadorDeContenido.query.filter_by(id_creador_de_contenido=id).first()
         return creador_de_contenido
+
+    @staticmethod
+    def actualizar_creador_de_contenido():
+        """
+        Guarda los cambios realizados a un modelo en la base de datos
+        """
+        base_de_datos.session.commit()

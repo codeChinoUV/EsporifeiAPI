@@ -10,9 +10,9 @@ class JsonBool:
         :param valor_json: El valor json a convertir
         :return: Un booleano del valor json o None si el valor json no son validos
         """
-        if valor_json == "true" or valor_json == "True":
+        if valor_json == 'true' or valor_json == 'True':
             return True
-        elif valor_json == "false" or valor_json == "False":
+        elif valor_json == 'false' or valor_json == 'False':
             return False
         else:
             return None

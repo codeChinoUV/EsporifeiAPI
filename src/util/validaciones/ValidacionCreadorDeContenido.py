@@ -38,7 +38,7 @@ class ValidacionCreadorDeContenido:
         :return: La lista de errores actualizada
         """
         if JsonBool.obtener_boolean_de_valor_json(creador_de_contenido.es_grupo) is None:
-            lista_de_errores['es_grupo'] += "Debe de ser un valor booleano"
+            lista_de_errores['es_grupo'] = "Debe de ser un valor booleano"
         return lista_de_errores
 
     @staticmethod
@@ -65,7 +65,7 @@ class ValidacionCreadorDeContenido:
         return lista_de_errores
 
     @staticmethod
-    def validar_creador_de_contenido(creador_de_contenido):
+    def validar_registro_creador_de_contenido(creador_de_contenido):
         """
         Valida que el creador de contenido sea valido para poder registrarlo
         :param creador_de_contenido: El creador de contenido a validar
@@ -90,9 +90,27 @@ class ValidacionCreadorDeContenido:
             ._validar_nombre_usuario_tiene_perfil(creador_de_contenido.usuario_nombre_usuario, lista_de_errores)
         if len(lista_de_errores) > 0:
             return lista_de_errores
-        lista_de_errores = ValidacionUsuario\
+        lista_de_errores = ValidacionUsuario \
             .validar_tipo_usuario_creador_de_contenido(creador_de_contenido.usuario_nombre_usuario, lista_de_errores)
         return lista_de_errores
+
+    @staticmethod
+    def validar_edicion_creador_de_contenido(creador_de_contenido):
+        """
+        Se encarga de validar si los elementos que se editaran del creador de contenido son validos
+        :param creador_de_contenido: El creador de contenido que contiene los campos a validar
+        :return: Una lista con los errores que cuentan los campos a modificar
+        """
+        lista_de_errores = ValidacionCreadorDeContenido._validar_campos_requeridos(creador_de_contenido, {})
+        if len(lista_de_errores) > 0:
+            return lista_de_errores
+        lista_de_errores = ValidacionCreadorDeContenido._validar_tamano_modelo_creador_de_contenido(creador_de_contenido
+                                                                                                    , lista_de_errores)
+        if len(lista_de_errores) > 0:
+            return lista_de_errores
+        lista_de_errores = ValidacionCreadorDeContenido._validar_booleano_valido(creador_de_contenido, lista_de_errores)
+        if len(lista_de_errores) > 0:
+            return lista_de_errores
 
     @staticmethod
     def _validar_nombre_usuario_tiene_perfil(nombre_usuario, lista_errores):
