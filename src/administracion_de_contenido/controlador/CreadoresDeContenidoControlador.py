@@ -35,6 +35,7 @@ class CreadoresDeContenidoControlador(Resource):
             return errores, 400
         creador_de_contenido_a_registrar.es_grupo = JsonBool \
             .obtener_boolean_de_valor_json(creador_de_contenido_a_registrar.es_grupo)
+        creador_de_contenido_a_registrar.eliminado = False
         creador_de_contenido_a_registrar.guardar()
         return creador_de_contenido_a_registrar.obtener_json()
 

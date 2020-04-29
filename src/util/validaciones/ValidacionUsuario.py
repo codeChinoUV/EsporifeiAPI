@@ -122,7 +122,7 @@ class ValidacionUsuario:
         :param lista_de_errores: La lista que contiene todos los errores
         :return: La lista de errores actualizada
         """
-        if not Usuario.validar_usuario_creador_de_contenido(nombre_usuario):
+        if Usuario.validar_usuario_creador_de_contenido(nombre_usuario):
             lista_de_errores['nombre_usuario'] = "El usuario no es un creador de contenido"
         return lista_de_errores
 

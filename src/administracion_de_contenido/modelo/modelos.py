@@ -14,6 +14,7 @@ class CreadorDeContenido(base_de_datos.Model):
     es_grupo = base_de_datos.Column(base_de_datos.Boolean, nullable=False)
     usuario_nombre_usuario = base_de_datos.Column(base_de_datos.String(20),
                                                   nullable=False, index=True, unique=True)
+    eliminado = base_de_datos.Column(base_de_datos.Boolean, nullable=False, default=False)
 
     def guardar(self):
         """
@@ -49,7 +50,7 @@ class CreadorDeContenido(base_de_datos.Model):
         Recupera todos los creadores de contenido registrados en la base de datos
         :return: Una lista con los creadore de contenido registrados
         """
-        return CreadorDeContenido.query.all()
+        return CreadorDeContenido.query.filter_by(eliminado=False).all()
 
     @staticmethod
     def obtener_creador_de_contenido_por_id(id):
@@ -58,7 +59,7 @@ class CreadorDeContenido(base_de_datos.Model):
         :param id: El id del creador de contenido a recuperar
         :return: El creador de contenido que tiene ese id
         """
-        creador_de_contenido = CreadorDeContenido.query.filter_by(id_creador_de_contenido=id).first()
+        creador_de_contenido = CreadorDeContenido.query.filter_by(id_creador_de_contenido=id, eliminado=False).first()
         return creador_de_contenido
 
     @staticmethod
