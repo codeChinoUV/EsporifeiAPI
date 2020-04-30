@@ -29,12 +29,13 @@ class CreadoresDeContenidoControlador(Resource):
                                                               es_grupo=self.argumentos['es_grupo'],
                                                               usuario_nombre_usuario=self.argumentos['nombre_usuario'])
         errores_creador_de_contenido = \
-            ValidacionCreadorDeContenido.validar_creador_de_contenido(creador_de_contenido_a_registrar)
+            ValidacionCreadorDeContenido.validar_registro_creador_de_contenido(creador_de_contenido_a_registrar)
         if len(errores_creador_de_contenido) > 0:
             errores = {'errores': errores_creador_de_contenido}
             return errores, 400
         creador_de_contenido_a_registrar.es_grupo = JsonBool \
             .obtener_boolean_de_valor_json(creador_de_contenido_a_registrar.es_grupo)
+        creador_de_contenido_a_registrar.eliminado = False
         creador_de_contenido_a_registrar.guardar()
         return creador_de_contenido_a_registrar.obtener_json()
 
@@ -42,7 +43,7 @@ class CreadoresDeContenidoControlador(Resource):
         """
         Se encarga de obtener todos los creadores de contenido registrados en la base de datos
         """
-        creadores_de_contenido = CreadorDeContenido.obtener_todos_los_usuarios()
+        creadores_de_contenido = CreadorDeContenido.obtener_todos_los_creadores_de_contenido()
         lista_de_creadore_de_contenido = []
         for creador_de_contenido in creadores_de_contenido:
             lista_de_creadore_de_contenido.append(creador_de_contenido.obtener_json())

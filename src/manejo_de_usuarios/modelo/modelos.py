@@ -54,4 +54,4 @@ class Usuario(base_de_datos.Model):
         :return: Verdadero si el usuario es creador de contenido o falso si no
         """
         usuario = Usuario.query.filter_by(nombre_usuario=nombre_usuario).first()
-        return usuario.tipo_usuario == TipoUsuario.CreadorDeContenido
+        return TipoUsuario(usuario.tipo_usuario) == TipoUsuario.CreadorDeContenido

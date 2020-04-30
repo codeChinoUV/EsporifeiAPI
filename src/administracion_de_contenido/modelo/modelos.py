@@ -13,7 +13,8 @@ class CreadorDeContenido(base_de_datos.Model):
     biografia = base_de_datos.Column(base_de_datos.String(500), nullable=True)
     es_grupo = base_de_datos.Column(base_de_datos.Boolean, nullable=False)
     usuario_nombre_usuario = base_de_datos.Column(base_de_datos.String(20),
-                                                  nullable=False, index=True, unique=True)
+                                                  nullable=False, index=True)
+    eliminado = base_de_datos.Column(base_de_datos.Boolean, nullable=False, default=False)
 
     def guardar(self):
         """
@@ -39,14 +40,40 @@ class CreadorDeContenido(base_de_datos.Model):
         :param nombre_usuario: El nombre del usuario a verificar
         :return: Verdadero si el nombre de usuario ya tiene un perfil registrado, falso si no
         """
-        perfiles_con_el_mismo_usuario = CreadorDeContenido.query.filter_by(usuario_nombre_usuario=nombre_usuario) \
-            .count()
+        perfiles_con_el_mismo_usuario = CreadorDeContenido.query.filter_by(usuario_nombre_usuario=nombre_usuario,
+                                                                           eliminado=False).count()
         return perfiles_con_el_mismo_usuario > 0
 
     @staticmethod
-    def obtener_todos_los_usuarios():
+    def obtener_todos_los_creadores_de_contenido():
         """
         Recupera todos los creadores de contenido registrados en la base de datos
         :return: Una lista con los creadore de contenido registrados
         """
-        return CreadorDeContenido.query.all()
+        return CreadorDeContenido.query.filter_by(eliminado=False).all()
+
+    @staticmethod
+    def obtener_creador_de_contenido_por_id(id_creador_contenido):
+        """
+        Recupera el creador de contenido que tenga el id indicado
+        :param id_creador_contenido: El id del creador de contenido a recuperar
+        :return: El creador de contenido que tiene ese id
+        """
+        creador_de_contenido = CreadorDeContenido.query.filter_by(id_creador_de_contenido=id_creador_contenido,
+                                                                  eliminado=False).first()
+        return creador_de_contenido
+
+    @staticmethod
+    def actualizar_creador_de_contenido():
+        """
+        Guarda los cambios realizados a un modelo en la base de datos
+        """
+        base_de_datos.session.commit()
+
+    def eliminar(self):
+        """
+        Cambia el estado del creador de contenido a eliminado y lo almacena en la base de datos
+        :return: none
+        """
+        self.eliminado = True
+        base_de_datos.session.commit()
