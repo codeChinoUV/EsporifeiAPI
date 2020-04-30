@@ -55,6 +55,19 @@ class CreadorDeContenidoControlador(Resource):
         CreadorDeContenido.actualizar_creador_de_contenido()
         return creador_de_contenido.obtener_json()
 
+    def delete(self, id_creador_contenido):
+        """
+        Elimina de la base de datos el creador de contenido al que pertenece el id
+        :id_creador_contenido: El id del creador de contenido que se eliminara
+        :return: El creador de contenido que se elimino
+        """
+        creador_de_contenido = CreadorDeContenido.obtener_creador_de_contenido_por_id(id_creador_contenido)
+        if creador_de_contenido is None:
+            errores = {'errores': {'id': 'No existe el id indicado'}}
+            return errores, 400
+        creador_de_contenido.eliminar()
+        return creador_de_contenido.obtener_json(), 200
+
     @staticmethod
     def exponer_end_point(app):
         CreadorDeContenidoControlador.api.add_resource(CreadorDeContenidoControlador,
