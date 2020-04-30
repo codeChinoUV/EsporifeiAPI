@@ -73,3 +73,25 @@ class CreadorDeContenidoControlador(Resource):
         CreadorDeContenidoControlador.api.add_resource(CreadorDeContenidoControlador,
                                                        '/creador-de-contenido/<int:id_creador_contenido>')
         CreadorDeContenidoControlador.api.init_app(app)
+
+
+class CreadorDeContenidoUsuarioControlador(Resource):
+    api = Api()
+
+    def get(self, nombre_usuario):
+        """
+        Contesta una peticion get con el creador de contenido que pertenece al nombre de usuario
+        :param nombre_usuario: El nombre de usuario del creador de contenido a buscar
+        """
+        creador_de_contenido = CreadorDeContenido.obtener_creador_de_contenido_por_usuario(nombre_usuario)
+        if creador_de_contenido is None:
+            errores = { 'errores': { 'nombre_usuario': 'No se ecnuentra registrado ningun creador de contenido que '
+                                                       'pertenezca a ese nombre de usuario'}}
+            return errores, 400
+        return creador_de_contenido.obtener_json(), 200
+
+    @staticmethod
+    def exponer_end_point(app):
+        CreadorDeContenidoUsuarioControlador.api.add_resource(CreadorDeContenidoUsuarioControlador,
+                                                       '/creador-de-contenido/usuario/<string:nombre_usuario>')
+        CreadorDeContenidoUsuarioControlador.api.init_app(app)
