@@ -64,6 +64,17 @@ class CreadorDeContenido(base_de_datos.Model):
         return creador_de_contenido
 
     @staticmethod
+    def obtener_creador_de_contenido_por_usuario(nombre_usuario):
+        """
+        Recupera el creador de contenido que sea del nombre de usuario
+        :param nombre_usuario: El nombre del usuario al que esta asociado el creador de contenido
+        :return: El creador de contenido que pertenezca al usuario
+        """
+        creador_de_contenido = CreadorDeContenido.query.filter_by(usuario_nombre_usuario=nombre_usuario,
+                                                                  eliminado=False).first()
+        return creador_de_contenido
+
+    @staticmethod
     def actualizar_creador_de_contenido():
         """
         Guarda los cambios realizados a un modelo en la base de datos
