@@ -75,6 +75,18 @@ class CreadorDeContenido(base_de_datos.Model):
         return creador_de_contenido
 
     @staticmethod
+    def obtener_creador_de_contenido_por_busqueda(cadena_busqueda):
+        """
+        Busca a los creadores de contenido que su nombre contenga la candena de busqueda
+        :param cadena_busqueda: La cadena de se utilizara para realizar la busqueda
+        :return: Una lista con los creadores que consisten con la cadena de busqueda
+        """
+        expresion_regular_de_busqueda = "%" + cadena_busqueda + "%"
+        creadores_de_contenido = CreadorDeContenido.query.\
+            filter(CreadorDeContenido.nombre.ilike(expresion_regular_de_busqueda)).filter_by(eliminado=False).all()
+        return creadores_de_contenido
+
+    @staticmethod
     def actualizar_creador_de_contenido():
         """
         Guarda los cambios realizados a un modelo en la base de datos

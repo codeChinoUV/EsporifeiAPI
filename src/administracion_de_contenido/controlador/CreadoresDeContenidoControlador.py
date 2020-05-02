@@ -53,3 +53,28 @@ class CreadoresDeContenidoControlador(Resource):
     def exponer_end_point(app):
         CreadoresDeContenidoControlador.api.add_resource(CreadoresDeContenidoControlador, '/creadores-de-contenido')
         CreadoresDeContenidoControlador.api.init_app(app)
+
+
+class CreadoresDeContenidoBuscarControlador(Resource):
+    api = Api()
+
+    def get(self, cadena_busqueda):
+        """
+        Se encarga de responder una peticion get del endpoint al buscar todos los creadores de contenido que coincidan
+        con la cadena de busqueda
+        :param creador_de_contenido: La cadena de busqueda que se utlizara para filtrar a los creadores de contenido
+        :return: Una lista con los creadores de contenido que coinciden con la busqueda
+        """
+        creadores_de_contenido = CreadorDeContenido.obtener_creador_de_contenido_por_busqueda(cadena_busqueda)
+        creadores_de_contenido_diccionario = []
+        if len(creadores_de_contenido) > 0:
+            for creador_de_contenido in creadores_de_contenido:
+                creadores_de_contenido_diccionario.append(creador_de_contenido.obtener_json())
+        return creadores_de_contenido_diccionario
+
+    @staticmethod
+    def exponer_end_point(app):
+        CreadoresDeContenidoBuscarControlador.api.add_resource(CreadoresDeContenidoBuscarControlador,
+                                                               '/creadores-de-contenido/buscar/<string:cadena_busqueda>'
+                                                               )
+        CreadoresDeContenidoBuscarControlador.api.init_app(app)
