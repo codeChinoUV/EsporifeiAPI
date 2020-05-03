@@ -2,7 +2,6 @@ from flask import jsonify
 from flask_restful import Resource, reqparse, Api
 
 from src.manejo_de_usuarios.modelo.modelos import Usuario
-from src.manejo_de_usuarios.modelo.enum.enums import TipoUsuario
 from src.util.validaciones.ValidacionUsuario import ValidacionUsuario
 
 
@@ -42,12 +41,11 @@ class UsuariosControlador(Resource):
         errores_usuario_a_registrar = \
             ValidacionUsuario.validar_usuario(usuario=usuario_a_registrar)
         if len(errores_usuario_a_registrar) > 0:
-            errores = {"errores": errores_usuario_a_registrar}
-            return errores, 400
+            return errores_usuario_a_registrar, 400
         usuario_a_registrar.guardar()
         return usuario_a_registrar.obtener_json()
 
     @staticmethod
     def exponer_end_point(app):
-        UsuariosControlador.api.add_resource(UsuariosControlador, '/usuarios')
+        UsuariosControlador.api.add_resource(UsuariosControlador, '/v1/usuarios')
         UsuariosControlador.api.init_app(app)
