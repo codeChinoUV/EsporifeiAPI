@@ -8,13 +8,6 @@ from src.util.validaciones.ValidacionCreadorDeContenido import ValidacionCreador
 class CreadorDeContenidoControlador(Resource):
     api = Api()
 
-    def __init__(self):
-        self.parser = reqparse.RequestParser()
-        self.parser.add_argument('nombre')
-        self.parser.add_argument('biografia')
-        self.parser.add_argument('es_grupo')
-        self.argumentos = self.parser.parse_args(strict=True)
-
     def get(self, id_creador_contenido):
         """
         Obtiene el creador de contenido que coincide con el id pasado como cadena
@@ -23,9 +16,39 @@ class CreadorDeContenidoControlador(Resource):
         """
         creador_de_contenido = CreadorDeContenido.obtener_creador_de_contenido_por_id(id_creador_contenido)
         if creador_de_contenido is None:
-            errores = {'errores': {'id_creador_contenido': 'No existe el id indicado'}}
-            return errores, 401
+            error = {'error': 'no_existe_creador_de_contenidp_con_el_id',
+                     'mensaje': 'No existe ningun creadorDeContenido con el id indicado'}
+            return error, 404
         return creador_de_contenido.obtener_json()
+
+    @staticmethod
+    def exponer_end_point(app):
+        CreadorDeContenidoControlador.api.add_resource(CreadorDeContenidoControlador,
+                                                       '/v1/creador-de-contenido/<int:id_creador_contenido>')
+        CreadorDeContenidoControlador.api.init_app(app)
+
+
+class CreadorDeContenidoUsuarioControlador(Resource):
+    api = Api()
+
+    def __init__(self):
+        self.parser = reqparse.RequestParser()
+        self.parser.add_argument('nombre')
+        self.parser.add_argument('biografia')
+        self.parser.add_argument('es_grupo')
+        self.argumentos = self.parser.parse_args(strict=True)
+
+    def get(self, nombre_usuario):
+        """
+        Contesta una peticion get con el creador de contenido que pertenece al nombre de usuario
+        :param nombre_usuario: El nombre de usuario del creador de contenido a buscar
+        """
+        creador_de_contenido = CreadorDeContenido.obtener_creador_de_contenido_por_usuario(nombre_usuario)
+        if creador_de_contenido is None:
+            errores = {'errores': {'nombre_usuario': 'No se ecnuentra registrado ningun creador de contenido que '
+                                                     'pertenezca a ese nombre de usuario'}}
+            return errores, 400
+        return creador_de_contenido.obtener_json(), 200
 
     def put(self, id_creador_contenido):
         """
@@ -70,28 +93,6 @@ class CreadorDeContenidoControlador(Resource):
 
     @staticmethod
     def exponer_end_point(app):
-        CreadorDeContenidoControlador.api.add_resource(CreadorDeContenidoControlador,
-                                                       '/creador-de-contenido/<int:id_creador_contenido>')
-        CreadorDeContenidoControlador.api.init_app(app)
-
-
-class CreadorDeContenidoUsuarioControlador(Resource):
-    api = Api()
-
-    def get(self, nombre_usuario):
-        """
-        Contesta una peticion get con el creador de contenido que pertenece al nombre de usuario
-        :param nombre_usuario: El nombre de usuario del creador de contenido a buscar
-        """
-        creador_de_contenido = CreadorDeContenido.obtener_creador_de_contenido_por_usuario(nombre_usuario)
-        if creador_de_contenido is None:
-            errores = { 'errores': { 'nombre_usuario': 'No se ecnuentra registrado ningun creador de contenido que '
-                                                       'pertenezca a ese nombre de usuario'}}
-            return errores, 400
-        return creador_de_contenido.obtener_json(), 200
-
-    @staticmethod
-    def exponer_end_point(app):
         CreadorDeContenidoUsuarioControlador.api.add_resource(CreadorDeContenidoUsuarioControlador,
-                                                       '/creador-de-contenido/usuario/<string:nombre_usuario>')
+                                                              '/creador-de-contenido/usuario/<string:nombre_usuario>')
         CreadorDeContenidoUsuarioControlador.api.init_app(app)
