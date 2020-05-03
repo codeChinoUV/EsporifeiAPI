@@ -2,7 +2,9 @@ from src import app, base_de_datos
 from src.administracion_de_contenido.controlador.CreadorDeContenidoControlador import CreadorDeContenidoControlador, \
     CreadorDeContenidoUsuarioControlador
 from src.administracion_de_contenido.controlador.CreadoresDeContenidoControlador import \
-    CreadoresDeContenidoControlador, CreadoresDeContenidoBuscarControlador
+    CreadoresDeContenidoControlador
+from src.administracion_de_contenido.controlador.v1.CreadoresDeContenidoBuscarControlador import \
+    CreadoresDeContenidoBuscarControlador
 from src.manejo_de_usuarios.controlador.v1.UsuariosControlador import UsuariosControlador
 
 CreadorDeContenidoControlador.exponer_end_point(app)
