@@ -3,7 +3,7 @@ from src.administracion_de_contenido.controlador.CreadorDeContenidoControlador i
     CreadorDeContenidoUsuarioControlador
 from src.administracion_de_contenido.controlador.CreadoresDeContenidoControlador import \
     CreadoresDeContenidoControlador, CreadoresDeContenidoBuscarControlador
-from src.manejo_de_usuarios.controlador.UsuariosControlador import UsuariosControlador
+from src.manejo_de_usuarios.controlador.v1.UsuariosControlador import UsuariosControlador
 
 CreadorDeContenidoControlador.exponer_end_point(app)
 CreadorDeContenidoUsuarioControlador.exponer_end_point(app)

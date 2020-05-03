@@ -17,7 +17,7 @@ class CreadorDeContenidoControlador(Resource):
 
     def get(self, id_creador_contenido):
         """
-        Obtiene el creador de contenido que coincide con el id pasado como parametro
+        Obtiene el creador de contenido que coincide con el id pasado como cadena
         :param id_creador_contenido: El id del creador de contenido que se buscara
         :return: El CreadorDeContenido que coincide con el id o 400 con el error de no existe el creador de contenido
         """

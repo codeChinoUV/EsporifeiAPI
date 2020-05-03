@@ -6,13 +6,14 @@ La clase validacion de cadenas se encarga de agrupar todos los metodos utiles pa
 class ValidacionCadenas():
 
     @staticmethod
-    def validar_tamano_cadena(cadena, tamano_minimo, tamano_maximo):
+    def validar_tamano_cadena(cadena, tamano_minimo, tamano_maximo, nombre_campo, error):
         """
         Valida si la cadena de texto tiene se encuentra entre la calidad minima y maxima de caracteres
         :param cadena: La cadena a valdiar
         :param tamano_minimo: El tamaño minimo que puede tener la cadena
         :param tamano_maximo: El tamaño maximo que puede tener la cadena
-        :return: Verdadero si la cadena se encuentra en el rango de la cantidad de caracteres permitidos o falso si no
+        :param nombre_campo: El nombre del campo que se esta validando
+        :return: Un diccionario con los errores del campo o None si no se encuentra
         """
         if cadena is None:
             return False
