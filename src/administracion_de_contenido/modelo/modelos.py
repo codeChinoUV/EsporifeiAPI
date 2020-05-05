@@ -15,6 +15,7 @@ class CreadorDeContenido(base_de_datos.Model):
     usuario_nombre_usuario = base_de_datos.Column(base_de_datos.String(20),
                                                   nullable=False, index=True)
     eliminado = base_de_datos.Column(base_de_datos.Boolean, nullable=False, default=False)
+    artistas = base_de_datos.relationship('Artista', backref='creadordecontenido', lazy=True)
 
     def guardar(self):
         """
@@ -82,7 +83,7 @@ class CreadorDeContenido(base_de_datos.Model):
         :return: Una lista con los creadores que consisten con la cadena de busqueda
         """
         expresion_regular_de_busqueda = "%" + cadena_busqueda + "%"
-        creadores_de_contenido = CreadorDeContenido.query.\
+        creadores_de_contenido = CreadorDeContenido.query. \
             filter(CreadorDeContenido.nombre.ilike(expresion_regular_de_busqueda)).filter_by(eliminado=False).all()
         return creadores_de_contenido
 
@@ -100,3 +101,36 @@ class CreadorDeContenido(base_de_datos.Model):
         """
         self.eliminado = True
         base_de_datos.session.commit()
+
+
+class Artista(base_de_datos.Model):
+    """
+    Representa a un artista de un CreadorDeContenido que es grupo
+    """
+    id_artista = base_de_datos.Column(base_de_datos.Integer, primary_key=True)
+    nombre = base_de_datos.Column(base_de_datos.String(70), nullable=False)
+    fecha_de_nacimiento = base_de_datos.Column(base_de_datos.Date, nullable=False)
+    creador_de_contenido_id = base_de_datos.Column(base_de_datos.Integer,
+                                                   base_de_datos.
+                                                   ForeignKey('creador_de_contenido.id_creador_de_contenido'),
+                                                   nullable=False)
+
+    def obtener_json(self):
+        """
+        Genera un diccionario con los datos del objeto, el cual se utilizara para serializar la información a un JSON
+        :return: Un diccionario con los datos del artista
+        """
+        diccionario = {'id': self.id_artista,
+                       'nombre': self.nombre,
+                       'fecha_de_nacimiento': self.fecha_de_nacimiento}
+        return diccionario
+
+    @staticmethod
+    def obtener_artistas_de_creador_de_contenido(id_creador_de_cotenido):
+        """
+        Recupera de la base de datos todos artistas que pertenecen al creador de contenido
+        :param id_creador_de_cotenido: El id del creador de contenido al que pertencen los artistas
+        :return: Los artistas que pertenecen al creador de contenido
+        """
+        artistas = Artista.query.filter_by(creador_de_contenido_id=id_creador_de_cotenido).all()
+        return artistas
