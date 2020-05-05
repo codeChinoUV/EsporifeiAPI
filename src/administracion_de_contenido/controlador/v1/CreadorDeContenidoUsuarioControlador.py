@@ -5,29 +5,6 @@ from src.util.JsonBool import JsonBool
 from src.util.validaciones.ValidacionCreadorDeContenido import ValidacionCreadorDeContenido
 
 
-class CreadorDeContenidoControlador(Resource):
-    api = Api()
-
-    def get(self, id_creador_contenido):
-        """
-        Obtiene el creador de contenido que coincide con el id pasado como cadena
-        :param id_creador_contenido: El id del creador de contenido que se buscara
-        :return: El CreadorDeContenido que coincide con el id o 400 con el error de no existe el creador de contenido
-        """
-        creador_de_contenido = CreadorDeContenido.obtener_creador_de_contenido_por_id(id_creador_contenido)
-        if creador_de_contenido is None:
-            error = {'error': 'no_existe_creador_de_contenidp_con_el_id',
-                     'mensaje': 'No existe ningun creadorDeContenido con el id indicado'}
-            return error, 404
-        return creador_de_contenido.obtener_json()
-
-    @staticmethod
-    def exponer_end_point(app):
-        CreadorDeContenidoControlador.api.add_resource(CreadorDeContenidoControlador,
-                                                       '/v1/creador-de-contenido/<int:id_creador_contenido>')
-        CreadorDeContenidoControlador.api.init_app(app)
-
-
 class CreadorDeContenidoUsuarioControlador(Resource):
     api = Api()
 
@@ -45,9 +22,9 @@ class CreadorDeContenidoUsuarioControlador(Resource):
         """
         creador_de_contenido = CreadorDeContenido.obtener_creador_de_contenido_por_usuario(nombre_usuario)
         if creador_de_contenido is None:
-            errores = {'errores': {'nombre_usuario': 'No se ecnuentra registrado ningun creador de contenido que '
-                                                     'pertenezca a ese nombre de usuario'}}
-            return errores, 400
+            error = {'error': 'no_existe_creador_de_contenidp_con_el_id',
+                     'mensaje': 'No existe ningun creadorDeContenido con el id indicado'}
+            return error, 400
         return creador_de_contenido.obtener_json(), 200
 
     def put(self, id_creador_contenido):
