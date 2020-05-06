@@ -120,7 +120,7 @@ class ValidacionCreadorDeContenido:
         :param lista_errores: La lista de errores a la que se agregara el error
         :return: La lista de errores actualizada
         """
-        if CreadorDeContenido.verificar_usuario_ya_tiene_perfil(nombre_usuario):
+        if CreadorDeContenido.verificar_usuario_tiene_creador_contenido_registrado(nombre_usuario):
             lista_errores['nombre_usuario'] = "El usuario ya tiene un perfil registrado"
         return lista_errores
 
@@ -135,6 +135,20 @@ class ValidacionCreadorDeContenido:
         if creador_de_contenido is None:
             error = {'error': 'no_existe_creador_de_contenido_con_el_id',
                      'mensaje': 'No existe ningun creadorDeContenido con el id indicado'}
+            return error
+
+    @staticmethod
+    def validar_usuario_no_tiene_creador_de_contenido_asociado(usuario):
+        """
+        Valida que el usuario no tiene un creador de contenido asoca¿iado
+        :param usuario: El usuario a validar si no tiene registrado un creador de contenido
+        :return: Un diccionario que indica el error y el mensaje del mismo o None si el usuario tiene un
+        creador de contenido asociado
+        """
+        if not CreadorDeContenido. \
+                verificar_usuario_tiene_creador_contenido_registrado(usuario.nombre_usuario):
+            error = {'error': 'usuario_no_ha_registrado_un_creador_de_contenido',
+                     'mensaje': 'El usuario con el cual se autentico no ha registrado el creador de contenido'}
             return error
 
     @staticmethod

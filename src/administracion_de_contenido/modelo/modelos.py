@@ -14,7 +14,6 @@ class CreadorDeContenido(base_de_datos.Model):
     es_grupo = base_de_datos.Column(base_de_datos.Boolean, nullable=False)
     usuario_nombre_usuario = base_de_datos.Column(base_de_datos.String(20),
                                                   nullable=False, index=True)
-    eliminado = base_de_datos.Column(base_de_datos.Boolean, nullable=False, default=False)
     artistas = base_de_datos.relationship('Artista', backref='creadordecontenido', lazy=True)
 
     def guardar(self):
@@ -35,23 +34,15 @@ class CreadorDeContenido(base_de_datos.Model):
         return json
 
     @staticmethod
-    def verificar_usuario_ya_tiene_perfil(nombre_usuario):
+    def verificar_usuario_tiene_creador_contenido_registrado(nombre_usuario):
         """
-        Verifica si el nombre de usuario ya tiene un perfil registrado
+        Verifica si el nombre de usuario ya tiene un creador de contenido asociado
         :param nombre_usuario: El nombre del usuario a verificar
-        :return: Verdadero si el nombre de usuario ya tiene un perfil registrado, falso si no
+        :return: Verdadero si el nombre de usuario ya tiene un creador de contenido registrado, falso si no
         """
-        perfiles_con_el_mismo_usuario = CreadorDeContenido.query.filter_by(usuario_nombre_usuario=nombre_usuario,
-                                                                           eliminado=False).count()
+        perfiles_con_el_mismo_usuario = CreadorDeContenido.query.\
+            filter_by(usuario_nombre_usuario=nombre_usuario).count()
         return perfiles_con_el_mismo_usuario > 0
-
-    @staticmethod
-    def obtener_todos_los_creadores_de_contenido():
-        """
-        Recupera todos los creadores de contenido registrados en la base de datos
-        :return: Una lista con los creadore de contenido registrados
-        """
-        return CreadorDeContenido.query.filter_by(eliminado=False).all()
 
     @staticmethod
     def obtener_creador_de_contenido_por_id(id_creador_contenido):
@@ -60,8 +51,7 @@ class CreadorDeContenido(base_de_datos.Model):
         :param id_creador_contenido: El id del creador de contenido a recuperar
         :return: El creador de contenido que tiene ese id
         """
-        creador_de_contenido = CreadorDeContenido.query.filter_by(id_creador_de_contenido=id_creador_contenido,
-                                                                  eliminado=False).first()
+        creador_de_contenido = CreadorDeContenido.query.filter_by(id_creador_de_contenido=id_creador_contenido).first()
         return creador_de_contenido
 
     @staticmethod
@@ -71,8 +61,7 @@ class CreadorDeContenido(base_de_datos.Model):
         :param nombre_usuario: El nombre del usuario al que esta asociado el creador de contenido
         :return: El creador de contenido que pertenezca al usuario
         """
-        creador_de_contenido = CreadorDeContenido.query.filter_by(usuario_nombre_usuario=nombre_usuario,
-                                                                  eliminado=False).first()
+        creador_de_contenido = CreadorDeContenido.query.filter_by(usuario_nombre_usuario=nombre_usuario).first()
         return creador_de_contenido
 
     @staticmethod

@@ -123,16 +123,17 @@ class ValidacionUsuario:
                 return error
 
     @staticmethod
-    def validar_tipo_usuario_creador_de_contenido(nombre_usuario, lista_de_errores):
+    def validar_tipo_usuario_creador_de_contenido(usuario):
         """
-        Valida que el nombre_usuario sea de tipo creador de contenido
-        :param nombre_usuario: El nombre_de_usuario a validar
-        :param lista_de_errores: La lista que contiene todos los errores
-        :return: La lista de errores actualizada
+        Valida que el usuario sea de tipo creador de contenido
+        :param usuario: El usuario a validar
+        :return: Un diccionario indicando el error y el mensaje del error o None si el usuario es de tipo
+        creadorDeContenido
         """
-        if not Usuario.validar_usuario_creador_de_contenido(nombre_usuario):
-            lista_de_errores['nombre_usuario'] = "El usuario no es un creador de contenido"
-        return lista_de_errores
+        if TipoUsuario(usuario.tipo_usuario) != TipoUsuario.CreadorDeContenido:
+            error = {'error': 'usuario_no_es_creador_de_contenido',
+                     'mensaje': 'El usuario con el cual se atentico no es de tipo CreadorDeContenido'}
+            return error
 
     @staticmethod
     def _validar_nombre_usuario_valido(nombre_usuario):
