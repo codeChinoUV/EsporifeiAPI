@@ -57,6 +57,22 @@ class Usuario(base_de_datos.Model):
         return TipoUsuario(usuario.tipo_usuario) == TipoUsuario.CreadorDeContenido
 
     @staticmethod
+    def obtener_usuario(nombre_usuario):
+        """
+        Recupera al usuario de la base de datos que tiene el nombre_usuario
+        :param nombre_usuario: El nombre del usuario a recueprar
+        :return: El usuario que tiene el nombre de usuario
+        """
+        usuario = Usuario.query.filter_by(nombre_usuario=nombre_usuario)
+        return usuario
+
+    @staticmethod
     def validar_credenciales(nombre_usuario, contrasena):
+        """
+        Valida que las credenciales de un usuario sean correctas
+        :param nombre_usuario: El nombre del usuario a validar que sea correcto
+        :param contrasena: La contrasena que pertenece al nombre de usuario
+        :return: El usuario al que pertenecen las credenciaels o None si las credenciales no pertenecen a nadie
+        """
         usuario = Usuario.query.filter_by(nombre_usuario=nombre_usuario, contrasena=contrasena).first()
         return usuario

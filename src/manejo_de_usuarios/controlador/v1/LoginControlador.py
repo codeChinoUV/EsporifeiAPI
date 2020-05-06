@@ -1,3 +1,5 @@
+from functools import wraps
+
 import jwt
 import datetime
 from flask import request, jsonify
@@ -7,10 +9,35 @@ from src import app
 from src.manejo_de_usuarios.modelo.modelos import Usuario
 
 
+def token_requerido(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = None
+        if 'x-access-token' in request.headers:
+            token = request.headers['x-access-token']
+        if not token:
+            error = {'error': 'token_faltante',
+                     'mensaje': 'La cabecera http no lleva el token en el campo \'x-access-token\''}
+            return error, 401
+        try:
+            datos = jwt.decode(token, app.config['SECRET_KEY'])
+            usuario_actual = Usuario.obtener_usuario(datos['nombre_usuario'])
+        except:
+            error = {'error': 'token_invalido',
+                     'mensaje': 'El token no es valido, ya sea por que se modifico o el tiempo de vida expiro'}
+            return error, 401
+        return f(usuario_actual, *args, **kwargs)
+    return decorated
+
+
 class LoginControlador(Resource):
     api = Api()
 
     def get(self):
+        """
+        Se encarga de generar un token para autenticar a un usuario
+        :return: Un token de autenticacion o un diccionario con el error y mensaje del error si ocurrio uni
+        """
         login = request.authorization
         error = {'error': 'parametros_faltantes', 'mensaje': 'Los siguientes parametros faltan en tu solicitud: '}
         if not login.username and not login.password:
@@ -35,5 +62,10 @@ class LoginControlador(Resource):
 
     @staticmethod
     def exponer_endpoint(app):
+        """
+        Se encarga de exponer el endpoint de la clase en la app
+        :param app: La app en donde se expondra el endpoint
+        :return: None
+        """
         LoginControlador.api.add_resource(LoginControlador, '/v1/login')
         LoginControlador.api.init_app(app)
