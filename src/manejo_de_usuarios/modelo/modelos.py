@@ -1,6 +1,8 @@
 """
     Se encarga de representar a un USUARIO y manejar el acceso del objeto a la base de datos
 """
+from werkzeug.security import generate_password_hash, check_password_hash
+
 from src import base_de_datos
 from src.manejo_de_usuarios.modelo.enum.enums import TipoUsuario
 
@@ -11,7 +13,7 @@ class Usuario(base_de_datos.Model):
     """
     nombre_usuario = base_de_datos.Column(base_de_datos.String(20), primary_key=True)
     nombre = base_de_datos.Column(base_de_datos.String(70), nullable=False)
-    contrasena = base_de_datos.Column(base_de_datos.String(64), nullable=False)
+    contrasena = base_de_datos.Column(base_de_datos.String(80), nullable=False)
     tipo_usuario = base_de_datos.Column(base_de_datos.Integer, nullable=False)
 
     def guardar(self):
@@ -19,7 +21,21 @@ class Usuario(base_de_datos.Model):
         Guarda la informacion del objeto en la base de datos
         :return: None
         """
+        self.contrasena = generate_password_hash(self.contrasena, method='sha256')
         base_de_datos.session.add(self)
+        base_de_datos.session.commit()
+
+    def actualizar_informacion(self, nombre, contrasena):
+        """
+        Actualiza la información de los atributos nombre y contrasena yg uarda los cambios realizados
+        en la base de datos
+        """
+        if nombre is not None:
+            self.nombre = nombre
+        if contrasena is not None:
+            contrasena_hasheada = generate_password_hash(contrasena, method='sha256')
+            self.contrasena = contrasena_hasheada
+
         base_de_datos.session.commit()
 
     @staticmethod
@@ -63,7 +79,7 @@ class Usuario(base_de_datos.Model):
         :param nombre_usuario: El nombre del usuario a recueprar
         :return: El usuario que tiene el nombre de usuario
         """
-        usuario = Usuario.query.filter_by(nombre_usuario=nombre_usuario)
+        usuario = Usuario.query.filter_by(nombre_usuario=nombre_usuario).first()
         return usuario
 
     @staticmethod
@@ -74,5 +90,6 @@ class Usuario(base_de_datos.Model):
         :param contrasena: La contrasena que pertenece al nombre de usuario
         :return: El usuario al que pertenecen las credenciaels o None si las credenciales no pertenecen a nadie
         """
-        usuario = Usuario.query.filter_by(nombre_usuario=nombre_usuario, contrasena=contrasena).first()
-        return usuario
+        usuario = Usuario.query.filter_by(nombre_usuario=nombre_usuario).first()
+        if check_password_hash(usuario.contrasena, contrasena):
+            return usuario

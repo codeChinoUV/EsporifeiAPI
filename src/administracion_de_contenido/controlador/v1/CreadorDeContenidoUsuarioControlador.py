@@ -2,7 +2,7 @@ from flask_restful import Resource, Api, reqparse
 
 from src.administracion_de_contenido.modelo.modelos import CreadorDeContenido
 from src.util.JsonBool import JsonBool
-from src.util.validaciones.ValidacionCreadorDeContenido import ValidacionCreadorDeContenido
+from src.util.validaciones.modelos.ValidacionCreadorDeContenido import ValidacionCreadorDeContenido
 
 
 class CreadorDeContenidoUsuarioControlador(Resource):

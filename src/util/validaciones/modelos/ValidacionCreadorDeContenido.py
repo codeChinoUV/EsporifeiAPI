@@ -1,7 +1,7 @@
 from src.administracion_de_contenido.modelo.modelos import CreadorDeContenido
 from src.util.JsonBool import JsonBool
 from src.util.validaciones.ValidacioCadenas import ValidacionCadenas
-from src.util.validaciones.ValidacionUsuario import ValidacionUsuario
+from src.util.validaciones.modelos.ValidacionUsuario import ValidacionUsuario
 
 
 class ValidacionCreadorDeContenido:

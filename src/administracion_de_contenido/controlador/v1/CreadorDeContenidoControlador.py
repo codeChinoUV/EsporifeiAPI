@@ -1,7 +1,7 @@
 from flask_restful import Resource, Api
 
 from src.administracion_de_contenido.modelo.modelos import CreadorDeContenido, Artista
-from src.util.validaciones.ValidacionCreadorDeContenido import ValidacionCreadorDeContenido
+from src.util.validaciones.modelos.ValidacionCreadorDeContenido import ValidacionCreadorDeContenido
 
 
 class CreadorDeContenidoControlador(Resource):
