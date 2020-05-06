@@ -26,7 +26,7 @@ def token_requerido(f):
             error = {'error': 'token_invalido',
                      'mensaje': 'El token no es valido, ya sea por que se modifico o el tiempo de vida expiro'}
             return error, 401
-        return f(usuario_actual, *args, **kwargs)
+        return f(*args, usuario_actual, **kwargs)
     return decorated
 
 

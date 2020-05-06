@@ -1,14 +1,11 @@
-from flask import jsonify
-from flask_restful import Resource, reqparse, Api
+from flask_restful import Resource, Api, reqparse
 
+from src.manejo_de_usuarios.controlador.v1.LoginControlador import token_requerido
 from src.manejo_de_usuarios.modelo.modelos import Usuario
 from src.util.validaciones.ValidacionUsuario import ValidacionUsuario
 
 
-class UsuariosControlador(Resource):
-    """
-    Se encarga de controlar el tipo de peticiones que se le le puede realizar al endpoint
-    """
+class UsuarioControlador(Resource):
     api = Api()
 
     def __init__(self):
@@ -18,17 +15,6 @@ class UsuariosControlador(Resource):
         self.parser.add_argument('contrasena')
         self.parser.add_argument('tipo_usuario')
         self.argumentos = self.parser.parse_args(strict=True)
-
-    def get(self):
-        """
-        Recupera todos los usuarios en la base de datos
-        :return: Una lista con todos los usuarios en la base de datos
-        """
-        usuarios = Usuario.obtener_todos_los_usuario()
-        lista_de_usuarios = []
-        for usuario in usuarios:
-            lista_de_usuarios.append(usuario.obtener_json())
-        return jsonify(lista_de_usuarios)
 
     def post(self):
         """
@@ -45,7 +31,12 @@ class UsuariosControlador(Resource):
         usuario_a_registrar.guardar()
         return usuario_a_registrar.obtener_json()
 
+
+    @token_requerido
+    def get(self, usuario_actual):
+        return usuario_actual.obtener_json(), 200
+
     @staticmethod
-    def exponer_end_point(app):
-        UsuariosControlador.api.add_resource(UsuariosControlador, '/v1/usuarios')
-        UsuariosControlador.api.init_app(app)
+    def exponer_endpoint(app):
+        UsuarioControlador.api.add_resource(UsuarioControlador, '/v1/usuario')
+        UsuarioControlador.api.init_app(app)

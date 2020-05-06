@@ -63,7 +63,7 @@ class Usuario(base_de_datos.Model):
         :param nombre_usuario: El nombre del usuario a recueprar
         :return: El usuario que tiene el nombre de usuario
         """
-        usuario = Usuario.query.filter_by(nombre_usuario=nombre_usuario)
+        usuario = Usuario.query.filter_by(nombre_usuario=nombre_usuario).first()
         return usuario
 
     @staticmethod
