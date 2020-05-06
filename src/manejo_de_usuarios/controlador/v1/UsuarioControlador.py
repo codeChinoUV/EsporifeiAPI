@@ -2,7 +2,7 @@ from flask_restful import Resource, Api, reqparse
 
 from src.manejo_de_usuarios.controlador.v1.LoginControlador import token_requerido
 from src.manejo_de_usuarios.modelo.modelos import Usuario
-from src.util.validaciones.ValidacionUsuario import ValidacionUsuario
+from src.util.validaciones.modelos.ValidacionUsuario import ValidacionUsuario
 
 
 class UsuarioControlador(Resource):
@@ -16,10 +16,19 @@ class UsuarioControlador(Resource):
         self.parser.add_argument('tipo_usuario')
         self.argumentos = self.parser.parse_args(strict=True)
 
+    @token_requerido
+    def get(self, usuario_actual):
+        """
+        Responde a una solicitud de tipo GET regresando la información del usuario logeado
+        :return: Un diccionario con la información del usuario logeado
+        """
+        return usuario_actual.obtener_json(), 200
+
     def post(self):
         """
-        Se encarga de agregar un nuevo usuario de tipo ConsumidorDeMusica
-        :return:
+        Procesa la informacion de una solicitud POST al agregar un nuevo usuario de tipo ConsumidorDeMusica
+        :return: Un diccionario con la informacioón del Usuario registrado o una lista de diccionarios con los errores
+        surgidos
         """
         usuario_a_registrar = Usuario(nombre_usuario=self.argumentos['nombre_usuario'],
                                       nombre=self.argumentos['nombre'], contrasena=self.argumentos['contrasena'],
@@ -31,12 +40,24 @@ class UsuarioControlador(Resource):
         usuario_a_registrar.guardar()
         return usuario_a_registrar.obtener_json()
 
-
     @token_requerido
-    def get(self, usuario_actual):
-        return usuario_actual.obtener_json(), 200
+    def put(self, usuario_actual):
+        """
+        Procesa una solicitud de tipo PUT al modificar la informacion del usuario logeado
+        :return: La información del usuario modificada o una lista de errores sucedidos
+        """
+        usuario_modificar = Usuario(nombre=self.argumentos['nombre'], contrasena=self.argumentos['contrasena'])
+        errores = ValidacionUsuario.validar_modificar_usuario(usuario_modificar)
+        if errores is not None:
+            return errores, 400
+        usuario_actual.actualizar_informacion(usuario_modificar.nombre, usuario_modificar.contrasena)
+        return usuario_actual.obtener_json(), 202
 
     @staticmethod
     def exponer_endpoint(app):
+        """
+        Expone el endpoint en la app
+        :param app: La app a la que se le agregara el endpoint
+        """
         UsuarioControlador.api.add_resource(UsuarioControlador, '/v1/usuario')
         UsuarioControlador.api.init_app(app)
