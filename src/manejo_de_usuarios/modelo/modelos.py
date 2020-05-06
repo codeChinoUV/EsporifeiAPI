@@ -55,3 +55,8 @@ class Usuario(base_de_datos.Model):
         """
         usuario = Usuario.query.filter_by(nombre_usuario=nombre_usuario).first()
         return TipoUsuario(usuario.tipo_usuario) == TipoUsuario.CreadorDeContenido
+
+    @staticmethod
+    def validar_credenciales(nombre_usuario, contrasena):
+        usuario = Usuario.query.filter_by(nombre_usuario=nombre_usuario, contrasena=contrasena).first()
+        return usuario

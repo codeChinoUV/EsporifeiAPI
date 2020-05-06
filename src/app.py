@@ -7,7 +7,11 @@ from src.administracion_de_contenido.controlador.v1.CreadoresDeContenidoUsuarioC
     CreadoresDeContenidoControlador
 from src.administracion_de_contenido.controlador.v1.CreadoresDeContenidoControlador import \
     CreadoresDeContenidoBuscarControlador
+from src.manejo_de_usuarios.controlador.v1.LoginControlador import LoginControlador
 from src.manejo_de_usuarios.controlador.v1.UsuariosControlador import UsuariosControlador
+
+#Exponer endpoint login
+LoginControlador.exponer_endpoint(app)
 
 #Expones endpoint de usuarios
 UsuariosControlador.exponer_end_point(app)
