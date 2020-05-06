@@ -1,6 +1,7 @@
 """
 La clase validacion de cadenas se encarga de agrupar todos los metodos utiles para validar una cadena de textp
 """
+import re
 
 
 class ValidacionCadenas():
@@ -28,3 +29,16 @@ class ValidacionCadenas():
         :return: Verdadero si la cadena no contiene o falso si contiene
         """
         return cadena.isalnum()
+
+    @staticmethod
+    def validar_contrasena(cadena):
+        """
+        Valida que la cadena coincida con la expresión regular
+        :param cadena: La cadena  a validar si cumple con la expresión regular
+        :return: Verdadero si la cadena cumple con la expresión regular o Falso si no
+        """
+        expresion_regular_contrasena = re.compile(r'^(?=\w*\d)(?=\w*[A-Z])(?=\w*[a-z])\S{8,16}$')
+        if expresion_regular_contrasena.match(cadena) is None:
+            return False
+        else:
+            return True

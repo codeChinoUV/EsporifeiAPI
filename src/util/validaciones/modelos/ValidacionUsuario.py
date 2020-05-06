@@ -18,7 +18,6 @@ class ValidacionUsuario:
         tamano_maximo_nombre_usuario = 20
         tamano_maximo_nombre = 70
         tamano_minimo_general = 5
-        tamano_minimo_contrasena = 6
         lista_de_errores = []
         if usuario.nombre is not None:
             error = ValidacionUsuario._validar_tamano_parametro(usuario.nombre_usuario, "nombre_usuario",
@@ -31,7 +30,7 @@ class ValidacionUsuario:
             if error is not None:
                 lista_de_errores.append(error)
         if usuario.contrasena is not None:
-            error = ValidacionUsuario._validar_tamano_contrasena(usuario.contrasena, tamano_minimo_contrasena)
+            error = ValidacionUsuario._validar_contrasena(usuario.contrasena)
             if error is not None:
                 lista_de_errores.append(error)
         return lista_de_errores
@@ -171,16 +170,17 @@ class ValidacionUsuario:
             return error
 
     @staticmethod
-    def _validar_tamano_contrasena(cadena, tamano_minimo):
+    def _validar_contrasena(cadena):
         """
         Valida que el tamaño sea mayor o igual al tamano_minimo
         :param cadena: La cadena a validar que cumpla con el tamaño
-        :param tamano_minimo: El tamaño minimo que debe de tener la cadena
         :return: Un diccionario que indica si hubo un error o None si no hubo errores
         """
-        if len(cadena) < tamano_minimo:
-            error = {'error': 'contrasena_demasiada_corta', 'mensaje': 'La <contrasena> debe de tener por lo menos '
-                                                                       + str(tamano_minimo) + ' caracteres'}
+        if not ValidacionCadenas.validar_contrasena(cadena):
+            error = {'error': 'contrasena_no_valida', 'mensaje': 'La <contrasena> debe tener al entre 8 y 16 '
+                                                                 'caracteres, al menos un dígito, al menos una '
+                                                                 'minúscula y al menos una mayúscula, puede tener otros'
+                                                                 ' símbolos'}
             return error
 
     @staticmethod
@@ -192,7 +192,6 @@ class ValidacionUsuario:
         """
         tamano_maximo_nombre = 70
         tamano_minimo_general = 5
-        tamano_minimo_contrasena = 6
         if usuario.nombre is None and usuario.contrasena is None:
             error = {'error': 'solicitud_sin_parametros_a_modificar',
                      'mensaje': 'La solicitud no contiene ningun parametro a modificar, los parametros que puedes '
@@ -204,6 +203,6 @@ class ValidacionUsuario:
             if error is not None:
                 return error
         if usuario.contrasena is not None:
-            error = ValidacionUsuario._validar_tamano_contrasena(usuario.contrasena, tamano_minimo_contrasena)
+            error = ValidacionUsuario._validar_contrasena(usuario.contrasena)
             if error is not None:
                 return error
