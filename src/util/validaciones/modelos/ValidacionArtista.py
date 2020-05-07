@@ -39,7 +39,7 @@ class ValidacionArtista:
             return error
 
     @staticmethod
-    def validar_registro_artista(artista):
+    def validar_artista(artista):
         """
         Realiza las validaciones necesarias para asegurar que el artista se pueda registrar de manera correcta
         :param artista: El artista que se validara

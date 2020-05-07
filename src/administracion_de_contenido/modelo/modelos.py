@@ -112,6 +112,14 @@ class Artista(base_de_datos.Model):
         base_de_datos.session.add(self)
         base_de_datos.session.commit()
 
+    def actualizar_informacion(self, nombre):
+        """
+        Actualiza la informacion del nombre del objeto y lo guarda en la base de datos
+        :param nombre: El nombre actualizado
+        """
+        self.nombre = nombre
+        base_de_datos.session.commit()
+
     def obtener_json(self):
         """
         Genera un diccionario con los datos del objeto, el cual se utilizara para serializar la información a un JSON

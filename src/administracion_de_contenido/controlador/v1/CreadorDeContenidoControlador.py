@@ -139,7 +139,7 @@ class ArtistasControlador(Resource):
         if error is not None:
             return error, 404
         artista_a_registrar = Artista(nombre=self.argumentos['nombre'])
-        errores_en_la_solicitud = ValidacionArtista.validar_registro_artista(artista_a_registrar)
+        errores_en_la_solicitud = ValidacionArtista.validar_artista(artista_a_registrar)
         if len(errores_en_la_solicitud) > 0:
             return errores_en_la_solicitud, 400
         creador_contenido = CreadorDeContenido.obtener_creador_de_contenido_por_usuario(usuario_actual.nombre_usuario)
@@ -183,6 +183,29 @@ class ArtistaControlador(Resource):
             return error_no_es_dueno, 403
         artista = Artista.obtener_artista_por_id(id_artista)
         return artista.obtener_json()
+
+    @token_requerido
+    @solo_creador_de_contenido
+    def put(self, usuario_actual, id_artista):
+        """
+        Se encarga de procesar a una solicitud PUT al modificar la informacion de un Artista
+        """
+        error_no_existe_artista = ValidacionArtista.validar_artista_existe(id_artista)
+        if error_no_existe_artista is not None:
+            return error_no_existe_artista, 404
+        creador_contenido = CreadorDeContenido.obtener_creador_de_contenido_por_usuario(usuario_actual.nombre_usuario)
+        error_no_es_dueno = ValidacionArtista \
+            .validar_usuario_es_dueno_de_artista(creador_contenido.id_creador_de_contenido, id_artista)
+        if error_no_es_dueno is not None:
+            return error_no_es_dueno, 403
+        artista_a_validar = Artista(nombre=self.argumentos['nombre'])
+        errores_en_la_solicitud = ValidacionArtista.validar_artista(artista_a_validar)
+        if len(errores_en_la_solicitud) > 0:
+            return errores_en_la_solicitud, 400
+        artista_a_modificar = Artista.obtener_artista_por_id(id_artista)
+        artista_a_modificar.actualizar_informacion(artista_a_validar.nombre)
+        return artista_a_modificar.obtener_json(), 202
+
 
     @staticmethod
     def exponer_endpoint(app):
