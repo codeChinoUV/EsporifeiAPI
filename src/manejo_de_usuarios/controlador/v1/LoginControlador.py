@@ -6,6 +6,7 @@ from flask import request, jsonify
 from flask_restful import Resource, Api
 
 from src import app
+from src.manejo_de_usuarios.modelo.enum.enums import TipoUsuario
 from src.manejo_de_usuarios.modelo.modelos import Usuario
 
 
@@ -27,7 +28,22 @@ def token_requerido(f):
                      'mensaje': 'El token no es valido, ya sea por que se modifico o el tiempo de vida expiro'}
             return error, 401
         return f(*args, usuario_actual, **kwargs)
+
     return decorated
+
+
+def solo_creador_de_contenido(f):
+    @wraps(f)
+    def decorador(*args, **kwargs):
+        usuario_actual =args[1]
+        if TipoUsuario(usuario_actual.tipo_usuario) != TipoUsuario.CreadorDeContenido:
+            error = {'error': 'operacion_no_permitida',
+                     'mensaje': 'El usuario con el que se encuentra autenticado no tiene permisos para realizar dicha '
+                                'operación'}
+            return error, 403
+        return f(*args, **kwargs)
+
+    return decorador
 
 
 class LoginControlador(Resource):

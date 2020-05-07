@@ -1,10 +1,9 @@
 from flask_restful import Resource, Api, reqparse
 
 from src.administracion_de_contenido.modelo.modelos import CreadorDeContenido, Artista
-from src.manejo_de_usuarios.controlador.v1.LoginControlador import token_requerido
+from src.manejo_de_usuarios.controlador.v1.LoginControlador import token_requerido, solo_creador_de_contenido
 from src.util.JsonBool import JsonBool
 from src.util.validaciones.modelos.ValidacionCreadorDeContenido import ValidacionCreadorDeContenido
-from src.util.validaciones.modelos.ValidacionUsuario import ValidacionUsuario
 
 
 class CreadorDeContenidoControlador(Resource):
@@ -18,14 +17,12 @@ class CreadorDeContenidoControlador(Resource):
         self.argumentos = self.parser.parse_args(strict=True)
 
     @token_requerido
+    @solo_creador_de_contenido
     def get(self, usuario_actual):
         """
         Obtiene el creador de contenido del usuario_actual
         :return: El CreadorDeContenido del usuario o un diccionario con el error
         """
-        error = ValidacionUsuario.validar_tipo_usuario_creador_de_contenido(usuario_actual)
-        if error is not None:
-            return error, 404
         error = ValidacionCreadorDeContenido.validar_usuario_no_tiene_creador_de_contenido_asociado(usuario_actual)
         if error is not None:
             return error, 404
@@ -34,6 +31,7 @@ class CreadorDeContenidoControlador(Resource):
         return creador_de_contenido.obtener_json()
 
     @token_requerido
+    @solo_creador_de_contenido
     def post(self, usuario_actual):
         """
         Se encarga de registrar un nuevo creador de contenido
@@ -48,9 +46,6 @@ class CreadorDeContenidoControlador(Resource):
             validar_usuario_tiene_creador_de_contenido_asociado(usuario_actual)
         if error_creador_ya_registrado is not None:
             return error_creador_ya_registrado, 400
-        error_tipo_de_usuario = ValidacionUsuario.validar_tipo_usuario_creador_de_contenido(usuario_actual)
-        if error_tipo_de_usuario is not None:
-            return error_tipo_de_usuario, 400
         errores_en_la_solicitid = \
             ValidacionCreadorDeContenido.validar_registro_creador_de_contenido(creador_de_contenido_a_registrar)
         if len(errores_en_la_solicitid) > 0:
@@ -61,6 +56,7 @@ class CreadorDeContenidoControlador(Resource):
         return creador_de_contenido_a_registrar.obtener_json(), 201
 
     @token_requerido
+    @solo_creador_de_contenido
     def put(self, usuario_actual):
         """
         Se encarga de responder a las peticiones de tipo put, su funcion es editar la información de un creador de
@@ -101,18 +97,23 @@ class CreadorDeContenidoControlador(Resource):
 class ArtistasControlador(Resource):
     api = Api()
 
-    def get(self, id_creador_contenido):
+    @token_requerido
+    @solo_creador_de_contenido
+    def get(self, usuario_actual):
         """
         Contesta una solicitud de tipo GET con una lista de artistas o un diccionario con errores
         :param id_creador_contenido: El id del creador de contenido del cual se recuperaran sus artistas
         """
-        error = ValidacionCreadorDeContenido.validar_creador_de_contenido_existe(id_creador_contenido)
+        error = ValidacionCreadorDeContenido.validar_creador_de_contenido_existe(usuario_actual)
         if error is not None:
             return error, 404
-        error = ValidacionCreadorDeContenido.validar_creador_de_contenido_es_grupo(id_creador_contenido)
+        error = ValidacionCreadorDeContenido.validar_creador_de_contenido_es_grupo(usuario_actual)
         if error is not None:
             return error, 404
-        artistas_del_creador_de_contenido = Artista.obtener_artistas_de_creador_de_contenido(id_creador_contenido)
+        creador_de_contenido = CreadorDeContenido\
+            .obtener_creador_de_contenido_por_usuario(usuario_actual.nombre_usuario)
+        artistas_del_creador_de_contenido =\
+            Artista.obtener_artistas_de_creador_de_contenido(creador_de_contenido.id_creador_de_contenido)
         diccionario_de_artistas = []
         for artista in artistas_del_creador_de_contenido:
             diccionario_de_artistas.append(artista.obtener_json())

@@ -100,7 +100,6 @@ class Artista(base_de_datos.Model):
     """
     id_artista = base_de_datos.Column(base_de_datos.Integer, primary_key=True)
     nombre = base_de_datos.Column(base_de_datos.String(70), nullable=False)
-    fecha_de_nacimiento = base_de_datos.Column(base_de_datos.Date, nullable=False)
     creador_de_contenido_id = base_de_datos.Column(base_de_datos.Integer,
                                                    base_de_datos.
                                                    ForeignKey('creador_de_contenido.id_creador_de_contenido'),
@@ -112,8 +111,7 @@ class Artista(base_de_datos.Model):
         :return: Un diccionario con los datos del artista
         """
         diccionario = {'id': self.id_artista,
-                       'nombre': self.nombre,
-                       'fecha_de_nacimiento': self.fecha_de_nacimiento}
+                       'nombre': self.nombre}
         return diccionario
 
     @staticmethod
