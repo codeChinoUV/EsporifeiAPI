@@ -29,7 +29,7 @@ class CreadorDeContenidoControlador(Resource):
         error = ValidacionCreadorDeContenido.validar_usuario_no_tiene_creador_de_contenido_asociado(usuario_actual)
         if error is not None:
             return error, 404
-        creador_de_contenido = CreadorDeContenido.\
+        creador_de_contenido = CreadorDeContenido. \
             obtener_creador_de_contenido_por_usuario(usuario_actual.nombre_usuario)
         return creador_de_contenido.obtener_json()
 
@@ -44,7 +44,7 @@ class CreadorDeContenidoControlador(Resource):
                                                               biografia=self.argumentos['biografia'],
                                                               es_grupo=self.argumentos['es_grupo'],
                                                               usuario_nombre_usuario=usuario_actual.nombre_usuario)
-        error_creador_ya_registrado = ValidacionCreadorDeContenido.\
+        error_creador_ya_registrado = ValidacionCreadorDeContenido. \
             validar_usuario_tiene_creador_de_contenido_asociado(usuario_actual)
         if error_creador_ya_registrado is not None:
             return error_creador_ya_registrado, 400
@@ -59,6 +59,37 @@ class CreadorDeContenidoControlador(Resource):
             .obtener_boolean_de_valor_json(creador_de_contenido_a_registrar.es_grupo)
         creador_de_contenido_a_registrar.guardar()
         return creador_de_contenido_a_registrar.obtener_json(), 201
+
+    @token_requerido
+    def put(self, usuario_actual):
+        """
+        Se encarga de responder a las peticiones de tipo put, su funcion es editar la información de un creador de
+        contenido
+        :return: Un JSON con la informacion del objeto editada y un codigo de respuesta 202 o un JSON con una lista de
+         errores y un codigo de respuesta 400
+        """
+        error_creador_no_registrado = ValidacionCreadorDeContenido. \
+            validar_usuario_no_tiene_creador_de_contenido_asociado(usuario_actual)
+        if error_creador_no_registrado is not None:
+            return error_creador_no_registrado, 400
+
+        creador_de_contenido_a_validar = CreadorDeContenido(nombre=self.argumentos['nombre'],
+                                                            biografia=self.argumentos['biografia'],
+                                                            es_grupo=self.argumentos['es_grupo'])
+
+        errores_en_la_solicitud = ValidacionCreadorDeContenido \
+            .validar_edicion_creador_de_contenido(creador_de_contenido_a_validar)
+        if len(errores_en_la_solicitud) > 0:
+            return errores_en_la_solicitud, 400
+
+        creador_de_contenido = CreadorDeContenido. \
+            obtener_creador_de_contenido_por_usuario(usuario_actual.nombre_usuario)
+
+        creador_de_contenido.actualizar_informacion(creador_de_contenido_a_validar.nombre,
+                                                    creador_de_contenido_a_validar.biografia,
+                                                    creador_de_contenido_a_validar.es_grupo)
+
+        return creador_de_contenido.obtener_json(), 202
 
     @staticmethod
     def exponer_end_point(app):

@@ -1,7 +1,6 @@
 from src.administracion_de_contenido.modelo.modelos import CreadorDeContenido
 from src.util.JsonBool import JsonBool
 from src.util.validaciones.ValidacioCadenas import ValidacionCadenas
-from src.util.validaciones.modelos.ValidacionUsuario import ValidacionUsuario
 
 
 class ValidacionCreadorDeContenido:
@@ -91,16 +90,23 @@ class ValidacionCreadorDeContenido:
         :param creador_de_contenido: El creador de contenido que contiene los campos a validar
         :return: Una lista con los errores que cuentan los campos a modificar
         """
-        lista_de_errores = ValidacionCreadorDeContenido._validar_campos_requeridos(creador_de_contenido)
-        if len(lista_de_errores) > 0:
-            return lista_de_errores
-        lista_de_errores = ValidacionCreadorDeContenido.\
+        lista_de_errores = []
+        if creador_de_contenido.nombre is None and creador_de_contenido.biografia is None \
+                and creador_de_contenido.es_grupo is None:
+            error = {'error': 'solicitud_sin_parametros_a_modificar',
+                     'mensaje': 'La solicitud no contiene ningun parametro a modificar, los parametros que puedes '
+                                'modificar son: <nombre> <biografia> <es_grupo>'}
+            lista_de_errores.append(error)
+        errores_del_tamano = ValidacionCreadorDeContenido. \
             _validar_tamano_modelo_creador_de_contenido(creador_de_contenido)
-        if len(lista_de_errores) > 0:
-            return lista_de_errores
-        lista_de_errores = ValidacionCreadorDeContenido._validar_booleano_valido(creador_de_contenido)
-        if len(lista_de_errores) > 0:
-            return lista_de_errores
+        if errores_del_tamano is not None:
+            for error in errores_del_tamano:
+                lista_de_errores.append(error)
+        if creador_de_contenido.es_grupo is not None:
+            error_boolean_no_valido = ValidacionCreadorDeContenido._validar_booleano_valido(creador_de_contenido)
+            if error_boolean_no_valido is not None:
+                lista_de_errores.append(error_boolean_no_valido)
+        return lista_de_errores
 
     @staticmethod
     def validar_usuario_tiene_creador_de_contenido_asociado(usuario):

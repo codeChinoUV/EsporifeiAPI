@@ -2,6 +2,7 @@
     Se encarga de representar a un CreadorDeContenido y manejar el acceso del objeto a la base de datos
 """
 from src import base_de_datos
+from src.util.JsonBool import JsonBool
 
 
 class CreadorDeContenido(base_de_datos.Model):
@@ -24,6 +25,22 @@ class CreadorDeContenido(base_de_datos.Model):
         base_de_datos.session.add(self)
         base_de_datos.session.commit()
 
+    def actualizar_informacion(self, nombre, biografia, es_grupo):
+        """
+        Actauliza la informacion de los atributos de nombre, biografia y es_grupo en la base de datos
+        :param nombre: El nombre a actualizar
+        :param biografia: La biografia a actualizar
+        :param es_grupo: El es_grupo a actualizar
+        """
+        if nombre is not None:
+            self.nombre = nombre
+        if biografia is not None:
+            self.biografia = biografia
+        if es_grupo is not None:
+            self.es_grupo = JsonBool.obtener_boolean_de_valor_json(es_grupo)
+
+        base_de_datos.session.commit()
+
     def obtener_json(self):
         """
         Crea un diccionario con los datos de la clase para poder devolverse como un json
@@ -40,7 +57,7 @@ class CreadorDeContenido(base_de_datos.Model):
         :param nombre_usuario: El nombre del usuario a verificar
         :return: Verdadero si el nombre de usuario ya tiene un creador de contenido registrado, falso si no
         """
-        perfiles_con_el_mismo_usuario = CreadorDeContenido.query.\
+        perfiles_con_el_mismo_usuario = CreadorDeContenido.query. \
             filter_by(usuario_nombre_usuario=nombre_usuario).count()
         return perfiles_con_el_mismo_usuario > 0
 
@@ -75,21 +92,6 @@ class CreadorDeContenido(base_de_datos.Model):
         creadores_de_contenido = CreadorDeContenido.query. \
             filter(CreadorDeContenido.nombre.ilike(expresion_regular_de_busqueda)).filter_by(eliminado=False).all()
         return creadores_de_contenido
-
-    @staticmethod
-    def actualizar_creador_de_contenido():
-        """
-        Guarda los cambios realizados a un modelo en la base de datos
-        """
-        base_de_datos.session.commit()
-
-    def eliminar(self):
-        """
-        Cambia el estado del creador de contenido a eliminado y lo almacena en la base de datos
-        :return: none
-        """
-        self.eliminado = True
-        base_de_datos.session.commit()
 
 
 class Artista(base_de_datos.Model):
