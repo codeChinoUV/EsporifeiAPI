@@ -120,6 +120,13 @@ class Artista(base_de_datos.Model):
         self.nombre = nombre
         base_de_datos.session.commit()
 
+    def eliminar(self):
+        """
+        Se encarga de eliminar al objeto actual de la base de datos
+        """
+        base_de_datos.session.delete(self)
+        base_de_datos.session.commit()
+
     def obtener_json(self):
         """
         Genera un diccionario con los datos del objeto, el cual se utilizara para serializar la información a un JSON

@@ -206,6 +206,23 @@ class ArtistaControlador(Resource):
         artista_a_modificar.actualizar_informacion(artista_a_validar.nombre)
         return artista_a_modificar.obtener_json(), 202
 
+    @token_requerido
+    @solo_creador_de_contenido
+    def delete(self, usuario_actual, id_artista):
+        """
+        Se encarga de procesar una solicitud DELETE al eliminar el artista con el id indicado
+        """
+        error_no_existe_artista = ValidacionArtista.validar_artista_existe(id_artista)
+        if error_no_existe_artista is not None:
+            return error_no_existe_artista, 404
+        creador_contenido = CreadorDeContenido.obtener_creador_de_contenido_por_usuario(usuario_actual.nombre_usuario)
+        error_no_es_dueno = ValidacionArtista \
+            .validar_usuario_es_dueno_de_artista(creador_contenido.id_creador_de_contenido, id_artista)
+        if error_no_es_dueno is not None:
+            return error_no_es_dueno, 403
+        artista_a_eliminar = Artista.obtener_artista_por_id(id_artista)
+        artista_a_eliminar.eliminar()
+        return artista_a_eliminar.obtener_json(), 202
 
     @staticmethod
     def exponer_endpoint(app):
