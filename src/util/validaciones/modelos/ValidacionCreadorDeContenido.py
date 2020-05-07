@@ -161,3 +161,16 @@ class ValidacionCreadorDeContenido:
                      'mensaje': 'El creador de contenido del usuario autenticado no es grupo, por lo tanto no cuenta '
                                 'con artistas'}
             return error
+
+    @staticmethod
+    def validar_existe_creador_de_contenido(id_creador_de_contenido):
+        """
+        Valida si el id_creador_de_contenido pertence a un CreadorDeContenido
+        :param id_creador_de_contenido: El id del creador de contenido a valdiar si existe
+        :return: None si el existe un CreadorDeContenido con el id indicado o un diccionario con el error y el mensaje
+        si no existe un CreadorDeContenido con el id indicado
+        """
+        if not CreadorDeContenido.verificar_existe_creador_contenido(id_creador_de_contenido):
+            error = {'error': 'creador_de_contenido_inexistente',
+                     'mensaje': 'No existe ningun CreadorDeContenido registrado con el id indicado'}
+            return error

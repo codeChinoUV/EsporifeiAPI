@@ -232,3 +232,25 @@ class ArtistaControlador(Resource):
         """
         ArtistaControlador.api.add_resource(ArtistaControlador, '/v1/creador-de-contenido/artista/<int:id_artista>')
         ArtistaControlador.api.init_app(app)
+
+
+class CreadorDeContenidoPublicoControlador(Resource):
+    api = Api()
+
+    def get(self, id_creador_de_contenido):
+        error_no_existe_creador_de_contenido = ValidacionCreadorDeContenido. \
+            validar_existe_creador_de_contenido(id_creador_de_contenido)
+        if error_no_existe_creador_de_contenido is not None:
+            return error_no_existe_creador_de_contenido, 404
+        creador_de_contenido = CreadorDeContenido.obtener_creador_de_contenido_por_id(id_creador_de_contenido)
+        return creador_de_contenido.obtener_json(), 200
+
+    @staticmethod
+    def exponer_endpoint(app):
+        """
+        Expone los metodos del endpoint
+        :param app: La aplicacion en la cual se expondra el endpoint
+        """
+        CreadorDeContenidoPublicoControlador.api.add_resource(CreadorDeContenidoPublicoControlador,
+                                                              '/v1/creador-de-contenido/<int:id_creador_de_contenido>')
+        CreadorDeContenidoPublicoControlador.api.init_app(app)

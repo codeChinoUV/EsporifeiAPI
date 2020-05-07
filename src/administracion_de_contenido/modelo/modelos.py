@@ -62,6 +62,18 @@ class CreadorDeContenido(base_de_datos.Model):
         return perfiles_con_el_mismo_usuario > 0
 
     @staticmethod
+    def verificar_existe_creador_contenido(id_creador_contenido):
+        """
+        Verifica si id_creador_cotenido pertence a un creador de contenido
+        :param id_creador_contenido: El id del CreadorDeContenido a validar si existe
+        :return: Verdadero si el id_creador_cotenido es de un CreadorDeContenido o falso si no
+        """
+        cantidad_creadores_contenido_con_mismo_id = \
+            CreadorDeContenido.query.filter_by(id_creador_de_contenido=id_creador_contenido).count()
+        return cantidad_creadores_contenido_con_mismo_id > 0
+
+
+    @staticmethod
     def obtener_creador_de_contenido_por_id(id_creador_contenido):
         """
         Recupera el creador de contenido que tenga el id indicado
