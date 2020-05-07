@@ -90,7 +90,7 @@ class CreadorDeContenido(base_de_datos.Model):
         """
         expresion_regular_de_busqueda = "%" + cadena_busqueda + "%"
         creadores_de_contenido = CreadorDeContenido.query. \
-            filter(CreadorDeContenido.nombre.ilike(expresion_regular_de_busqueda)).filter_by(eliminado=False).all()
+            filter(CreadorDeContenido.nombre.ilike(expresion_regular_de_busqueda)).all()
         return creadores_de_contenido
 
 
