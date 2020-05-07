@@ -8,10 +8,9 @@ class CreadoresDeContenidoBuscarControlador(Resource):
 
     def get(self, cadena_busqueda):
         """
-        Se encarga de responder una peticion get del endpoint al buscar todos los creadores de contenido que coincidan
+        Se encarga de responder una peticion GET al buscar todos los creadores de contenido que coincidan
         con la cadena de busqueda
         :param creador_de_contenido: La cadena de busqueda que se utlizara para filtrar a los creadores de contenido
-        :return: Una lista con los creadores de contenido que coinciden con la busqueda
         """
         creadores_de_contenido = CreadorDeContenido.obtener_creador_de_contenido_por_busqueda(cadena_busqueda)
         creadores_de_contenido_diccionario = []
