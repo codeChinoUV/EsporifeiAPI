@@ -8,60 +8,60 @@ class ValidacionCreadorDeContenido:
     """
     Se encarga de realizar las validaciones necesarias para el modelo CreadorDeContenido
     """
-    tamano_minimo_general = 5
-    tamano_maximo_nombre_usuario = 20
-    tamano_maximo_nombre = 70
-    tamano_maximo_biografia = 500
 
     @staticmethod
-    def _validar_campos_requeridos(creador_de_contenido, lista_de_errores):
+    def _validar_campos_requeridos(creador_de_contenido):
         """
         Valida que el creador_de_contenido tenga los campos requeridos
         :param creador_de_contenido: El creador de contenido a validar
-        :param lista_de_errores: La lista de errores del creador de contenido
-        :return: La lista de errores actualizada
+        :return: None si el creador de contenido tiene los atributos requeridos o un diccionario con el error y el
+        mensaje si al creador de contenido no tiene los campos requeridos
         """
+        parametros_faltantes = ""
         if creador_de_contenido.nombre is None:
-            lista_de_errores['nombre'] = "El campo es requerido"
+            parametros_faltantes += "<nombre> "
         if creador_de_contenido.es_grupo is None:
-            lista_de_errores['es_grupo'] = "El campo es requerido"
-        if creador_de_contenido.usuario_nombre_usuario is None:
-            lista_de_errores['nombre_usuario'] = "El campo es requerido"
-        return lista_de_errores
+            parametros_faltantes += "<es_grupo>"
+
+        if len(parametros_faltantes) > 0:
+            mensaje = "Los siguientes parametros faltan en tu solicitud: " + parametros_faltantes
+            errores = {'error': 'parametros_faltantes', 'mensaje': mensaje}
+            return errores
 
     @staticmethod
-    def _validar_booleano_valido(creador_de_contenido, lista_de_errores):
+    def _validar_booleano_valido(creador_de_contenido):
         """
         Valida que los campos que son de tipo booleano del creador de contenido sean validos
         :param creador_de_contenido: El creador de contenido al que se le validara los campos booleanos
-        :param lista_de_errores: La lista de errores de del creador de contenid
-        :return: La lista de errores actualizada
+        :return: None si los booleanos son validos o un diccionario con el error y el mensaje si los booleanos no son
+        validos
         """
         if JsonBool.obtener_boolean_de_valor_json(creador_de_contenido.es_grupo) is None:
-            lista_de_errores['es_grupo'] = "Debe de ser un valor booleano"
-        return lista_de_errores
+            error = {'error': 'es_grupo_no_es_booleano',
+                     'mensaje': 'El atributo <es_grupo> debe de ser booleano'}
+            return error
 
     @staticmethod
-    def _validar_tamano_modelo_creador_de_contenido(creador_de_contenido, lista_de_errores):
+    def _validar_tamano_modelo_creador_de_contenido(creador_de_contenido):
         """
-        Valida que el tamaño de las cadenas de los atributos del creador_de_contenido sea valida
+        Valida que el tamaño de las cadenas de los atributos del creador_de_contenido sean correctos
         :param creador_de_contenido: El creador de contenido a validar
-        :param lista_de_errores: La lista de errores del creador de contenido
-        :return: La lista de errores actualizada
+        :return: Una lista de diccionarios que contienen el error y el mensaje del error ocurrido
         """
-        if not ValidacionCadenas.validar_tamano_cadena(creador_de_contenido.nombre,
-                                                       ValidacionCreadorDeContenido.tamano_minimo_general,
-                                                       ValidacionCreadorDeContenido.tamano_maximo_nombre):
-            lista_de_errores['nombre'] = "El tamaño de la cadena incorrecto"
-        if creador_de_contenido.biografia is not None and not ValidacionCadenas. \
-                validar_tamano_cadena(creador_de_contenido.biografia,
-                                      ValidacionCreadorDeContenido.tamano_minimo_general,
-                                      ValidacionCreadorDeContenido.tamano_maximo_biografia):
-            lista_de_errores['biografia'] = "El tamaño de la cadena es incorrecto"
-        if not ValidacionCadenas.validar_tamano_cadena(creador_de_contenido.usuario_nombre_usuario,
-                                                       ValidacionCreadorDeContenido.tamano_minimo_general,
-                                                       ValidacionCreadorDeContenido.tamano_maximo_nombre_usuario):
-            lista_de_errores['nombre_usuario'] = "El tamaño de la cadena es incorreto"
+        tamano_minimo_general = 5
+        tamano_maximo_nombre = 70
+        tamano_maximo_biografia = 500
+        lista_de_errores = []
+        if creador_de_contenido.nombre is not None:
+            error = ValidacionCadenas.validar_tamano_parametro(creador_de_contenido.nombre, "nombre",
+                                                               tamano_minimo_general, tamano_maximo_nombre)
+            if error is not None:
+                lista_de_errores.append(error)
+        if creador_de_contenido.biografia is not None:
+            error = ValidacionCadenas.validar_tamano_parametro(creador_de_contenido.biografia, "biografia",
+                                                               tamano_minimo_general, tamano_maximo_biografia)
+            if error is not None:
+                lista_de_errores.append(error)
         return lista_de_errores
 
     @staticmethod
@@ -71,27 +71,17 @@ class ValidacionCreadorDeContenido:
         :param creador_de_contenido: El creador de contenido a validar
         :return: Un diccionario con los errores del modelo
         """
-        lista_de_errores = ValidacionCreadorDeContenido._validar_campos_requeridos(creador_de_contenido, {})
-        if len(lista_de_errores) > 0:
-            return lista_de_errores
-        lista_de_errores = ValidacionCreadorDeContenido._validar_tamano_modelo_creador_de_contenido(
-            creador_de_contenido, lista_de_errores)
-        if len(lista_de_errores) > 0:
-            return lista_de_errores
-        lista_de_errores = ValidacionCreadorDeContenido._validar_booleano_valido(creador_de_contenido, lista_de_errores)
-        if len(lista_de_errores) > 0:
-            return lista_de_errores
-        lista_de_errores = ValidacionUsuario.validar_nombre_usuario_disponible(
-            creador_de_contenido.usuario_nombre_usuario,
-            lista_de_errores)
-        if len(lista_de_errores) > 0:
-            return lista_de_errores
-        lista_de_errores = ValidacionCreadorDeContenido \
-            ._validar_nombre_usuario_tiene_perfil(creador_de_contenido.usuario_nombre_usuario, lista_de_errores)
-        if len(lista_de_errores) > 0:
-            return lista_de_errores
-        lista_de_errores = ValidacionUsuario \
-            .validar_tipo_usuario_creador_de_contenido(creador_de_contenido.usuario_nombre_usuario, lista_de_errores)
+        lista_de_errores = []
+        error = ValidacionCreadorDeContenido._validar_campos_requeridos(creador_de_contenido)
+        if error is not None:
+            lista_de_errores.append(error)
+        errores = ValidacionCreadorDeContenido._validar_tamano_modelo_creador_de_contenido(creador_de_contenido)
+        if len(errores) > 0:
+            for error in errores:
+                lista_de_errores.append(error)
+        error = ValidacionCreadorDeContenido._validar_booleano_valido(creador_de_contenido)
+        if error is not None:
+            lista_de_errores.append(error)
         return lista_de_errores
 
     @staticmethod
@@ -101,28 +91,29 @@ class ValidacionCreadorDeContenido:
         :param creador_de_contenido: El creador de contenido que contiene los campos a validar
         :return: Una lista con los errores que cuentan los campos a modificar
         """
-        lista_de_errores = ValidacionCreadorDeContenido._validar_campos_requeridos(creador_de_contenido, {})
+        lista_de_errores = ValidacionCreadorDeContenido._validar_campos_requeridos(creador_de_contenido)
         if len(lista_de_errores) > 0:
             return lista_de_errores
-        lista_de_errores = ValidacionCreadorDeContenido._validar_tamano_modelo_creador_de_contenido(creador_de_contenido
-                                                                                                    , lista_de_errores)
+        lista_de_errores = ValidacionCreadorDeContenido.\
+            _validar_tamano_modelo_creador_de_contenido(creador_de_contenido)
         if len(lista_de_errores) > 0:
             return lista_de_errores
-        lista_de_errores = ValidacionCreadorDeContenido._validar_booleano_valido(creador_de_contenido, lista_de_errores)
+        lista_de_errores = ValidacionCreadorDeContenido._validar_booleano_valido(creador_de_contenido)
         if len(lista_de_errores) > 0:
             return lista_de_errores
 
     @staticmethod
-    def _validar_nombre_usuario_tiene_perfil(nombre_usuario, lista_errores):
+    def validar_usuario_tiene_creador_de_contenido_asociado(usuario):
         """
-        Valida que el nombre de usuario no tenga un perfil asociado, si lo tiene agrega el error a la lista de errores
-        :param nombre_usuario: El nombre de usuario a validar
-        :param lista_errores: La lista de errores a la que se agregara el error
-        :return: La lista de errores actualizada
+        Valida si el usuario tiene un creador de contenido registrado
+        :param usuario: El usuario a validar si ya tiene un creador de contenido registrado
+        :return: Un diccionario con el error y el mensaje del error si ya tiene un creador de contenido registrado o
+        None si no tiene un creador de contenido registrado
         """
-        if CreadorDeContenido.verificar_usuario_tiene_creador_contenido_registrado(nombre_usuario):
-            lista_errores['nombre_usuario'] = "El usuario ya tiene un perfil registrado"
-        return lista_errores
+        if CreadorDeContenido.verificar_usuario_tiene_creador_contenido_registrado(usuario.nombre_usuario):
+            error = {'error': 'usuario_tiene_un_creador_de_contenido_registrado',
+                     'mensaje': 'El usuario con el cual se autentico ya cuenta con un creador de contenido registrado'}
+            return error
 
     @staticmethod
     def validar_creador_de_contenido_existe(id_creador_contenido):
