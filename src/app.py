@@ -1,6 +1,6 @@
 from src import app, base_de_datos
 from src.administracion_de_contenido.controlador.v1.CreadorDeContenidoControlador import CreadorDeContenidoControlador \
-    , ArtistasControlador, ArtistaControlador, CreadorDeContenidoPublicoControlador
+    , ArtistasControlador, ArtistaControlador, CreadorDeContenidoPublicoControlador, ArtistasPublicoControlador
 from src.administracion_de_contenido.controlador.v1.CreadoresDeContenidoControlador import \
     CreadoresDeContenidoBuscarControlador
 from src.manejo_de_usuarios.controlador.v1.LoginControlador import LoginControlador
@@ -18,6 +18,7 @@ CreadoresDeContenidoBuscarControlador.exponer_end_point(app)
 CreadorDeContenidoPublicoControlador.exponer_endpoint(app)
 ArtistasControlador.exponer_end_point(app)
 ArtistaControlador.exponer_endpoint(app)
+ArtistasPublicoControlador.exponer_endpoint(app)
 
 # Creacion base de datos
 base_de_datos.create_all()

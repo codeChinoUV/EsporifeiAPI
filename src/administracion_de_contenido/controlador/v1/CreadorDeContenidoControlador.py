@@ -111,10 +111,10 @@ class ArtistasControlador(Resource):
         :param usuario_actual: El usuario actual con el que se autentico
         :return: Los artistas que tiene registrado un CreadorDeContenido
         """
-        error = ValidacionCreadorDeContenido.validar_creador_de_contenido_existe(usuario_actual)
+        error = ValidacionCreadorDeContenido.validar_creador_de_contenido_existe_a_partir_de_usuario(usuario_actual)
         if error is not None:
             return error, 404
-        error = ValidacionCreadorDeContenido.validar_creador_de_contenido_es_grupo(usuario_actual)
+        error = ValidacionCreadorDeContenido.validar_creador_de_contenido_es_grupo_a_partir_de_usuario(usuario_actual)
         if error is not None:
             return error, 404
         creador_de_contenido = CreadorDeContenido \
@@ -132,10 +132,10 @@ class ArtistasControlador(Resource):
         """
         Se encarga de procesar una solictud POST al registrar un nuevo artista de un creador de contenido que es grupo
         """
-        error = ValidacionCreadorDeContenido.validar_creador_de_contenido_existe(usuario_actual)
+        error = ValidacionCreadorDeContenido.validar_creador_de_contenido_existe_a_partir_de_usuario(usuario_actual)
         if error is not None:
             return error, 404
-        error = ValidacionCreadorDeContenido.validar_creador_de_contenido_es_grupo(usuario_actual)
+        error = ValidacionCreadorDeContenido.validar_creador_de_contenido_es_grupo_a_partir_de_usuario(usuario_actual)
         if error is not None:
             return error, 404
         artista_a_registrar = Artista(nombre=self.argumentos['nombre'])
@@ -238,6 +238,10 @@ class CreadorDeContenidoPublicoControlador(Resource):
     api = Api()
 
     def get(self, id_creador_de_contenido):
+        """
+        Se encarga de responder a una solicitud GET con la infomracion del creador que conentenga el
+        id_creador_de_conenido
+        """
         error_no_existe_creador_de_contenido = ValidacionCreadorDeContenido. \
             validar_existe_creador_de_contenido(id_creador_de_contenido)
         if error_no_existe_creador_de_contenido is not None:
@@ -254,3 +258,33 @@ class CreadorDeContenidoPublicoControlador(Resource):
         CreadorDeContenidoPublicoControlador.api.add_resource(CreadorDeContenidoPublicoControlador,
                                                               '/v1/creador-de-contenido/<int:id_creador_de_contenido>')
         CreadorDeContenidoPublicoControlador.api.init_app(app)
+
+
+class ArtistasPublicoControlador(Resource):
+    api = Api()
+
+    def get(self, id_creador_de_contenido):
+        """
+        Responde a una solicitud GET con los artistas que peterncen al CreadorDeContenido con el id indicado
+        """
+        error = ValidacionCreadorDeContenido.validar_existe_creador_de_contenido(id_creador_de_contenido)
+        if error is not None:
+            return error, 404
+        error = ValidacionCreadorDeContenido.validar_creador_de_contenido_es_grupo(id_creador_de_contenido)
+        if error is not None:
+            return error, 404
+        artistas_del_creador_de_cotenido = Artista.obtener_artistas_de_creador_de_contenido(id_creador_de_contenido)
+        lista_de_artistas = []
+        for artista in artistas_del_creador_de_cotenido:
+            lista_de_artistas.append(artista.obtener_json())
+        return lista_de_artistas
+
+    @staticmethod
+    def exponer_endpoint(app):
+        """
+        Expone los metodos del endpoint
+        :param app: La aplicacion en la cual se expondra el endpoint
+        """
+        ArtistasPublicoControlador.api.add_resource(ArtistasPublicoControlador,
+                                                    '/v1/creador-de-contenido/<int:id_creador_de_contenido>/artistas')
+        ArtistasPublicoControlador.api.init_app(app)
