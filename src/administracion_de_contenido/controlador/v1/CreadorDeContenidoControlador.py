@@ -3,6 +3,7 @@ from flask_restful import Resource, Api, reqparse
 from src.administracion_de_contenido.modelo.modelos import CreadorDeContenido, Artista
 from src.manejo_de_usuarios.controlador.v1.LoginControlador import token_requerido, solo_creador_de_contenido
 from src.util.JsonBool import JsonBool
+from src.util.validaciones.modelos.ValidacionArtista import ValidacionArtista
 from src.util.validaciones.modelos.ValidacionCreadorDeContenido import ValidacionCreadorDeContenido
 
 
@@ -97,12 +98,18 @@ class CreadorDeContenidoControlador(Resource):
 class ArtistasControlador(Resource):
     api = Api()
 
+    def __init__(self):
+        self.parser = reqparse.RequestParser()
+        self.parser.add_argument('nombre')
+        self.argumentos = self.parser.parse_args(strict=True)
+
     @token_requerido
     @solo_creador_de_contenido
     def get(self, usuario_actual):
         """
         Contesta una solicitud de tipo GET con una lista de artistas o un diccionario con errores
-        :param id_creador_contenido: El id del creador de contenido del cual se recuperaran sus artistas
+        :param usuario_actual: El usuario actual con el que se autentico
+        :return: Los artistas que tiene registrado un CreadorDeContenido
         """
         error = ValidacionCreadorDeContenido.validar_creador_de_contenido_existe(usuario_actual)
         if error is not None:
@@ -110,14 +117,35 @@ class ArtistasControlador(Resource):
         error = ValidacionCreadorDeContenido.validar_creador_de_contenido_es_grupo(usuario_actual)
         if error is not None:
             return error, 404
-        creador_de_contenido = CreadorDeContenido\
+        creador_de_contenido = CreadorDeContenido \
             .obtener_creador_de_contenido_por_usuario(usuario_actual.nombre_usuario)
-        artistas_del_creador_de_contenido =\
+        artistas_del_creador_de_contenido = \
             Artista.obtener_artistas_de_creador_de_contenido(creador_de_contenido.id_creador_de_contenido)
         diccionario_de_artistas = []
         for artista in artistas_del_creador_de_contenido:
             diccionario_de_artistas.append(artista.obtener_json())
         return diccionario_de_artistas
+
+    @token_requerido
+    @solo_creador_de_contenido
+    def post(self, usuario_actual):
+        """
+        Se encarga de procesar una solictud POST al registrar un nuevo artista de un creador de contenido que es grupo
+        """
+        error = ValidacionCreadorDeContenido.validar_creador_de_contenido_existe(usuario_actual)
+        if error is not None:
+            return error, 404
+        error = ValidacionCreadorDeContenido.validar_creador_de_contenido_es_grupo(usuario_actual)
+        if error is not None:
+            return error, 404
+        artista_a_registrar = Artista(nombre=self.argumentos['nombre'])
+        errores_en_la_solicitud = ValidacionArtista.validar_registro_artista(artista_a_registrar)
+        if len(errores_en_la_solicitud) > 0:
+            return errores_en_la_solicitud, 400
+        creador_contenido = CreadorDeContenido.obtener_creador_de_contenido_por_usuario(usuario_actual.nombre_usuario)
+        artista_a_registrar.creador_de_contenido_id = creador_contenido.id_creador_de_contenido
+        artista_a_registrar.guardar()
+        return artista_a_registrar.obtener_json(), 201
 
     @staticmethod
     def exponer_end_point(app):
@@ -126,5 +154,41 @@ class ArtistasControlador(Resource):
         :param app: La aplicacion en la cual se expondra el endpoint
         """
         ArtistasControlador.api.add_resource(ArtistasControlador,
-                                             '/v1/creador-de-contenido/<int:id_creador_contenido>/artistas')
+                                             '/v1/creador-de-contenido/artistas')
         ArtistasControlador.api.init_app(app)
+
+
+class ArtistaControlador(Resource):
+    api = Api()
+
+    def __init__(self):
+        self.parser = reqparse.RequestParser()
+        self.parser.add_argument('nombre')
+        self.argumentos = self.parser.parse_args(strict=True)
+
+    @token_requerido
+    @solo_creador_de_contenido
+    def get(self, usuario_actual, id_artista):
+        """
+        Se encarga de responder a una solictud GET con la informacion del Artista o con una lista de los errores
+        ocurridos y su codigo
+        """
+        error_no_existe_artista = ValidacionArtista.validar_artista_existe(id_artista)
+        if error_no_existe_artista is not None:
+            return error_no_existe_artista, 404
+        creador_contenido = CreadorDeContenido.obtener_creador_de_contenido_por_usuario(usuario_actual.nombre_usuario)
+        error_no_es_dueno = ValidacionArtista \
+            .validar_usuario_es_dueno_de_artista(creador_contenido.id_creador_de_contenido, id_artista)
+        if error_no_es_dueno is not None:
+            return error_no_es_dueno, 403
+        artista = Artista.obtener_artista_por_id(id_artista)
+        return artista.obtener_json()
+
+    @staticmethod
+    def exponer_endpoint(app):
+        """
+        Se encarga de exponer los metodos del endpoint en la app
+        :param app: La app en donde se expondran los metodos y el endpoint
+        """
+        ArtistaControlador.api.add_resource(ArtistaControlador, '/v1/creador-de-contenido/artista/<int:id_artista>')
+        ArtistaControlador.api.init_app(app)

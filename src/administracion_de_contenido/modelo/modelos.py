@@ -7,7 +7,7 @@ from src.util.JsonBool import JsonBool
 
 class CreadorDeContenido(base_de_datos.Model):
     """
-    Se encarga de representar el modelo CREADORDECONTENIDO y su acceso a la base de datos
+    Se encarga de representar el modelo CreadorDeContenido y su acceso a la base de datos
     """
     id_creador_de_contenido = base_de_datos.Column(base_de_datos.Integer, primary_key=True)
     nombre = base_de_datos.Column(base_de_datos.String(70), nullable=False)
@@ -105,6 +105,13 @@ class Artista(base_de_datos.Model):
                                                    ForeignKey('creador_de_contenido.id_creador_de_contenido'),
                                                    nullable=False)
 
+    def guardar(self):
+        """
+        Se encarga de guardar en la base de datos la informacion del objeto
+        """
+        base_de_datos.session.add(self)
+        base_de_datos.session.commit()
+
     def obtener_json(self):
         """
         Genera un diccionario con los datos del objeto, el cual se utilizara para serializar la información a un JSON
@@ -123,3 +130,35 @@ class Artista(base_de_datos.Model):
         """
         artistas = Artista.query.filter_by(creador_de_contenido_id=id_creador_de_cotenido).all()
         return artistas
+
+    @staticmethod
+    def obtener_artista_por_id(id_artista):
+        """
+        Recupera de la base de datos el artista que tiene el id_artista
+        :param id_artista: El id del artista a recuperar
+        :return: El artista que coincide con el id_artista o None si ningun artista tiene el id_artista
+        """
+        artista = Artista.query.filter_by(id_artista=id_artista).first()
+        return artista
+
+    @staticmethod
+    def verificar_artista_existe(id_artista):
+        """
+        Verifica si un artista existe en la base de datos
+        :param id_artista: El id del artista a verificar si existe
+        :return: Verdadero si el usuario existe, falso si no
+        """
+        cantidad_de_artistas_con_el_id = Artista.query.filter_by(id_artista=id_artista).count()
+        return cantidad_de_artistas_con_el_id > 0
+
+    @staticmethod
+    def verificar_creador_de_contenido_es_dueno_de_artista(id_creador_de_contenido, id_artista):
+        """
+        Verifica si la combinacion de id_artista e id_creador_de_contenido tiene  algun registro en la base de dato
+        :param id_creador_de_contenido: El id del creador de contenido que es dueño del artista
+        :param id_artista: El id del artista a validar si es dueña del creador de contenido
+        :return: Verdadero si el creador de contenido es dueño del artista o falso si no
+        """
+        cantidad_de_artistas_duenos_del_creador = Artista.query \
+            .filter_by(id_artista=id_artista, creador_de_contenido_id=id_creador_de_contenido).count()
+        return cantidad_de_artistas_duenos_del_creador > 0
