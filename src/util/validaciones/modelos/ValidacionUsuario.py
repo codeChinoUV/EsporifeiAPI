@@ -20,13 +20,13 @@ class ValidacionUsuario:
         tamano_minimo_general = 5
         lista_de_errores = []
         if usuario.nombre is not None:
-            error = ValidacionUsuario._validar_tamano_parametro(usuario.nombre_usuario, "nombre_usuario",
-                                                                tamano_minimo_general, tamano_maximo_nombre_usuario)
+            error = ValidacionCadenas.validar_tamano_parametro(usuario.nombre_usuario, "nombre_usuario",
+                                                               tamano_minimo_general, tamano_maximo_nombre_usuario)
             if error is not None:
                 lista_de_errores.append(error)
         if usuario.nombre is not None:
-            error = ValidacionUsuario._validar_tamano_parametro(usuario.nombre, "nombre", tamano_minimo_general,
-                                                                tamano_maximo_nombre)
+            error = ValidacionCadenas.validar_tamano_parametro(usuario.nombre, "nombre", tamano_minimo_general,
+                                                               tamano_maximo_nombre)
             if error is not None:
                 lista_de_errores.append(error)
         if usuario.contrasena is not None:
@@ -84,18 +84,6 @@ class ValidacionUsuario:
         return lista_de_errores
 
     @staticmethod
-    def validar_nombre_usuario_disponible(nombre_usuario, lista_de_errores):
-        """
-        Valida si el nombre del usuario se encuentra disponible
-        :param nombre_usuario: El nombre del usuario que se va a validar si se encuentra disponible
-        :param lista_de_errores: La lista de errores del usuario
-        :return: La lista de errores actualizada
-        """
-        if not Usuario.verificar_nombre_usuario_en_uso(nombre_usuario=nombre_usuario):
-            lista_de_errores['nombre_usuario'] = "El nombre de usuario no se encuentra registrado"
-        return lista_de_errores
-
-    @staticmethod
     def validar_existe_usuario(nombre_usuario):
         """
         Valida si el nombre de usuario se encuentre registrado en la base de datos
@@ -123,16 +111,17 @@ class ValidacionUsuario:
                 return error
 
     @staticmethod
-    def validar_tipo_usuario_creador_de_contenido(nombre_usuario, lista_de_errores):
+    def validar_tipo_usuario_creador_de_contenido(usuario):
         """
-        Valida que el nombre_usuario sea de tipo creador de contenido
-        :param nombre_usuario: El nombre_de_usuario a validar
-        :param lista_de_errores: La lista que contiene todos los errores
-        :return: La lista de errores actualizada
+        Valida que el usuario sea de tipo creador de contenido
+        :param usuario: El usuario a validar
+        :return: Un diccionario indicando el error y el mensaje del error o None si el usuario es de tipo
+        creadorDeContenido
         """
-        if not Usuario.validar_usuario_creador_de_contenido(nombre_usuario):
-            lista_de_errores['nombre_usuario'] = "El usuario no es un creador de contenido"
-        return lista_de_errores
+        if TipoUsuario(usuario.tipo_usuario) != TipoUsuario.CreadorDeContenido:
+            error = {'error': 'usuario_no_es_creador_de_contenido',
+                     'mensaje': 'El usuario con el cual se atentico no es de tipo CreadorDeContenido'}
+            return error
 
     @staticmethod
     def _validar_nombre_usuario_valido(nombre_usuario):
@@ -146,27 +135,6 @@ class ValidacionUsuario:
             error = {'error': 'nombre_usuario_no_es_alfanumerico',
                      'mensaje': 'El <nombre_usuario> debe de ser alfanumerico, por lo tanto no debe de '
                                 'contener caracteres especiales ni espacios, solo letras y numeros'}
-            return error
-
-    @staticmethod
-    def _validar_tamano_parametro(cadena, nombre_parametro, tamano_minimo, tamano_maximo):
-        """
-        Valida que el tamaño de la cadena se encuentre entre el tamano_minimo y el tamano_maximo
-        :param cadena: La cadena de texto a la que se validara el tamaño
-        :param tamano_minimo: El tamaño minimo que puede tener la cadena
-        :param tamano_maximo: El tamaño maximo que puede tener la cadena
-        :param nombre_parametro: El nombre del parametro que se utilizara para crear el diccionario con los errores
-        :return: Un diccionario con los errores encontrados o None si no hay ningun error
-        """
-        if len(cadena) < tamano_minimo:
-            error = {'error': nombre_parametro + '_demasiado_corto',
-                     'mensaje': 'El <' + nombre_parametro + '> debe de tener una longitud mayor a' + tamano_minimo
-                                + ' y menor a ' + tamano_maximo}
-            return error
-        elif len(cadena) > tamano_maximo:
-            error = {'error': nombre_parametro + '_demasiado_largo',
-                     'mensaje': 'El <' + nombre_parametro + '> debe de tener una longitud mayor a' + tamano_minimo
-                                + ' y menor a ' + tamano_maximo}
             return error
 
     @staticmethod
@@ -198,8 +166,8 @@ class ValidacionUsuario:
                                 'modificar son: <nombre>, <contrasena>'}
             return error
         elif usuario.nombre is not None:
-            error = ValidacionUsuario._validar_tamano_parametro(usuario.nombre, "nombre",
-                                                                tamano_minimo_general, tamano_maximo_nombre)
+            error = ValidacionCadenas.validar_tamano_parametro(usuario.nombre, "nombre",
+                                                               tamano_minimo_general, tamano_maximo_nombre)
             if error is not None:
                 return error
         if usuario.contrasena is not None:

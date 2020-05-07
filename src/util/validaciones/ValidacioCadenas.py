@@ -7,19 +7,25 @@ import re
 class ValidacionCadenas():
 
     @staticmethod
-    def validar_tamano_cadena(cadena, tamano_minimo, tamano_maximo, nombre_campo, error):
+    def validar_tamano_parametro(cadena, nombre_parametro, tamano_minimo, tamano_maximo):
         """
-        Valida si la cadena de texto tiene se encuentra entre la calidad minima y maxima de caracteres
-        :param cadena: La cadena a valdiar
+        Valida que el tamaño de la cadena se encuentre entre el tamano_minimo y el tamano_maximo
+        :param cadena: La cadena de texto a la que se validara el tamaño
         :param tamano_minimo: El tamaño minimo que puede tener la cadena
         :param tamano_maximo: El tamaño maximo que puede tener la cadena
-        :param nombre_campo: El nombre del campo que se esta validando
-        :return: Un diccionario con los errores del campo o None si no se encuentra
+        :param nombre_parametro: El nombre del parametro que se utilizara para crear el diccionario con los errores
+        :return: Un diccionario con los errores encontrados o None si no hay ningun error
         """
-        if cadena is None:
-            return False
-        else:
-            return tamano_minimo <= len(cadena) <= tamano_maximo
+        if len(cadena) < tamano_minimo:
+            error = {'error': nombre_parametro + '_demasiado_corto',
+                     'mensaje': 'El <' + nombre_parametro + '> debe de tener una longitud mayor a ' + str(tamano_minimo)
+                                + ' y menor a ' + str(tamano_maximo)}
+            return error
+        elif len(cadena) > tamano_maximo:
+            error = {'error': nombre_parametro + '_demasiado_largo',
+                     'mensaje': 'El <' + nombre_parametro + '> debe de tener una longitud mayor a' + str(tamano_minimo)
+                                + ' y menor a ' + str(tamano_maximo)}
+            return error
 
     @staticmethod
     def validar_cadena_sin_caracteres_especiales(cadena):

@@ -27,7 +27,7 @@ class Usuario(base_de_datos.Model):
 
     def actualizar_informacion(self, nombre, contrasena):
         """
-        Actualiza la información de los atributos nombre y contrasena yg uarda los cambios realizados
+        Actualiza la información de los atributos nombre y contrasena y guarda los cambios realizados
         en la base de datos
         """
         if nombre is not None:
