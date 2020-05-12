@@ -3,6 +3,7 @@ from src.administracion_de_contenido.controlador.v1.CreadorDeContenidoControlado
     , ArtistasControlador, ArtistaControlador, CreadorDeContenidoPublicoControlador, ArtistasPublicoControlador
 from src.administracion_de_contenido.controlador.v1.CreadoresDeContenidoControlador import \
     CreadoresDeContenidoBuscarControlador
+from src.administracion_de_contenido.controlador.v1.GenerosControlador import GenerosControlador
 from src.manejo_de_usuarios.controlador.v1.LoginControlador import LoginControlador
 from src.manejo_de_usuarios.controlador.v1.UsuarioControlador import UsuarioControlador
 
@@ -11,6 +12,9 @@ LoginControlador.exponer_endpoint(app)
 
 # Exponemos endpoint usuario
 UsuarioControlador.exponer_endpoint(app)
+
+#Exponemos endpoint generos
+GenerosControlador.exponer_endpoint(app)
 
 # Exponemos endpoint de creadores de contenido
 CreadorDeContenidoControlador.exponer_end_point(app)

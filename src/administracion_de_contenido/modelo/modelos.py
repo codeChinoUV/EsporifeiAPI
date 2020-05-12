@@ -193,4 +193,20 @@ class Artista(base_de_datos.Model):
 class Genero(base_de_datos.Model):
     id_genero = base_de_datos.Column(base_de_datos.Integer, primary_key=True, autoincrement=True)
     genero = base_de_datos.Column(base_de_datos.String(30), nullable=False)
-    
+
+    @staticmethod
+    def recuperar_todos_los_generos():
+        """
+        Recupera de la base de datos todos los generos registrados
+        :return: Una lista con los generos registrados
+        """
+        generos = base_de_datos.session.query().all()
+        return generos
+
+    def obtner_json(self):
+        """
+        Crea un diccionario con los atributos del objeto
+        :return: Un diccionario con los atributos del objeto
+        """
+        diccionario_de_los_atributos = {'id': self.id_genero, 'genero': self.genero}
+        return diccionario_de_los_atributos
