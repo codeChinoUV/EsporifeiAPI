@@ -3,8 +3,10 @@ La clase validacion de cadenas se encarga de agrupar todos los metodos utiles pa
 """
 import re
 
+import phonenumbers
 
-class ValidacionCadenas():
+
+class ValidacionCadenas:
 
     @staticmethod
     def validar_tamano_parametro(cadena, nombre_parametro, tamano_minimo, tamano_maximo):
@@ -48,3 +50,27 @@ class ValidacionCadenas():
             return False
         else:
             return True
+
+    @staticmethod
+    def validar_numero_telefono(numero_telefono):
+        """
+        Valida si el numero_telefono es un numero valido
+        :param numero_telefono: El numero de telefono a validar
+        :return: None si el numero de telefono es valido o Un diccionario indicando el codigo del error y su mensaje
+        """
+        numero_telefonico = phonenumbers.parse(numero_telefono, None)
+        if not phonenumbers.is_valid_number(numero_telefonico):
+            error = {'error': 'telefono_no_valido', 'mensaje': 'El <telefono> no es un numero de telefono valido'}
+            return error
+
+    @staticmethod
+    def validar_email(email):
+        """
+        Valida que una dicreccion de email sea valida utilizando la expresion regular que proporciona la w3.org
+        :param email: El email a validar
+        :return: None si la direccion de email es correcta o un diccionario con el error si no
+        """
+        expresion_regular_email = re.compile(r'^[a-zA-Z0-9.!#$%&\'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$')
+        if expresion_regular_email.match(email) is None:
+            error = {'error': 'email_formato_incorrecto', 'mensaje': 'El <email> no tiene un formato correcto'}
+            return error

@@ -223,5 +223,13 @@ class Disquera(base_de_datos.Model):
     nombre = base_de_datos.Column(base_de_datos.String(70), nullable=False)
     direccion = base_de_datos.Column(base_de_datos.String(200), nullable=False)
     email = base_de_datos.Column(base_de_datos.String(100), nullable=False)
-    telefono = base_de_datos.Column(base_de_datos.String(13), nullable=True)
+    telefono = base_de_datos.Column(base_de_datos.String(30), nullable=True)
     es_empresa = base_de_datos.Column(base_de_datos.Boolean, nullable=False)
+    id_creador_de_contenido_creador = base_de_datos.Column(base_de_datos.Integer, nullable=False)
+
+    def guardar(self):
+        """
+        Se encarga de guardar el objeto actual en la base de datos
+        """
+        base_de_datos.session.add(self)
+        base_de_datos.session.commit()

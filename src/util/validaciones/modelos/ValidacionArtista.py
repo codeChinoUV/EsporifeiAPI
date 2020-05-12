@@ -25,9 +25,9 @@ class ValidacionArtista:
             return error
 
     @staticmethod
-    def _validar_tamano_atributos(artista):
+    def _validar_tamano_cadenas(artista):
         """
-        Se encarga de validar el tamano de los atributos del objeto artista
+        Se encarga de validar el tamano de los atributos de tipo string del objeto artista
         :param artista: El artitsta al que se le validara el tamaño de sus atributos
         :return: Un diccionario con el error y su mensaje o None si todos los tamaños son validos
         """
@@ -49,7 +49,7 @@ class ValidacionArtista:
         error_campos_requeridos = ValidacionArtista._validar_campos_requeridos(artista)
         if error_campos_requeridos is not None:
             lista_de_errores.append(error_campos_requeridos)
-        error_tamano_campos = ValidacionArtista._validar_tamano_atributos(artista)
+        error_tamano_campos = ValidacionArtista._validar_tamano_cadenas(artista)
         if error_tamano_campos is not None:
             lista_de_errores.append(error_tamano_campos)
         return lista_de_errores
