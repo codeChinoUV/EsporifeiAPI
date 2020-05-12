@@ -21,6 +21,10 @@ class CreadoresDeContenidoBuscarControlador(Resource):
 
     @staticmethod
     def exponer_end_point(app):
+        """
+        Expone los metodos del endpoint
+        :param app: La aplicacion en la cual se expondra el endpoint
+        """
         CreadoresDeContenidoBuscarControlador.api.add_resource(CreadoresDeContenidoBuscarControlador,
                                                                '/v1/creadores-de-contenido/buscar/<string' +
                                                                ':cadena_busqueda>')
