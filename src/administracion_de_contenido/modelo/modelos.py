@@ -191,6 +191,9 @@ class Artista(base_de_datos.Model):
 
 
 class Genero(base_de_datos.Model):
+    """
+    Representa a un Genero que agrupa canciones y creadores de contenido
+    """
     id_genero = base_de_datos.Column(base_de_datos.Integer, primary_key=True, autoincrement=True)
     genero = base_de_datos.Column(base_de_datos.String(30), nullable=False)
 
@@ -210,3 +213,15 @@ class Genero(base_de_datos.Model):
         """
         diccionario_de_los_atributos = {'id': self.id_genero, 'genero': self.genero}
         return diccionario_de_los_atributos
+
+
+class Disquera(base_de_datos.Model):
+    """
+    Se encarga de representar una Disquera a la que pertenece un artista
+    """
+    id_disquera = base_de_datos.Column(base_de_datos.Integer, primary_key=True, autoincrement=True)
+    nombre = base_de_datos.Column(base_de_datos.String(70), nullable=False)
+    direccion = base_de_datos.Column(base_de_datos.String(200), nullable=False)
+    email = base_de_datos.Column(base_de_datos.String(100), nullable=False)
+    telefono = base_de_datos.Column(base_de_datos.String(13), nullable=True)
+    es_empresa = base_de_datos.Column(base_de_datos.Boolean, nullable=False)
