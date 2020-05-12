@@ -72,7 +72,6 @@ class CreadorDeContenido(base_de_datos.Model):
             CreadorDeContenido.query.filter_by(id_creador_de_contenido=id_creador_contenido).count()
         return cantidad_creadores_contenido_con_mismo_id > 0
 
-
     @staticmethod
     def obtener_creador_de_contenido_por_id(id_creador_contenido):
         """
@@ -189,3 +188,9 @@ class Artista(base_de_datos.Model):
         cantidad_de_artistas_duenos_del_creador = Artista.query \
             .filter_by(id_artista=id_artista, creador_de_contenido_id=id_creador_de_contenido).count()
         return cantidad_de_artistas_duenos_del_creador > 0
+
+
+class Genero(base_de_datos.Model):
+    id_genero = base_de_datos.Column(base_de_datos.Integer, primary_key=True, autoincrement=True)
+    genero = base_de_datos.Column(base_de_datos.String(30), nullable=False)
+    

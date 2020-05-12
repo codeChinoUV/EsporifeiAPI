@@ -19,7 +19,7 @@ def token_requerido(f):
         if not token:
             error = {'error': 'token_faltante',
                      'mensaje': 'La cabecera http no lleva el token en el campo \'x-access-token\''}
-            return error, 401
+            return 401, error
         try:
             datos = jwt.decode(token, app.config['SECRET_KEY'])
             usuario_actual = Usuario.obtener_usuario(datos['nombre_usuario'])
