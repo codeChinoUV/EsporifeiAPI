@@ -200,7 +200,7 @@ class Genero(base_de_datos.Model):
         Recupera de la base de datos todos los generos registrados
         :return: Una lista con los generos registrados
         """
-        generos = base_de_datos.session.query().all()
+        generos = Genero.query.all()
         return generos
 
     def obtner_json(self):
