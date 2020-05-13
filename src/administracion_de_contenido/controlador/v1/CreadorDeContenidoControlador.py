@@ -90,6 +90,10 @@ class CreadorDeContenidoControlador(Resource):
 
     @staticmethod
     def exponer_end_point(app):
+        """
+        Expone los metodos del endpoint
+        :param app: La aplicacion en la cual se expondra el endpoint
+        """
         CreadorDeContenidoControlador.api.add_resource(CreadorDeContenidoControlador,
                                                        '/v1/creador-de-contenido')
         CreadorDeContenidoControlador.api.init_app(app)

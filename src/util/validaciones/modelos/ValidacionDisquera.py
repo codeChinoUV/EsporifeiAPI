@@ -83,9 +83,10 @@ class ValidacionDisquera:
         if len(errores_tamano_cadenas) > 0:
             for error in errores_tamano_cadenas:
                 lista_de_errores.append(error)
-        error_email = ValidacionCadenas.validar_email(disquera.email)
-        if error_email is not None:
-            lista_de_errores.append(error_email)
+        if disquera.email is not None:
+            error_email = ValidacionCadenas.validar_email(disquera.email)
+            if error_email is not None:
+                lista_de_errores.append(error_email)
         if disquera.telefono is not None:
             error_telefono = ValidacionCadenas.validar_numero_telefono(disquera.telefono)
             if error_telefono is not None:

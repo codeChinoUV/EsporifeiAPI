@@ -225,11 +225,22 @@ class Disquera(base_de_datos.Model):
     email = base_de_datos.Column(base_de_datos.String(100), nullable=False)
     telefono = base_de_datos.Column(base_de_datos.String(30), nullable=True)
     es_empresa = base_de_datos.Column(base_de_datos.Boolean, nullable=False)
-    id_creador_de_contenido_creador = base_de_datos.Column(base_de_datos.Integer, nullable=False)
+    nombre_usuario_creador = base_de_datos.Column(base_de_datos.String(20), nullable=False)
 
     def guardar(self):
         """
         Se encarga de guardar el objeto actual en la base de datos
         """
+        if self.es_empresa is None:
+            self.es_empresa = False
         base_de_datos.session.add(self)
         base_de_datos.session.commit()
+
+    def obtner_json(self):
+        """
+        Crea un diccionario con los atributos del objeto
+        :return: Un diccionario con los atributos del objeto
+        """
+        diccionario_de_los_atributos = {'id': self.id_disquera, 'nombre': self.nombre, 'direccion': self.direccion,
+                                        'email': self.email, 'telefono': self.telefono, 'es_empresa': self.es_empresa}
+        return diccionario_de_los_atributos
