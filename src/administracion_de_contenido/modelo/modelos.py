@@ -191,6 +191,9 @@ class Artista(base_de_datos.Model):
 
 
 class Genero(base_de_datos.Model):
+    """
+    Representa a un Genero que agrupa canciones y creadores de contenido
+    """
     id_genero = base_de_datos.Column(base_de_datos.Integer, primary_key=True, autoincrement=True)
     genero = base_de_datos.Column(base_de_datos.String(30), nullable=False)
 
@@ -209,4 +212,35 @@ class Genero(base_de_datos.Model):
         :return: Un diccionario con los atributos del objeto
         """
         diccionario_de_los_atributos = {'id': self.id_genero, 'genero': self.genero}
+        return diccionario_de_los_atributos
+
+
+class Disquera(base_de_datos.Model):
+    """
+    Se encarga de representar una Disquera a la que pertenece un artista
+    """
+    id_disquera = base_de_datos.Column(base_de_datos.Integer, primary_key=True, autoincrement=True)
+    nombre = base_de_datos.Column(base_de_datos.String(70), nullable=False)
+    direccion = base_de_datos.Column(base_de_datos.String(200), nullable=False)
+    email = base_de_datos.Column(base_de_datos.String(100), nullable=False)
+    telefono = base_de_datos.Column(base_de_datos.String(30), nullable=True)
+    es_empresa = base_de_datos.Column(base_de_datos.Boolean, nullable=False)
+    nombre_usuario_creador = base_de_datos.Column(base_de_datos.String(20), nullable=False)
+
+    def guardar(self):
+        """
+        Se encarga de guardar el objeto actual en la base de datos
+        """
+        if self.es_empresa is None:
+            self.es_empresa = False
+        base_de_datos.session.add(self)
+        base_de_datos.session.commit()
+
+    def obtner_json(self):
+        """
+        Crea un diccionario con los atributos del objeto
+        :return: Un diccionario con los atributos del objeto
+        """
+        diccionario_de_los_atributos = {'id': self.id_disquera, 'nombre': self.nombre, 'direccion': self.direccion,
+                                        'email': self.email, 'telefono': self.telefono, 'es_empresa': self.es_empresa}
         return diccionario_de_los_atributos

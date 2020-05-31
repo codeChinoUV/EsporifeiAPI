@@ -71,8 +71,7 @@ class LoginControlador(Resource):
             error = {'error': 'credenciales_invalidas', 'mensaje': 'No existe un usuario con la combinación de usuario '
                                                                    'y contrasena indicada'}
             return error, 400
-        token = jwt.encode({'nombre_usuario': usuario.nombre_usuario,
-                            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)},
+        token = jwt.encode({'nombre_usuario': usuario.nombre_usuario},
                            app.config['SECRET_KEY'])
         return jsonify({'token': token.decode('UTF-8')})
 

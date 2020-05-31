@@ -4,3 +4,4 @@ flask_restful
 wheel
 psycopg2
 Flask-JWT
+phonenumbers

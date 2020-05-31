@@ -1,8 +1,9 @@
 from src import app, base_de_datos
-from src.administracion_de_contenido.controlador.v1.CreadorDeContenidoControlador import CreadorDeContenidoControlador \
+from src.administracion_de_contenido.controlador.v1.CreadorDeContenidoControlador import CreadorDeContenidoControlador\
     , ArtistasControlador, ArtistaControlador, CreadorDeContenidoPublicoControlador, ArtistasPublicoControlador
 from src.administracion_de_contenido.controlador.v1.CreadoresDeContenidoControlador import \
     CreadoresDeContenidoBuscarControlador
+from src.administracion_de_contenido.controlador.v1.DisquerasControlador import DisquerasControlador
 from src.administracion_de_contenido.controlador.v1.GenerosControlador import GenerosControlador
 from src.manejo_de_usuarios.controlador.v1.LoginControlador import LoginControlador
 from src.manejo_de_usuarios.controlador.v1.UsuarioControlador import UsuarioControlador
@@ -13,8 +14,11 @@ LoginControlador.exponer_endpoint(app)
 # Exponemos endpoint usuario
 UsuarioControlador.exponer_endpoint(app)
 
-#Exponemos endpoint generos
+# Exponemos endpoint generos
 GenerosControlador.exponer_endpoint(app)
+
+# Exponemos endpoint disqueras
+DisquerasControlador.exponer_end_point(app)
 
 # Exponemos endpoint de creadores de contenido
 CreadorDeContenidoControlador.exponer_end_point(app)
