@@ -1,4 +1,5 @@
 from . import api
+from .controlador.v1.AlbumControlador import CreadorDeContenidoAlbumes
 from .controlador.v1.CreadorDeContenidoControlador import CreadorDeContenidoControlador, ArtistasControlador, \
     ArtistaControlador, ArtistasPublicoControlador
 from .controlador.v1.CreadoresDeContenidoControlador import CreadoresDeContenidoBuscarControlador
@@ -10,3 +11,4 @@ api.add_resource(ArtistaControlador, '/v1/creador-de-contenido/artista/<int:id_a
 api.add_resource(ArtistasPublicoControlador, '/v1/creador-de-contenido/<int:id_creador_de_contenido>/artistas')
 api.add_resource(GenerosControlador, '/v1/generos')
 api.add_resource(CreadoresDeContenidoBuscarControlador, '/v1/creadores-de-contenido/buscar/<string:cadena_busqueda>')
+api.add_resource(CreadorDeContenidoAlbumes, '/v1/creador-de-contenido/albumes')
