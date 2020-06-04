@@ -15,7 +15,8 @@ class CreadorDeContenido(base_de_datos.Model):
     es_grupo = base_de_datos.Column(base_de_datos.Boolean, nullable=False)
     usuario_nombre_usuario = base_de_datos.Column(base_de_datos.String(20),
                                                   nullable=False, index=True)
-    artistas = base_de_datos.relationship('Artista', backref='creadordecontenido', lazy=True)
+    artistas = base_de_datos.relationship('Artista', backref='creador_de_contenido', lazy=True)
+    albumes = base_de_datos.relationship('Album', backref='creador_de_contenido', lazy=True)
 
     def guardar(self):
         """
@@ -244,3 +245,23 @@ class Disquera(base_de_datos.Model):
         diccionario_de_los_atributos = {'id': self.id_disquera, 'nombre': self.nombre, 'direccion': self.direccion,
                                         'email': self.email, 'telefono': self.telefono, 'es_empresa': self.es_empresa}
         return diccionario_de_los_atributos
+
+
+class Album(base_de_datos.Model):
+    id_album = base_de_datos.Column(base_de_datos.Integer, primary_key=True)
+    nombre = base_de_datos.Column(base_de_datos.String(70), nullable=False)
+    anio_lanzamiento = base_de_datos.Column(base_de_datos.String(4), nullable=False)
+    duracion_total_segundos = base_de_datos.Column(base_de_datos.Float)
+    creador_de_contenido_id = base_de_datos.Column(base_de_datos.Integer,
+                                                   base_de_datos.
+                                                   ForeignKey('creador_de_contenido.id_creador_de_contenido'),
+                                                   nullable=False)
+
+    def guardar(self):
+        base_de_datos.session.add(self)
+        base_de_datos.session.commit()
+
+    def obtener_json(self):
+        diccionario_del_objeto = {'id': self.id_album, 'nombre': self.nombre, 'anio_lanzamiento': self.anio_lanzamiento,
+                                  'duracion_total': self.duracion_total_segundos}
+        return diccionario_del_objeto
