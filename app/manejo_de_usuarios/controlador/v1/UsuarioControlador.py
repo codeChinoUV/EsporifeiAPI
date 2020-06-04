@@ -2,7 +2,7 @@ from flask_restful import Resource, reqparse
 
 from app.manejo_de_usuarios.controlador.v1.LoginControlador import token_requerido
 from app.manejo_de_usuarios.modelo.modelos import Usuario
-from app.util.validaciones.modelos import ValidacionUsuario
+from app.util.validaciones.modelos.ValidacionUsuario import ValidacionUsuario
 
 
 class UsuarioControlador(Resource):

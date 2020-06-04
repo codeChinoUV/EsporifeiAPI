@@ -91,5 +91,7 @@ class Usuario(base_de_datos.Model):
         :return: El usuario al que pertenecen las credenciaels o None si las credenciales no pertenecen a nadie
         """
         usuario = Usuario.query.filter_by(nombre_usuario=nombre_usuario).first()
+        if usuario is None:
+            return None
         if check_password_hash(usuario.contrasena, contrasena):
             return usuario
