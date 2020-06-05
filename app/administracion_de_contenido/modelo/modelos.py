@@ -252,16 +252,37 @@ class Album(base_de_datos.Model):
     nombre = base_de_datos.Column(base_de_datos.String(70), nullable=False)
     anio_lanzamiento = base_de_datos.Column(base_de_datos.String(4), nullable=False)
     duracion_total_segundos = base_de_datos.Column(base_de_datos.Float)
+    eliminado = base_de_datos.Column(base_de_datos.Boolean, nullable=False, default=False)
     creador_de_contenido_id = base_de_datos.Column(base_de_datos.Integer,
                                                    base_de_datos.
                                                    ForeignKey('creador_de_contenido.id_creador_de_contenido'),
                                                    nullable=False)
 
     def guardar(self):
+        """
+        Se encarga de guardar el objeto actual en la base de datos
+        """
         base_de_datos.session.add(self)
         base_de_datos.session.commit()
 
+    @staticmethod
+    def obtener_abumes_creador_de_contenido(id_creador_de_contenido):
+        """
+        Obtener un listado de álbumes pertenecientes a un
+        creador de contenido
+        :param id_creador_de_contenido: El id del creador de contenido que es dueño del álbum
+        :return: Una lista de álbumes o una lista vacía
+        """
+        albumes = Album.query.filter_by(creador_de_contenido_id = id_creador_de_contenido, eliminado=False).all()
+        if albumes is None:
+            return []
+        return albumes
+
     def obtener_json(self):
+        """
+        Crea un diccionario con los atributos del objeto
+        :return: Un diccionario con los atributos del objeto
+        """
         diccionario_del_objeto = {'id': self.id_album, 'nombre': self.nombre, 'anio_lanzamiento': self.anio_lanzamiento,
                                   'duracion_total': self.duracion_total_segundos}
         return diccionario_del_objeto

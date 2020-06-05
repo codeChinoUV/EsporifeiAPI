@@ -31,3 +31,25 @@ class CreadorDeContenidoAlbumes(Resource):
         album_a_registrar.guardar()
         return album_a_registrar.obtener_json(), 201
 
+    @token_requerido
+    @solo_creador_de_contenido
+    def get(self, usuario_actual):
+        error_no_existe_creador_cotenido = ValidacionCreadorDeContenido\
+            .validar_creador_de_contenido_existe_a_partir_de_usuario(usuario_actual)
+        if error_no_existe_creador_cotenido is not None:
+            return error_no_existe_creador_cotenido, 404
+        creador_de_contenido = CreadorDeContenido.obtener_creador_de_contenido_por_usuario(usuario_actual.nombre_usuario)
+        albumes = Album.obtener_abumes_creador_de_contenido(creador_de_contenido.id_creador_de_contenido)
+        lista_de_albumes = []
+        for album in albumes:
+            lista_de_albumes.append(album.obtener_json())
+        return lista_de_albumes, 200
+
+class Album(Resource):
+    @token_requerido
+    @solo_creador_de_contenido
+    def get(self, usuario_actual, id_album):
+        return {"id_album":id_album}, 200
+
+
+
