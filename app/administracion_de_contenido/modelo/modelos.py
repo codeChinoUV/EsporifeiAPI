@@ -265,6 +265,25 @@ class Album(base_de_datos.Model):
         base_de_datos.session.add(self)
         base_de_datos.session.commit()
 
+    def actualizar_informacion(self, nombre, anio_lanzamiento):
+        """
+        Actualiza la informacion del nombre del objeto y lo guarda en la base de datos
+        :param nombre: El nombre actualizado
+        :param anio_lanzamiento: El año de lanzamiento actualizado
+        """
+        self.nombre = nombre
+        self.anio_lanzamiento = anio_lanzamiento
+        base_de_datos.session.commit()
+
+    def eliminar_informacion(self, eliminado):
+        """
+        Actualiza la informacion del valor eliminado del objeto y lo guarda en la base de datos
+        :param eliminado: El valor eliminado actualizado
+        """
+        self.eliminado = eliminado
+        base_de_datos.session.commit()
+
+
     @staticmethod
     def obtener_abumes_creador_de_contenido(id_creador_de_contenido):
         """
@@ -277,6 +296,36 @@ class Album(base_de_datos.Model):
         if albumes is None:
             return []
         return albumes
+
+    @staticmethod
+    def obtener_album_por_id(id_album):
+        """
+        Recupera de la base de datos el álbum que tiene el id_album
+        :param id_album: El id del álbum a recuperar
+        :return: El álbum que coincide con el id_album o None si ningún álbum tiene el id_album
+        """
+        album = Album.query.filter_by(id_album=id_album).first()
+        return album
+
+    @staticmethod
+    def obtener_album_por_nombre(nombre):
+        """
+        Recupera de la base de datos el álbum que tiene el nombre
+        :param nombre: El nombre del álbum a recuperar
+        :return: El álbum que coincide con el nombre o None si ningún álbum tiene el nombre
+        """
+        album = Album.query.filter_by(nombre=nombre).first()
+        return album
+
+    @staticmethod
+    def verificar_album_existe(id_album):
+        """
+        Verifica si un álbum existe en la base de datos
+        :param id_album: El id del álbum a verificar si existe
+        :return: Verdadero si el álbum existe, falso si no
+        """
+        cantidad_de_albumes_con_el_id = Album.query.filter_by(id_album=id_album).count()
+        return cantidad_de_albumes_con_el_id > 0
 
     def obtener_json(self):
         """

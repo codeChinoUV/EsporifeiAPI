@@ -33,6 +33,42 @@ class CreadorDeContenidoAlbumes(Resource):
 
     @token_requerido
     @solo_creador_de_contenido
+    def put(self, usuario_actual, id_album):
+        """
+        Se encarga de procesar a una solicitud PUT al modificar la información de un Álbum
+        """
+        error_no_existe_album = ValidacionAlbum.validar_album_existe(id_album)
+        if error_no_existe_album is not None:
+            return error_no_existe_album, 404
+        creador_contenido = CreadorDeContenido.obtener_creador_de_contenido_por_usuario(usuario_actual.nombre_usuario)
+        #error_no_es_dueno = ValidacionAlbum \
+        #    .validar_usuario_es_dueno_de_artista(creador_contenido.id_creador_de_contenido, id_artista)
+        #if error_no_es_dueno is not None:
+        #    return error_no_es_dueno, 403
+        album_a_validar = Album(nombre=self.argumentos['nombre'],
+                                  anio_lanzamiento=self.argumentos['anio_lanzamiento'])
+        album_a_modificar = Album.obtener_album_por_id(id_album)
+        album_a_modificar.actualizar_informacion(album_a_validar.nombre, album_a_validar.anio_lanzamiento)
+        return album_a_modificar.obtener_json(), 202
+
+    @token_requerido
+    @solo_creador_de_contenido
+    def delete(self, usuario_actual, id_album):
+        """
+        Se encarga de procesar a una solicitud PUT al modificar la información de un Álbum y simular
+        su eliminación
+        """
+        creador_contenido = CreadorDeContenido.obtener_creador_de_contenido_por_usuario(usuario_actual.nombre_usuario)
+        album_a_validar = Album(nombre=self.argumentos['nombre'],
+                                  anio_lanzamiento=self.argumentos['anio_lanzamiento'],
+                                  eliminado=self.argumentos['eliminado'])
+        album_a_modificar = Album.obtener_album_por_id(id_album)
+        album_a_modificar.eliminar_informacion(album_a_validar.eliminado)
+        return album_a_modificar.obtener_json(), 202
+
+
+    @token_requerido
+    @solo_creador_de_contenido
     def get(self, usuario_actual):
         error_no_existe_creador_cotenido = ValidacionCreadorDeContenido\
             .validar_creador_de_contenido_existe_a_partir_de_usuario(usuario_actual)
@@ -49,7 +85,16 @@ class Album(Resource):
     @token_requerido
     @solo_creador_de_contenido
     def get(self, usuario_actual, id_album):
-        return {"id_album":id_album}, 200
+        #return {"id_album":id_album}, 200
+        """
+        Se encarga de responder a una solictud GET con la informacion del Álbum o con una lista de los errores
+        ocurridos y su código
+        """
+        creador_contenido = CreadorDeContenido.obtener_creador_de_contenido_por_usuario(usuario_actual.nombre_usuario)
+        album = Album.obtener_album_por_id(id_album)
+        return album.obtener_json()
+
+    
 
 
 

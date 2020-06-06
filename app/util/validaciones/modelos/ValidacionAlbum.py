@@ -1,4 +1,5 @@
 from app.util.validaciones.ValidacioCadenas import ValidacionCadenas
+from app.administracion_de_contenido.modelo.modelos import Album
 
 
 class ValidacionAlbum():
@@ -48,3 +49,15 @@ class ValidacionAlbum():
         if error_anio_invalido is not None:
             lista_de_errores.append(error_anio_invalido)
         return lista_de_errores
+
+    @staticmethod
+    def validar_album_existe(id_album):
+        """
+        Valida si existe un álbum con el id_album
+        :param id_album: El id del álbum a validar si existe
+        :return: None si el álbum existe o un diccionario con el error y el mensaje del error si no existe el álbum
+        """
+        if not Album.verificar_album_existe(id_album):
+            error = {'error': 'album_inexistente',
+                     'mensaje': 'No existe ningún álbum registrado con el id_album'}
+            return error
