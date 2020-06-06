@@ -11,7 +11,8 @@ class Usuario(base_de_datos.Model):
     """
     Se encarga de representar el modelo usuario y define su estructura en la base de datos
     """
-    nombre_usuario = base_de_datos.Column(base_de_datos.String(20), primary_key=True)
+    id_usuario = base_de_datos.Column(base_de_datos.Integer, primary_key=True)
+    nombre_usuario = base_de_datos.Column(base_de_datos.String(20), unique=True, index=True)
     nombre = base_de_datos.Column(base_de_datos.String(70), nullable=False)
     contrasena = base_de_datos.Column(base_de_datos.String(80), nullable=False)
     tipo_usuario = base_de_datos.Column(base_de_datos.Integer, nullable=False)
@@ -94,3 +95,13 @@ class Usuario(base_de_datos.Model):
         usuario = Usuario.query.filter_by(nombre_usuario=nombre_usuario).first()
         if check_password_hash(usuario.contrasena, contrasena):
             return usuario
+
+    @staticmethod
+    def validar_correo_electronico_disponible(correo_electronico):
+        """
+        Valida si el correo electronico se encuentra disponibles
+        :param correo_electronico: El correo electronico a validar si se encuentra disponible
+        :return: Verdadero si se encuentra disponible, falso si no
+        """
+        cantidad_correos_electronicos_iguales = Usuario.query.filter_by(correo_electronico=correo_electronico).count()
+        return cantidad_correos_electronicos_iguales == 0
