@@ -1,5 +1,6 @@
 import unittest
 from app import create_app, base_de_datos
+from app.administracion_de_contenido.modelo.modelos import Genero
 from app.manejo_de_usuarios.modelo.modelos import Usuario
 
 
@@ -19,6 +20,8 @@ class BaseTestClass(unittest.TestCase):
                                          "creador_de_contenido@exmaple.com")
             BaseTestClass._crear_usuario("consumidorDeMusica", "123456", "Consumidor de musica", 2,
                                          "consumidor_de_musica@example.com")
+            BaseTestClass._crear_genero("Dance")
+            BaseTestClass._crear_genero("Regueton")
 
     def tearDown(self):
         """
@@ -43,3 +46,14 @@ class BaseTestClass(unittest.TestCase):
         usuario = Usuario(nombre_usuario=nombre_usuario, contrasena=contrasena, nombre=nombre,
                           tipo_usuario=tipo_usuario, correo_electronico=correo_electronico)
         usuario.guardar()
+
+    @staticmethod
+    def _crear_genero(nombre_genero):
+        """
+        Registra un nuevo genero en la base de datos
+        :param nombre_genero: El nombre que tendra el genero a registrar
+        :return: None
+        """
+        genero = Genero(genero=nombre_genero)
+        base_de_datos.session.add(genero)
+        base_de_datos.session.commit()
