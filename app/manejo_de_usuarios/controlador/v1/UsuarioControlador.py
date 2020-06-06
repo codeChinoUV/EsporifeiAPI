@@ -2,7 +2,7 @@ from flask_restful import Resource, reqparse
 
 from app.manejo_de_usuarios.controlador.v1.LoginControlador import token_requerido
 from app.manejo_de_usuarios.modelo.modelos import Usuario
-from app.util.validaciones.modelos import ValidacionUsuario
+from app.util.validaciones.modelos.ValidacionUsuario import ValidacionUsuario
 
 
 class UsuarioControlador(Resource):
@@ -13,6 +13,7 @@ class UsuarioControlador(Resource):
         self.parser.add_argument('nombre')
         self.parser.add_argument('contrasena')
         self.parser.add_argument('tipo_usuario')
+        self.parser.add_argument('correo_electronico')
         self.argumentos = self.parser.parse_args(strict=True)
 
     @token_requerido
@@ -33,7 +34,7 @@ class UsuarioControlador(Resource):
                                       nombre=self.argumentos['nombre'], contrasena=self.argumentos['contrasena'],
                                       tipo_usuario=self.argumentos['tipo_usuario'])
         errores_usuario_a_registrar = \
-            ValidacionUsuario.validar_usuario(usuario=usuario_a_registrar)
+            ValidacionUsuario.validar_registro_usuario(usuario=usuario_a_registrar)
         if len(errores_usuario_a_registrar) > 0:
             return errores_usuario_a_registrar, 400
         usuario_a_registrar.guardar()
