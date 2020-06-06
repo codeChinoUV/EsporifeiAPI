@@ -27,17 +27,25 @@ class Usuario(base_de_datos.Model):
         base_de_datos.session.add(self)
         base_de_datos.session.commit()
 
-    def actualizar_informacion(self, nombre, contrasena):
+    def actualizar_informacion(self, nombre_usuario, nombre, contrasena, correo_electronico):
         """
-        Actualiza la información de los atributos nombre y contrasena y guarda los cambios realizados
-        en la base de datos
+        :param nombre_usuario: El nuevo nombre de usuario
+        :param nombre: El nuevo nombre
+        :param contrasena: La nueva contrasena
+        :param correo_electronico: El nuevo correo electronico
+        Actualiza la información de los atributos nombre_usuario, nombre, contrasena, correo_electronico y guarda los
+        cambios realizados en la base de datos
+        :return: None
         """
+        if nombre_usuario is not None:
+            self.nombre_usuario = nombre_usuario
         if nombre is not None:
             self.nombre = nombre
         if contrasena is not None:
             contrasena_hasheada = generate_password_hash(contrasena, method='sha256')
             self.contrasena = contrasena_hasheada
-
+        if correo_electronico is not None:
+            self.correo_electronico = correo_electronico
         base_de_datos.session.commit()
 
     @staticmethod
@@ -52,6 +60,7 @@ class Usuario(base_de_datos.Model):
     def verificar_nombre_usuario_en_uso(nombre_usuario):
         """
         Verifica si el nombre de usuario ya se encuentra en uso
+        :param nombre_usuario: El nombre de usuario a validar
         :return: Verdadero si el nombre de usuario se encuentra disponible o falso si no
         """
         usuarios_con_el_mismo_nombre = Usuario.query.filter_by(nombre_usuario=nombre_usuario).count()
@@ -69,6 +78,7 @@ class Usuario(base_de_datos.Model):
     def validar_usuario_creador_de_contenido(nombre_usuario):
         """
         Valida que el usuario sea de tipo creador de contenido
+        :param nombre_usuario: El nombre_usuario a validar
         :return: Verdadero si el usuario es creador de contenido o falso si no
         """
         usuario = Usuario.query.filter_by(nombre_usuario=nombre_usuario).first()
