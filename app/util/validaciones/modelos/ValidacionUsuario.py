@@ -178,19 +178,24 @@ class ValidacionUsuario:
         :param usuario: El usuario al que se le validaran los atributos
         :return: Un diccionario con los errores ocurridos o None si no hay errores en los atributos
         """
-        tamano_maximo_nombre = 70
-        tamano_minimo_general = 5
-        if usuario.nombre is None and usuario.contrasena is None:
+        if usuario.nombre is None and usuario.contrasena is None and usuario.nombre_usuario is not None and \
+                usuario.correo_electronico is not None:
             error = {'error': 'solicitud_sin_parametros_a_modificar',
                      'mensaje': 'La solicitud no contiene ningun parametro a modificar, los parametros que puedes '
-                                'modificar son: <nombre>, <contrasena>'}
+                                'modificar son: <nombre_usuario>, <nombre>, <contrasena>, <correo_electronico>'}
             return error
-        elif usuario.nombre is not None:
-            error = ValidacionCadenas.validar_tamano_parametro(usuario.nombre, "nombre",
-                                                               tamano_minimo_general, tamano_maximo_nombre)
-            if error is not None:
-                return error
-        if usuario.contrasena is not None:
-            error = ValidacionUsuario._validar_contrasena(usuario.contrasena)
-            if error is not None:
-                return error
+        lista_de_errores = []
+        errores = ValidacionUsuario._validar_tamano_modelo_usuario(usuario)
+        if len(errores) > 0:
+            for error in errores:
+                lista_de_errores.append(error)
+        error = ValidacionUsuario._validar_nombre_usuario_valido(usuario.nombre_usuario)
+        if error is not None:
+            lista_de_errores.append(error)
+        error = ValidacionUsuario.validar_existe_usuario(usuario.nombre_usuario)
+        if error is not None:
+            lista_de_errores.append(error)
+        error_correo_electronico = ValidacionUsuario._validar_correo_electronico(usuario.correo_electronico)
+        if error_correo_electronico is not None:
+            lista_de_errores.append(error_correo_electronico)
+        return lista_de_errores
