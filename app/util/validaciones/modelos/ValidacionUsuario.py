@@ -51,14 +51,15 @@ class ValidacionUsuario:
             parametros_faltantes += "<contrasena> "
         if usuario.tipo_usuario is None:
             parametros_faltantes += "<tipo_usuario>"
-
+        if usuario.correo_electronico is not None:
+            parametros_faltantes += "<correo_electronico>"
         if len(parametros_faltantes) > 0:
             mensaje = "Los siguientes parametros faltan en tu solicitud: " + parametros_faltantes
             errores = {'error': 'parametros_faltantes', 'mensaje': mensaje}
             return errores
 
     @staticmethod
-    def validar_usuario(usuario):
+    def validar_registro_usuario(usuario):
         """
         Valida que un usuario sea valido para poder registrarlo
         :param usuario: El usuario a registrar
@@ -81,6 +82,9 @@ class ValidacionUsuario:
         error = ValidacionUsuario._validar_tipo_usario(usuario.tipo_usuario)
         if error is not None:
             lista_de_errores.append(error)
+        error_correo_electronico = ValidacionUsuario._validar_correo_electronico(usuario.correo_electronico)
+        if error_correo_electronico is not None:
+            lista_de_errores.append(error_correo_electronico)
         return lista_de_errores
 
     @staticmethod
@@ -150,6 +154,22 @@ class ValidacionUsuario:
                                                                  'minúscula y al menos una mayúscula, puede tener otros'
                                                                  ' símbolos'}
             return error
+
+    @staticmethod
+    def _validar_correo_electronico(correo_electronico):
+        """
+        Valida si el correo_electronico es valido y se encuentra disponible
+        :param correo_electronico: EL correo_electronico a validar
+        :return: None si el correo es valido o un diccionario con el error y el mensaje del error si no es valido
+        """
+        if correo_electronico is not None:
+            error_correo_invalido = ValidacionCadenas.validar_email(correo_electronico)
+            if error_correo_invalido is not None:
+                return error_correo_invalido
+            correo_disponible = Usuario.validar_correo_electronico_disponible(correo_electronico)
+            if not correo_disponible:
+                error_correo_en_uso = {'email_en_uso': 'El mail ya se encuentra en uso'}
+                return error_correo_en_uso
 
     @staticmethod
     def validar_modificar_usuario(usuario):
