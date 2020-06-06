@@ -63,7 +63,8 @@ class Usuario(base_de_datos.Model):
         Crea un diccionario que representa al objeto a partir de la información del mismo
         :return: Un diccionario con la información del objeto
         """
-        json = {'nombre_usuario': self.nombre_usuario, 'nombre': self.nombre, 'tipo_usuario': self.tipo_usuario}
+        json = {'nombre_usuario': self.nombre_usuario, 'contrasena': None, 'nombre': self.nombre,
+                'correo_electronico': self.correo_electronico, 'tipo_usuario': self.tipo_usuario}
         return json
 
     @staticmethod
@@ -75,6 +76,16 @@ class Usuario(base_de_datos.Model):
         """
         usuario = Usuario.query.filter_by(nombre_usuario=nombre_usuario).first()
         return TipoUsuario(usuario.tipo_usuario) == TipoUsuario.CreadorDeContenido
+
+    @staticmethod
+    def obtener_usuario_por_id(id_usuario):
+        """
+        Recupera al usuario que tenga el id_usuario
+        :param id_usuario: El id del usuario a recuperar
+        :return: El usuario que tenga el id_usuario o None si ningun usuario tiene el id_usuario
+        """
+        usuario = Usuario.query.filter_by(id_usuario=id_usuario).first()
+        return usuario
 
     @staticmethod
     def obtener_usuario(nombre_usuario):

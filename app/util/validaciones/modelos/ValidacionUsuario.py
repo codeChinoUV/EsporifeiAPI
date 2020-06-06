@@ -19,7 +19,7 @@ class ValidacionUsuario:
         tamano_maximo_nombre = 70
         tamano_minimo_general = 5
         lista_de_errores = []
-        if usuario.nombre is not None:
+        if usuario.nombre_usuario is not None:
             error = ValidacionCadenas.validar_tamano_parametro(usuario.nombre_usuario, "nombre_usuario",
                                                                tamano_minimo_general, tamano_maximo_nombre_usuario)
             if error is not None:

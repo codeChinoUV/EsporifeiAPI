@@ -50,10 +50,15 @@ class UsuarioControlador(Resource):
         :param usuario_actual: El usuario logeado
         :return: La información del usuario modificada o una lista de errores sucedidos
         """
+        if usuario_actual.nombre_usuario == self.argumentos['nombre_usuario']:
+            self.argumentos['nombre_usuario'] = None
+        if usuario_actual.correo_electronico == self.argumentos['correo_electronico']:
+            self.argumentos['correo_electronico'] = None
         usuario_modificar = Usuario(nombre_usuario=self.argumentos['nombre_usuario'], nombre=self.argumentos['nombre'],
-                                    contrasena=self.argumentos['contrasena'])
+                                    contrasena=self.argumentos['contrasena'],
+                                    correo_electronico=self.argumentos['correo_electronico'])
         errores = ValidacionUsuario.validar_modificar_usuario(usuario_modificar)
-        if errores is not None:
+        if errores is not None and len(errores) > 0:
             return errores, 400
         usuario_actual.editar(nombre=usuario_modificar.nombre, contrasena=usuario_modificar.contrasena,
                               nombre_usuario=usuario_modificar.nombre_usuario,

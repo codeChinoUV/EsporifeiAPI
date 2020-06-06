@@ -35,7 +35,7 @@ def token_requerido(f):
             if secret_key is None:
                 return {}, 500
             datos = jwt.decode(token, secret_key)
-            usuario_actual = Usuario.obtener_usuario(datos['nombre_usuario'])
+            usuario_actual = Usuario.obtener_usuario_por_id(datos['id_usuario'])
         except:
             error = {'error': 'token_invalido',
                      'mensaje': 'El token no es valido, ya sea por que se modifico o el tiempo de vida expiro'}
@@ -86,5 +86,5 @@ class LoginControlador(Resource):
         secret_key = obtener_secret_key()
         if secret_key is None:
             return {}, 500
-        token = jwt.encode({'nombre_usuario': usuario.nombre_usuario}, secret_key)
+        token = jwt.encode({'id_usuario': usuario.id_usuario}, secret_key)
         return jsonify({'token': token.decode('UTF-8')})
