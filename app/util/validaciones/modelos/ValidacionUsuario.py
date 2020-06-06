@@ -51,7 +51,7 @@ class ValidacionUsuario:
             parametros_faltantes += "<contrasena> "
         if usuario.tipo_usuario is None:
             parametros_faltantes += "<tipo_usuario>"
-        if usuario.correo_electronico is not None:
+        if usuario.correo_electronico is None:
             parametros_faltantes += "<correo_electronico>"
         if len(parametros_faltantes) > 0:
             mensaje = "Los siguientes parametros faltan en tu solicitud: " + parametros_faltantes
@@ -94,7 +94,7 @@ class ValidacionUsuario:
         :param nombre_usuario: El usuario que se va a validar que exista en la base de datos
         :return: Un error que indica si el nombre_usuario se encuentra en uso o None si no se encuentra registrado
         """
-        if nombre_usuario is not None and Usuario.verificar_nombre_usuario_en_uso(nombre_usuario):
+        if nombre_usuario is not None and Usuario.verificar_nombre_usuario_disponible(nombre_usuario):
             error = {'error': 'nombre_usuario_en_uso',
                      'mensaje': 'El <nombre_usuario> ya se encuentra en uso, eliga otra e intente nuevamente'}
             return error
@@ -168,7 +168,7 @@ class ValidacionUsuario:
                 return error_correo_invalido
             correo_disponible = Usuario.validar_correo_electronico_disponible(correo_electronico)
             if not correo_disponible:
-                error_correo_en_uso = {'email_en_uso': 'El mail ya se encuentra en uso'}
+                error_correo_en_uso = {'error': 'email_en_uso', 'mensaje': 'El mail ya se encuentra en uso'}
                 return error_correo_en_uso
 
     @staticmethod
@@ -178,8 +178,8 @@ class ValidacionUsuario:
         :param usuario: El usuario al que se le validaran los atributos
         :return: Un diccionario con los errores ocurridos o None si no hay errores en los atributos
         """
-        if usuario.nombre is None and usuario.contrasena is None and usuario.nombre_usuario is not None and \
-                usuario.correo_electronico is not None:
+        if usuario.nombre is None and usuario.contrasena is None and usuario.nombre_usuario is None and \
+                usuario.correo_electronico is None:
             error = {'error': 'solicitud_sin_parametros_a_modificar',
                      'mensaje': 'La solicitud no contiene ningun parametro a modificar, los parametros que puedes '
                                 'modificar son: <nombre_usuario>, <nombre>, <contrasena>, <correo_electronico>'}

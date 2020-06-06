@@ -27,7 +27,7 @@ class Usuario(base_de_datos.Model):
         base_de_datos.session.add(self)
         base_de_datos.session.commit()
 
-    def actualizar_informacion(self, nombre_usuario, nombre, contrasena, correo_electronico):
+    def editar(self, nombre_usuario, nombre, contrasena, correo_electronico):
         """
         :param nombre_usuario: El nuevo nombre de usuario
         :param nombre: El nuevo nombre
@@ -49,15 +49,7 @@ class Usuario(base_de_datos.Model):
         base_de_datos.session.commit()
 
     @staticmethod
-    def obtener_todos_los_usuario():
-        """
-        Recupera todos los usuarios registrados en la base de datps
-        :return: Una lista con los usuarios en la base de datos
-        """
-        return Usuario.query.all()
-
-    @staticmethod
-    def verificar_nombre_usuario_en_uso(nombre_usuario):
+    def verificar_nombre_usuario_disponible(nombre_usuario):
         """
         Verifica si el nombre de usuario ya se encuentra en uso
         :param nombre_usuario: El nombre de usuario a validar

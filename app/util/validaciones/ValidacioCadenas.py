@@ -58,13 +58,12 @@ class ValidacionCadenas:
         :param numero_telefono: El numero de telefono a validar
         :return: None si el numero de telefono es valido o Un diccionario indicando el codigo del error y su mensaje
         """
+        error = {'error': 'telefono_no_valido', 'mensaje': 'El <telefono> no es un numero de telefono valido'}
         try:
             numero_telefonico = phonenumbers.parse(numero_telefono, None)
             if not phonenumbers.is_possible_number(numero_telefonico):
-                error = {'error': 'telefono_no_valido', 'mensaje': 'El <telefono> no es un numero de telefono valido'}
                 return error
         except phonenumbers.phonenumberutil.NumberParseException:
-            error = {'error': 'telefono_no_valido', 'mensaje': 'El <telefono> no es un numero de telefono valido'}
             return error
 
     @staticmethod

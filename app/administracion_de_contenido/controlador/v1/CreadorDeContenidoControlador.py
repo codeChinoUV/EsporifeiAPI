@@ -81,9 +81,9 @@ class CreadorDeContenidoControlador(Resource):
         creador_de_contenido = CreadorDeContenido. \
             obtener_creador_de_contenido_por_usuario(usuario_actual.nombre_usuario)
 
-        creador_de_contenido.actualizar_informacion(creador_de_contenido_a_validar.nombre,
-                                                    creador_de_contenido_a_validar.biografia,
-                                                    creador_de_contenido_a_validar.es_grupo)
+        creador_de_contenido.editar(creador_de_contenido_a_validar.nombre,
+                                    creador_de_contenido_a_validar.biografia,
+                                    creador_de_contenido_a_validar.es_grupo)
 
         return creador_de_contenido.obtener_json(), 202
 
@@ -184,7 +184,7 @@ class ArtistaControlador(Resource):
         if len(errores_en_la_solicitud) > 0:
             return errores_en_la_solicitud, 400
         artista_a_modificar = Artista.obtener_artista_por_id(id_artista)
-        artista_a_modificar.actualizar_informacion(artista_a_validar.nombre)
+        artista_a_modificar.editar(artista_a_validar.nombre)
         return artista_a_modificar.obtener_json(), 202
 
     @token_requerido
