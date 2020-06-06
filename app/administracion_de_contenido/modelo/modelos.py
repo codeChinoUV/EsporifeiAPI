@@ -207,7 +207,7 @@ class Genero(base_de_datos.Model):
         generos = Genero.query.all()
         return generos
 
-    def obtner_json(self):
+    def obtener_json(self):
         """
         Crea un diccionario con los atributos del objeto
         :return: Un diccionario con los atributos del objeto

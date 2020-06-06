@@ -12,5 +12,5 @@ class GenerosControlador(Resource):
         generos = Genero.recuperar_todos_los_generos()
         lista_generos = []
         for genero in generos:
-            lista_generos.append(genero.obtner_json())
+            lista_generos.append(genero.obtener_json())
         return lista_generos

@@ -19,7 +19,7 @@ class ValidacionUsuario:
         tamano_maximo_nombre = 70
         tamano_minimo_general = 5
         lista_de_errores = []
-        if usuario.nombre is not None:
+        if usuario.nombre_usuario is not None:
             error = ValidacionCadenas.validar_tamano_parametro(usuario.nombre_usuario, "nombre_usuario",
                                                                tamano_minimo_general, tamano_maximo_nombre_usuario)
             if error is not None:
@@ -51,14 +51,15 @@ class ValidacionUsuario:
             parametros_faltantes += "<contrasena> "
         if usuario.tipo_usuario is None:
             parametros_faltantes += "<tipo_usuario>"
-
+        if usuario.correo_electronico is None:
+            parametros_faltantes += "<correo_electronico>"
         if len(parametros_faltantes) > 0:
             mensaje = "Los siguientes parametros faltan en tu solicitud: " + parametros_faltantes
             errores = {'error': 'parametros_faltantes', 'mensaje': mensaje}
             return errores
 
     @staticmethod
-    def validar_usuario(usuario):
+    def validar_registro_usuario(usuario):
         """
         Valida que un usuario sea valido para poder registrarlo
         :param usuario: El usuario a registrar
@@ -81,6 +82,9 @@ class ValidacionUsuario:
         error = ValidacionUsuario._validar_tipo_usario(usuario.tipo_usuario)
         if error is not None:
             lista_de_errores.append(error)
+        error_correo_electronico = ValidacionUsuario._validar_correo_electronico(usuario.correo_electronico)
+        if error_correo_electronico is not None:
+            lista_de_errores.append(error_correo_electronico)
         return lista_de_errores
 
     @staticmethod
@@ -90,7 +94,7 @@ class ValidacionUsuario:
         :param nombre_usuario: El usuario que se va a validar que exista en la base de datos
         :return: Un error que indica si el nombre_usuario se encuentra en uso o None si no se encuentra registrado
         """
-        if nombre_usuario is not None and Usuario.verificar_nombre_usuario_en_uso(nombre_usuario):
+        if nombre_usuario is not None and Usuario.verificar_nombre_usuario_disponible(nombre_usuario):
             error = {'error': 'nombre_usuario_en_uso',
                      'mensaje': 'El <nombre_usuario> ya se encuentra en uso, eliga otra e intente nuevamente'}
             return error
@@ -152,25 +156,46 @@ class ValidacionUsuario:
             return error
 
     @staticmethod
+    def _validar_correo_electronico(correo_electronico):
+        """
+        Valida si el correo_electronico es valido y se encuentra disponible
+        :param correo_electronico: EL correo_electronico a validar
+        :return: None si el correo es valido o un diccionario con el error y el mensaje del error si no es valido
+        """
+        if correo_electronico is not None:
+            error_correo_invalido = ValidacionCadenas.validar_email(correo_electronico)
+            if error_correo_invalido is not None:
+                return error_correo_invalido
+            correo_disponible = Usuario.validar_correo_electronico_disponible(correo_electronico)
+            if not correo_disponible:
+                error_correo_en_uso = {'error': 'email_en_uso', 'mensaje': 'El mail ya se encuentra en uso'}
+                return error_correo_en_uso
+
+    @staticmethod
     def validar_modificar_usuario(usuario):
         """
         Valida que los atributos a modificar sean correctos
         :param usuario: El usuario al que se le validaran los atributos
         :return: Un diccionario con los errores ocurridos o None si no hay errores en los atributos
         """
-        tamano_maximo_nombre = 70
-        tamano_minimo_general = 5
-        if usuario.nombre is None and usuario.contrasena is None:
+        if usuario.nombre is None and usuario.contrasena is None and usuario.nombre_usuario is None and \
+                usuario.correo_electronico is None:
             error = {'error': 'solicitud_sin_parametros_a_modificar',
                      'mensaje': 'La solicitud no contiene ningun parametro a modificar, los parametros que puedes '
-                                'modificar son: <nombre>, <contrasena>'}
+                                'modificar son: <nombre_usuario>, <nombre>, <contrasena>, <correo_electronico>'}
             return error
-        elif usuario.nombre is not None:
-            error = ValidacionCadenas.validar_tamano_parametro(usuario.nombre, "nombre",
-                                                               tamano_minimo_general, tamano_maximo_nombre)
-            if error is not None:
-                return error
-        if usuario.contrasena is not None:
-            error = ValidacionUsuario._validar_contrasena(usuario.contrasena)
-            if error is not None:
-                return error
+        lista_de_errores = []
+        errores = ValidacionUsuario._validar_tamano_modelo_usuario(usuario)
+        if len(errores) > 0:
+            for error in errores:
+                lista_de_errores.append(error)
+        error = ValidacionUsuario._validar_nombre_usuario_valido(usuario.nombre_usuario)
+        if error is not None:
+            lista_de_errores.append(error)
+        error = ValidacionUsuario.validar_existe_usuario(usuario.nombre_usuario)
+        if error is not None:
+            lista_de_errores.append(error)
+        error_correo_electronico = ValidacionUsuario._validar_correo_electronico(usuario.correo_electronico)
+        if error_correo_electronico is not None:
+            lista_de_errores.append(error_correo_electronico)
+        return lista_de_errores
