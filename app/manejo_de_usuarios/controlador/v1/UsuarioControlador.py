@@ -55,7 +55,7 @@ class UsuarioControlador(Resource):
         errores = ValidacionUsuario.validar_modificar_usuario(usuario_modificar)
         if errores is not None:
             return errores, 400
-        usuario_actual.actualizar_informacion(nombre=usuario_modificar.nombre, contrasena=usuario_modificar.contrasena,
-                                              nombre_usuario=usuario_modificar.nombre_usuario,
-                                              correo_electronico=usuario_modificar.correo_electronico)
+        usuario_actual.editar(nombre=usuario_modificar.nombre, contrasena=usuario_modificar.contrasena,
+                              nombre_usuario=usuario_modificar.nombre_usuario,
+                              correo_electronico=usuario_modificar.correo_electronico)
         return usuario_actual.obtener_json(), 202
