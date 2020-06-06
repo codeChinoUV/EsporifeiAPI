@@ -15,6 +15,7 @@ class Usuario(base_de_datos.Model):
     nombre = base_de_datos.Column(base_de_datos.String(70), nullable=False)
     contrasena = base_de_datos.Column(base_de_datos.String(80), nullable=False)
     tipo_usuario = base_de_datos.Column(base_de_datos.Integer, nullable=False)
+    correo_electronico = base_de_datos.Column(base_de_datos.String(100), nullable=False, unique=True)
 
     def guardar(self):
         """
