@@ -1,9 +1,8 @@
-from flask_restful import Resource, Api, reqparse
+from flask_restful import Resource, reqparse
 
-from app.administracion_de_contenido.modelo.modelos import CreadorDeContenido, Artista
+from app.administracion_de_contenido.modelo.modelos import CreadorDeContenido
 from app.manejo_de_usuarios.controlador.v1.LoginControlador import token_requerido, solo_creador_de_contenido
 from app.util.JsonBool import JsonBool
-from app.util.validaciones.modelos.ValidacionArtista import ValidacionArtista
 from app.util.validaciones.modelos.ValidacionCreadorDeContenido import ValidacionCreadorDeContenido
 
 
@@ -27,7 +26,7 @@ class CreadorDeContenidoControlador(Resource):
         if error is not None:
             return error, 404
         creador_de_contenido = CreadorDeContenido. \
-            obtener_creador_de_contenido_por_usuario(usuario_actual.nombre_usuario)
+            obtener_creador_de_contenido_por_id_usuario(usuario_actual.usuario_id_usuario)
         return creador_de_contenido.obtener_json()
 
     @token_requerido
@@ -57,7 +56,7 @@ class CreadorDeContenidoControlador(Resource):
 
     @token_requerido
     @solo_creador_de_contenido
-    def put(self, usuario_actual):
+    def patch(self, usuario_actual):
         """
         Se encarga de responder a las peticiones de tipo put, su funcion es editar la información de un creador de
         contenido
@@ -88,124 +87,6 @@ class CreadorDeContenidoControlador(Resource):
         return creador_de_contenido.obtener_json(), 202
 
 
-class ArtistasControlador(Resource):
-
-    def __init__(self):
-        self.parser = reqparse.RequestParser()
-        self.parser.add_argument('nombre')
-        self.argumentos = self.parser.parse_args(strict=True)
-
-    @token_requerido
-    @solo_creador_de_contenido
-    def get(self, usuario_actual):
-        """
-        Contesta una solicitud de tipo GET con una lista de artistas o un diccionario con errores
-        :param usuario_actual: El usuario actual con el que se autentico
-        :return: Los artistas que tiene registrado un CreadorDeContenido
-        """
-        error = ValidacionCreadorDeContenido.validar_creador_de_contenido_existe_a_partir_de_usuario(usuario_actual)
-        if error is not None:
-            return error, 404
-        error = ValidacionCreadorDeContenido.validar_creador_de_contenido_es_grupo_a_partir_de_usuario(usuario_actual)
-        if error is not None:
-            return error, 404
-        creador_de_contenido = CreadorDeContenido \
-            .obtener_creador_de_contenido_por_usuario(usuario_actual.nombre_usuario)
-        artistas_del_creador_de_contenido = \
-            Artista.obtener_artistas_de_creador_de_contenido(creador_de_contenido.id_creador_de_contenido)
-        diccionario_de_artistas = []
-        for artista in artistas_del_creador_de_contenido:
-            diccionario_de_artistas.append(artista.obtener_json())
-        return diccionario_de_artistas
-
-    @token_requerido
-    @solo_creador_de_contenido
-    def post(self, usuario_actual):
-        """
-        Se encarga de procesar una solictud POST al registrar un nuevo artista de un creador de contenido que es grupo
-        """
-        error = ValidacionCreadorDeContenido.validar_creador_de_contenido_existe_a_partir_de_usuario(usuario_actual)
-        if error is not None:
-            return error, 404
-        error = ValidacionCreadorDeContenido.validar_creador_de_contenido_es_grupo_a_partir_de_usuario(usuario_actual)
-        if error is not None:
-            return error, 404
-        artista_a_registrar = Artista(nombre=self.argumentos['nombre'])
-        errores_en_la_solicitud = ValidacionArtista.validar_artista(artista_a_registrar)
-        if len(errores_en_la_solicitud) > 0:
-            return errores_en_la_solicitud, 400
-        creador_contenido = CreadorDeContenido.obtener_creador_de_contenido_por_usuario(usuario_actual.nombre_usuario)
-        artista_a_registrar.creador_de_contenido_id = creador_contenido.id_creador_de_contenido
-        artista_a_registrar.guardar()
-        return artista_a_registrar.obtener_json(), 201
-
-
-class ArtistaControlador(Resource):
-
-    def __init__(self):
-        self.parser = reqparse.RequestParser()
-        self.parser.add_argument('nombre')
-        self.argumentos = self.parser.parse_args(strict=True)
-
-    @token_requerido
-    @solo_creador_de_contenido
-    def get(self, usuario_actual, id_artista):
-        """
-        Se encarga de responder a una solictud GET con la informacion del Artista o con una lista de los errores
-        ocurridos y su codigo
-        """
-        error_no_existe_artista = ValidacionArtista.validar_artista_existe(id_artista)
-        if error_no_existe_artista is not None:
-            return error_no_existe_artista, 404
-        creador_contenido = CreadorDeContenido.obtener_creador_de_contenido_por_usuario(usuario_actual.nombre_usuario)
-        error_no_es_dueno = ValidacionArtista \
-            .validar_usuario_es_dueno_de_artista(creador_contenido.id_creador_de_contenido, id_artista)
-        if error_no_es_dueno is not None:
-            return error_no_es_dueno, 403
-        artista = Artista.obtener_artista_por_id(id_artista)
-        return artista.obtener_json()
-
-    @token_requerido
-    @solo_creador_de_contenido
-    def put(self, usuario_actual, id_artista):
-        """
-        Se encarga de procesar a una solicitud PUT al modificar la informacion de un Artista
-        """
-        error_no_existe_artista = ValidacionArtista.validar_artista_existe(id_artista)
-        if error_no_existe_artista is not None:
-            return error_no_existe_artista, 404
-        creador_contenido = CreadorDeContenido.obtener_creador_de_contenido_por_usuario(usuario_actual.nombre_usuario)
-        error_no_es_dueno = ValidacionArtista \
-            .validar_usuario_es_dueno_de_artista(creador_contenido.id_creador_de_contenido, id_artista)
-        if error_no_es_dueno is not None:
-            return error_no_es_dueno, 403
-        artista_a_validar = Artista(nombre=self.argumentos['nombre'])
-        errores_en_la_solicitud = ValidacionArtista.validar_artista(artista_a_validar)
-        if len(errores_en_la_solicitud) > 0:
-            return errores_en_la_solicitud, 400
-        artista_a_modificar = Artista.obtener_artista_por_id(id_artista)
-        artista_a_modificar.editar(artista_a_validar.nombre)
-        return artista_a_modificar.obtener_json(), 202
-
-    @token_requerido
-    @solo_creador_de_contenido
-    def delete(self, usuario_actual, id_artista):
-        """
-        Se encarga de procesar una solicitud DELETE al eliminar el artista con el id indicado
-        """
-        error_no_existe_artista = ValidacionArtista.validar_artista_existe(id_artista)
-        if error_no_existe_artista is not None:
-            return error_no_existe_artista, 404
-        creador_contenido = CreadorDeContenido.obtener_creador_de_contenido_por_usuario(usuario_actual.nombre_usuario)
-        error_no_es_dueno = ValidacionArtista \
-            .validar_usuario_es_dueno_de_artista(creador_contenido.id_creador_de_contenido, id_artista)
-        if error_no_es_dueno is not None:
-            return error_no_es_dueno, 403
-        artista_a_eliminar = Artista.obtener_artista_por_id(id_artista)
-        artista_a_eliminar.eliminar()
-        return artista_a_eliminar.obtener_json(), 202
-
-
 class CreadorDeContenidoPublicoControlador(Resource):
 
     def get(self, id_creador_de_contenido):
@@ -219,33 +100,3 @@ class CreadorDeContenidoPublicoControlador(Resource):
             return error_no_existe_creador_de_contenido, 404
         creador_de_contenido = CreadorDeContenido.obtener_creador_de_contenido_por_id(id_creador_de_contenido)
         return creador_de_contenido.obtener_json(), 200
-
-    @staticmethod
-    def exponer_endpoint(app):
-        """
-        Expone los metodos del endpoint
-        :param app: La aplicacion en la cual se expondra el endpoint
-        """
-        CreadorDeContenidoPublicoControlador.api.add_resource(CreadorDeContenidoPublicoControlador,
-                                                              '/v1/creador-de-contenido/<int:id_creador_de_contenido>')
-        CreadorDeContenidoPublicoControlador.api.init_app(app)
-
-
-class ArtistasPublicoControlador(Resource):
-    api = Api()
-
-    def get(self, id_creador_de_contenido):
-        """
-        Responde a una solicitud GET con los artistas que peterncen al CreadorDeContenido con el id indicado
-        """
-        error = ValidacionCreadorDeContenido.validar_existe_creador_de_contenido(id_creador_de_contenido)
-        if error is not None:
-            return error, 404
-        error = ValidacionCreadorDeContenido.validar_creador_de_contenido_es_grupo(id_creador_de_contenido)
-        if error is not None:
-            return error, 404
-        artistas_del_creador_de_cotenido = Artista.obtener_artistas_de_creador_de_contenido(id_creador_de_contenido)
-        lista_de_artistas = []
-        for artista in artistas_del_creador_de_cotenido:
-            lista_de_artistas.append(artista.obtener_json())
-        return lista_de_artistas
