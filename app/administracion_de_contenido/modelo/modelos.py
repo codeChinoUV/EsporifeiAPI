@@ -275,12 +275,12 @@ class Album(base_de_datos.Model):
         self.anio_lanzamiento = anio_lanzamiento
         base_de_datos.session.commit()
 
-    def eliminar_informacion(self, eliminado):
+    def eliminar_informacion(self):
         """
         Actualiza la informacion del valor eliminado del objeto y lo guarda en la base de datos
         :param eliminado: El valor eliminado actualizado
         """
-        self.eliminado = eliminado
+        self.eliminado = True
         base_de_datos.session.commit()
 
 
@@ -304,17 +304,7 @@ class Album(base_de_datos.Model):
         :param id_album: El id del álbum a recuperar
         :return: El álbum que coincide con el id_album o None si ningún álbum tiene el id_album
         """
-        album = Album.query.filter_by(id_album=id_album).first()
-        return album
-
-    @staticmethod
-    def obtener_album_por_nombre(nombre):
-        """
-        Recupera de la base de datos el álbum que tiene el nombre
-        :param nombre: El nombre del álbum a recuperar
-        :return: El álbum que coincide con el nombre o None si ningún álbum tiene el nombre
-        """
-        album = Album.query.filter_by(nombre=nombre).first()
+        album = Album.query.filter_by(id_album=id_album, eliminado=False).first()
         return album
 
     @staticmethod
@@ -326,6 +316,30 @@ class Album(base_de_datos.Model):
         """
         cantidad_de_albumes_con_el_id = Album.query.filter_by(id_album=id_album).count()
         return cantidad_de_albumes_con_el_id > 0
+    
+    @staticmethod
+    def obtener_album_por_busqueda(cadena_busqueda):
+        """
+        Busca los álbumes cuyo nombre contenga la cadena de búsqueda
+        :param cadena_busqueda: La cadena que se utilizará para realizar la búsqueda
+        :return: Una lista con los álbumes que coinciden con la cadena de búsqueda
+        """
+        expresion_regular_de_busqueda = "%" + cadena_busqueda + "%"
+        albumes = Album.query. \
+            filter(Album.nombre.ilike(expresion_regular_de_busqueda)).all()
+        return albumes
+
+    @staticmethod
+    def verificar_existe_creador_contenido(id_creador_contenido):
+        """
+        Verifica si id_creador_contenido pertenece a un creador de contenido
+        :param id_creador_contenido: El id del CreadorDeContenido a validar si existe
+        :return: Verdadero si el id_creador_cotenido es de un CreadorDeContenido o falso si no
+        """
+        cantidad_creadores_contenido_con_mismo_id = \
+            CreadorDeContenido.query.filter_by(id_creador_de_contenido=id_creador_contenido).count()
+        return cantidad_creadores_contenido_con_mismo_id > 0
+
 
     def obtener_json(self):
         """

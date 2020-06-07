@@ -1,5 +1,6 @@
 from app.util.validaciones.ValidacioCadenas import ValidacionCadenas
 from app.administracion_de_contenido.modelo.modelos import Album
+from app.administracion_de_contenido.modelo.modelos import CreadorDeContenido
 
 
 class ValidacionAlbum():
@@ -34,7 +35,7 @@ class ValidacionAlbum():
         try:
             if anio_lanzamiento is not None:
                 anio_lanzamiento = int(anio_lanzamiento)
-                if anio_lanzamiento <= 0:
+                if anio_lanzamiento <= 0 or len(str(anio_lanzamiento)) !=4:
                     return error
         except ValueError:
             return error
@@ -45,9 +46,12 @@ class ValidacionAlbum():
         error_campos_requeridos = ValidacionAlbum._validar_parametros_requeridos(album)
         if error_campos_requeridos is not None:
             lista_de_errores.append(error_campos_requeridos)
+        error_tamano_campos = ValidacionAlbum._validar_tamano_atributos_texto(album)
+        if error_tamano_campos is not None:
+            lista_de_errores.append(error_tamano_campos)
         error_anio_invalido = ValidacionAlbum._valdidar_anio_lanzamiento(album.anio_lanzamiento)
         if error_anio_invalido is not None:
-            lista_de_errores.append(error_anio_invalido)
+            lista_de_errores.append(error_anio_invalido) 
         return lista_de_errores
 
     @staticmethod
@@ -60,4 +64,17 @@ class ValidacionAlbum():
         if not Album.verificar_album_existe(id_album):
             error = {'error': 'album_inexistente',
                      'mensaje': 'No existe ningún álbum registrado con el id_album'}
+            return error
+
+    @staticmethod
+    def validar_existe_creador_de_contenido(id_creador_de_contenido):
+        """
+        Valida si el id_creador_de_contenido pertence a un CreadorDeContenido
+        :param id_creador_de_contenido: El id del creador de contenido a valdiar si existe
+        :return: None si el existe un CreadorDeContenido con el id indicado o un diccionario con el error y el mensaje
+        si no existe un CreadorDeContenido con el id indicado
+        """
+        if not CreadorDeContenido.verificar_existe_creador_contenido(id_creador_de_contenido):
+            error = {'error': 'creador_de_contenido_inexistente',
+                     'mensaje': 'No existe ningun CreadorDeContenido registrado con el id indicado'}
             return error
