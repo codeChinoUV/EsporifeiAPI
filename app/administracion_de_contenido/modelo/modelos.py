@@ -4,6 +4,16 @@
 from app import base_de_datos
 from app.util.JsonBool import JsonBool
 
+artistas_generos = base_de_datos.Table('artistas_generos',
+                                       base_de_datos.Column('id_creador_de_contenido', base_de_datos.Integer,
+                                                            base_de_datos.ForeignKey(
+                                                                'creador_de_contenido.id_creador_de_contenido'),
+                                                            primary_key=True),
+                                       base_de_datos.Column('id_genero', base_de_datos.Integer,
+                                                            base_de_datos.ForeignKey('genero.id_genero'),
+                                                            primary_key=True)
+                                       )
+
 
 class CreadorDeContenido(base_de_datos.Model):
     """
@@ -13,9 +23,9 @@ class CreadorDeContenido(base_de_datos.Model):
     nombre = base_de_datos.Column(base_de_datos.String(70), nullable=False)
     biografia = base_de_datos.Column(base_de_datos.String(500), nullable=True)
     es_grupo = base_de_datos.Column(base_de_datos.Boolean, nullable=False)
-    usuario_nombre_usuario = base_de_datos.Column(base_de_datos.String(20),
-                                                  nullable=False, index=True)
-    artistas = base_de_datos.relationship('Artista', backref='creadordecontenido', lazy=True)
+    usuario_id_usuario = base_de_datos.Column(base_de_datos.Integer, nullable=False, index=True)
+    generos = base_de_datos.relationship('Genero', secondary=artistas_generos, lazy='subquery',
+                                         backref=base_de_datos.backref('creadores_de_contenido', lazy=True))
 
     def guardar(self):
         """
@@ -25,7 +35,7 @@ class CreadorDeContenido(base_de_datos.Model):
         base_de_datos.session.add(self)
         base_de_datos.session.commit()
 
-    def actualizar_informacion(self, nombre, biografia, es_grupo):
+    def editar(self, nombre, biografia, es_grupo):
         """
         Actauliza la informacion de los atributos de nombre, biografia y es_grupo en la base de datos
         :param nombre: El nombre a actualizar
@@ -46,19 +56,22 @@ class CreadorDeContenido(base_de_datos.Model):
         Crea un diccionario con los datos de la clase para poder devolverse como un json
         :return: Un diccionario con los datos de los atributos
         """
+        generos = []
+        for genero in self.generos:
+            generos.append(genero)
         json = {'id': self.id_creador_de_contenido, 'nombre': self.nombre, 'biografia': self.biografia,
-                'es_grupo': self.es_grupo}
+                'generos': generos, 'es_grupo': self.es_grupo}
         return json
 
     @staticmethod
-    def verificar_usuario_tiene_creador_contenido_registrado(nombre_usuario):
+    def verificar_usuario_tiene_creador_contenido_registrado(id_usuario):
         """
         Verifica si el nombre de usuario ya tiene un creador de contenido asociado
-        :param nombre_usuario: El nombre del usuario a verificar
+        :param id_usuario: El id del usuario a verificar
         :return: Verdadero si el nombre de usuario ya tiene un creador de contenido registrado, falso si no
         """
         perfiles_con_el_mismo_usuario = CreadorDeContenido.query. \
-            filter_by(usuario_nombre_usuario=nombre_usuario).count()
+            filter_by(usuario_id_usuario=id_usuario).count()
         return perfiles_con_el_mismo_usuario > 0
 
     @staticmethod
@@ -83,13 +96,13 @@ class CreadorDeContenido(base_de_datos.Model):
         return creador_de_contenido
 
     @staticmethod
-    def obtener_creador_de_contenido_por_usuario(nombre_usuario):
+    def obtener_creador_de_contenido_por_id_usuario(id_usuario):
         """
         Recupera el creador de contenido que sea del nombre de usuario
-        :param nombre_usuario: El nombre del usuario al que esta asociado el creador de contenido
+        :param id_usuario: El id del usuario al cual pertence el creador de contenido
         :return: El creador de contenido que pertenezca al usuario
         """
-        creador_de_contenido = CreadorDeContenido.query.filter_by(usuario_nombre_usuario=nombre_usuario).first()
+        creador_de_contenido = CreadorDeContenido.query.filter_by(usuario_id_usuario=id_usuario).first()
         return creador_de_contenido
 
     @staticmethod
@@ -103,91 +116,6 @@ class CreadorDeContenido(base_de_datos.Model):
         creadores_de_contenido = CreadorDeContenido.query. \
             filter(CreadorDeContenido.nombre.ilike(expresion_regular_de_busqueda)).all()
         return creadores_de_contenido
-
-
-class Artista(base_de_datos.Model):
-    """
-    Representa a un artista de un CreadorDeContenido que es grupo
-    """
-    id_artista = base_de_datos.Column(base_de_datos.Integer, primary_key=True)
-    nombre = base_de_datos.Column(base_de_datos.String(70), nullable=False)
-    creador_de_contenido_id = base_de_datos.Column(base_de_datos.Integer,
-                                                   base_de_datos.
-                                                   ForeignKey('creador_de_contenido.id_creador_de_contenido'),
-                                                   nullable=False)
-
-    def guardar(self):
-        """
-        Se encarga de guardar en la base de datos la informacion del objeto
-        """
-        base_de_datos.session.add(self)
-        base_de_datos.session.commit()
-
-    def actualizar_informacion(self, nombre):
-        """
-        Actualiza la informacion del nombre del objeto y lo guarda en la base de datos
-        :param nombre: El nombre actualizado
-        """
-        self.nombre = nombre
-        base_de_datos.session.commit()
-
-    def eliminar(self):
-        """
-        Se encarga de eliminar al objeto actual de la base de datos
-        """
-        base_de_datos.session.delete(self)
-        base_de_datos.session.commit()
-
-    def obtener_json(self):
-        """
-        Genera un diccionario con los datos del objeto, el cual se utilizara para serializar la información a un JSON
-        :return: Un diccionario con los datos del artista
-        """
-        diccionario = {'id': self.id_artista,
-                       'nombre': self.nombre}
-        return diccionario
-
-    @staticmethod
-    def obtener_artistas_de_creador_de_contenido(id_creador_de_cotenido):
-        """
-        Recupera de la base de datos todos artistas que pertenecen al creador de contenido
-        :param id_creador_de_cotenido: El id del creador de contenido al que pertencen los artistas
-        :return: Los artistas que pertenecen al creador de contenido
-        """
-        artistas = Artista.query.filter_by(creador_de_contenido_id=id_creador_de_cotenido).all()
-        return artistas
-
-    @staticmethod
-    def obtener_artista_por_id(id_artista):
-        """
-        Recupera de la base de datos el artista que tiene el id_artista
-        :param id_artista: El id del artista a recuperar
-        :return: El artista que coincide con el id_artista o None si ningun artista tiene el id_artista
-        """
-        artista = Artista.query.filter_by(id_artista=id_artista).first()
-        return artista
-
-    @staticmethod
-    def verificar_artista_existe(id_artista):
-        """
-        Verifica si un artista existe en la base de datos
-        :param id_artista: El id del artista a verificar si existe
-        :return: Verdadero si el usuario existe, falso si no
-        """
-        cantidad_de_artistas_con_el_id = Artista.query.filter_by(id_artista=id_artista).count()
-        return cantidad_de_artistas_con_el_id > 0
-
-    @staticmethod
-    def verificar_creador_de_contenido_es_dueno_de_artista(id_creador_de_contenido, id_artista):
-        """
-        Verifica si la combinacion de id_artista e id_creador_de_contenido tiene  algun registro en la base de dato
-        :param id_creador_de_contenido: El id del creador de contenido que es dueño del artista
-        :param id_artista: El id del artista a validar si es dueña del creador de contenido
-        :return: Verdadero si el creador de contenido es dueño del artista o falso si no
-        """
-        cantidad_de_artistas_duenos_del_creador = Artista.query \
-            .filter_by(id_artista=id_artista, creador_de_contenido_id=id_creador_de_contenido).count()
-        return cantidad_de_artistas_duenos_del_creador > 0
 
 
 class Genero(base_de_datos.Model):
