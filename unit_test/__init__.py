@@ -1,6 +1,6 @@
 import unittest
 from app import create_app, base_de_datos
-from app.administracion_de_contenido.modelo.modelos import Genero
+from app.administracion_de_contenido.modelo.modelos import Genero, CreadorDeContenido
 from app.manejo_de_usuarios.modelo.modelos import Usuario
 
 
@@ -20,8 +20,11 @@ class BaseTestClass(unittest.TestCase):
                                          "creador_de_contenido@exmaple.com")
             BaseTestClass._crear_usuario("consumidorDeMusica", "123456", "Consumidor de musica", 2,
                                          "consumidor_de_musica@example.com")
+            BaseTestClass._crear_usuario("creadorDeContenido2", "123456", "Creador de contenido", 1,
+                                         "creador_de_contenido2@exmaple.com")
             BaseTestClass._crear_genero("Dance")
             BaseTestClass._crear_genero("Regueton")
+            BaseTestClass._crear_creador_de_contenido("prueba1", "Es solo una prueba", True, 1)
 
     def tearDown(self):
         """
@@ -46,6 +49,20 @@ class BaseTestClass(unittest.TestCase):
         usuario = Usuario(nombre_usuario=nombre_usuario, contrasena=contrasena, nombre=nombre,
                           tipo_usuario=tipo_usuario, correo_electronico=correo_electronico)
         usuario.guardar()
+
+    @staticmethod
+    def _crear_creador_de_contenido(nombre, biografia, es_grupo, id_usuario):
+        """
+        Crea un nuevo CreadorDeContenido y lo guarda en la base de datos
+        :param nombre: El nombre que tendra el creador de contenido
+        :param biografia: La biografia del creador de contenido
+        :param es_grupo: Indica si el creador de contenido es un grupo
+        :param id_usuario: El id del usuario del cual es el creador de contenido
+        :return: None
+        """
+        creador_de_contenido = CreadorDeContenido(nombre=nombre, biografia=biografia, es_grupo=es_grupo,
+                                                  usuario_id_usuario=id_usuario)
+        creador_de_contenido.guardar()
 
     @staticmethod
     def _crear_genero(nombre_genero):

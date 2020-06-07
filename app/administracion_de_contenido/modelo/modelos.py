@@ -25,7 +25,7 @@ class CreadorDeContenido(base_de_datos.Model):
     es_grupo = base_de_datos.Column(base_de_datos.Boolean, nullable=False)
     usuario_id_usuario = base_de_datos.Column(base_de_datos.Integer, nullable=False, index=True)
     generos = base_de_datos.relationship('Genero', secondary=artistas_generos, lazy='subquery',
-                                         backref=base_de_datos.backref('genero', lazy=True))
+                                         backref=base_de_datos.backref('creadores_de_contenido', lazy=True))
 
     def guardar(self):
         """
@@ -35,7 +35,7 @@ class CreadorDeContenido(base_de_datos.Model):
         base_de_datos.session.add(self)
         base_de_datos.session.commit()
 
-    def actualizar_informacion(self, nombre, biografia, es_grupo):
+    def editar(self, nombre, biografia, es_grupo):
         """
         Actauliza la informacion de los atributos de nombre, biografia y es_grupo en la base de datos
         :param nombre: El nombre a actualizar
@@ -64,14 +64,14 @@ class CreadorDeContenido(base_de_datos.Model):
         return json
 
     @staticmethod
-    def verificar_usuario_tiene_creador_contenido_registrado(nombre_usuario):
+    def verificar_usuario_tiene_creador_contenido_registrado(id_usuario):
         """
         Verifica si el nombre de usuario ya tiene un creador de contenido asociado
-        :param nombre_usuario: El nombre del usuario a verificar
+        :param id_usuario: El id del usuario a verificar
         :return: Verdadero si el nombre de usuario ya tiene un creador de contenido registrado, falso si no
         """
         perfiles_con_el_mismo_usuario = CreadorDeContenido.query. \
-            filter_by(usuario_nombre_usuario=nombre_usuario).count()
+            filter_by(usuario_id_usuario=id_usuario).count()
         return perfiles_con_el_mismo_usuario > 0
 
     @staticmethod
@@ -124,10 +124,6 @@ class Genero(base_de_datos.Model):
     """
     id_genero = base_de_datos.Column(base_de_datos.Integer, primary_key=True, autoincrement=True)
     genero = base_de_datos.Column(base_de_datos.String(30), nullable=False)
-    creadores_de_contenido = base_de_datos.relationship('CreadorDeContenido', secondary=artistas_generos,
-                                                        lazy='subquery',
-                                                        backref=base_de_datos.backref('creador_de_contenido',
-                                                                                      lazy=True))
 
     @staticmethod
     def recuperar_todos_los_generos():

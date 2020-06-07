@@ -116,7 +116,7 @@ class ValidacionCreadorDeContenido:
         :return: Un diccionario con el error y el mensaje del error si ya tiene un creador de contenido registrado o
         None si no tiene un creador de contenido registrado
         """
-        if CreadorDeContenido.verificar_usuario_tiene_creador_contenido_registrado(usuario.nombre_usuario):
+        if CreadorDeContenido.verificar_usuario_tiene_creador_contenido_registrado(usuario.id_usuario):
             error = {'error': 'usuario_tiene_un_creador_de_contenido_registrado',
                      'mensaje': 'El usuario con el cual se autentico ya cuenta con un creador de contenido registrado'}
             return error
@@ -143,38 +143,9 @@ class ValidacionCreadorDeContenido:
         creador de contenido asociado
         """
         if not CreadorDeContenido. \
-                verificar_usuario_tiene_creador_contenido_registrado(usuario.nombre_usuario):
+                verificar_usuario_tiene_creador_contenido_registrado(usuario.id_usuario):
             error = {'error': 'usuario_no_ha_registrado_un_creador_de_contenido',
                      'mensaje': 'El usuario con el cual se autentico no ha registrado el creador de contenido'}
-            return error
-
-    @staticmethod
-    def validar_creador_de_contenido_es_grupo_a_partir_de_usuario(usuario):
-        """
-        Valida si el CreadorDeContenido del Usuario es un grupo
-        :param usuario: El Usuario del CreadorDeContenido a validar si es grupo
-        :return: Un diccionario con el codigo del error y el mensaje del error o None si el CreadorDeContenido es grupo
-        """
-        creador_de_contenido = CreadorDeContenido.obtener_creador_de_contenido_por_usuario(usuario.nombre_usuario)
-        if not creador_de_contenido.es_grupo:
-            error = {'error': 'creador_de_contenido_no_es_grupo',
-                     'mensaje': 'El creador de contenido del usuario autenticado no es grupo, por lo tanto no cuenta '
-                                'con artistas'}
-            return error
-
-    @staticmethod
-    def validar_creador_de_contenido_es_grupo(id_creador_de_contenido):
-        """
-        Valida si el CreadorDeContenido es un grupo
-        :param id_creador_de_contenido: El id del CreadorDeContenido a validar si es grupo
-        :return: Un diccionario con el codigo del error y el mensaje del error o None si el CreadorDeContenido es
-        grupo
-        """
-        creador_contenido = CreadorDeContenido.obtener_creador_de_contenido_por_id(id_creador_de_contenido)
-        if not creador_contenido.es_grupo:
-            error = {'error': 'creador_de_contenido_no_es_grupo',
-                     'mensaje': 'El creador de contenido al que pertence el id no es grupo, por lo tanto no cuenta '
-                                'con artistas'}
             return error
 
     @staticmethod

@@ -26,7 +26,7 @@ class CreadorDeContenidoControlador(Resource):
         if error is not None:
             return error, 404
         creador_de_contenido = CreadorDeContenido. \
-            obtener_creador_de_contenido_por_id_usuario(usuario_actual.usuario_id_usuario)
+            obtener_creador_de_contenido_por_id_usuario(usuario_actual.id_usuario)
         return creador_de_contenido.obtener_json()
 
     @token_requerido
@@ -40,7 +40,7 @@ class CreadorDeContenidoControlador(Resource):
         creador_de_contenido_a_registrar = CreadorDeContenido(nombre=self.argumentos['nombre'],
                                                               biografia=self.argumentos['biografia'],
                                                               es_grupo=self.argumentos['es_grupo'],
-                                                              usuario_nombre_usuario=usuario_actual.nombre_usuario)
+                                                              usuario_id_usuario=usuario_actual.id_usuario)
         error_creador_ya_registrado = ValidacionCreadorDeContenido. \
             validar_usuario_tiene_creador_de_contenido_asociado(usuario_actual)
         if error_creador_ya_registrado is not None:
@@ -78,7 +78,7 @@ class CreadorDeContenidoControlador(Resource):
             return errores_en_la_solicitud, 400
 
         creador_de_contenido = CreadorDeContenido. \
-            obtener_creador_de_contenido_por_usuario(usuario_actual.nombre_usuario)
+            obtener_creador_de_contenido_por_id_usuario(usuario_actual.id_usuario)
 
         creador_de_contenido.editar(creador_de_contenido_a_validar.nombre,
                                     creador_de_contenido_a_validar.biografia,
