@@ -1,3 +1,4 @@
+from flask import request
 from flask_restful import Resource, reqparse
 
 from app.administracion_de_contenido.modelo.modelos import CreadorDeContenido, Genero
@@ -158,3 +159,34 @@ class CreadorDeContenidoPublicoControlador(Resource):
             return error_no_existe_creador_de_contenido, 404
         creador_de_contenido = CreadorDeContenido.obtener_creador_de_contenido_por_id(id_creador_de_contenido)
         return creador_de_contenido.obtener_json(), 200
+
+
+class CreadoresDeContenidoBuscarControlador(Resource):
+
+    def get(self, cadena_busqueda):
+        """
+        Se encarga de responder una peticion GET al buscar todos los creadores de contenido que coincidan
+        con la cadena de busqueda
+        :param cadena_busqueda: La cadena de busqueda que se utlizara para filtrar a los creadores de contenido
+        """
+        cantidad = request.args.get('cantidad')
+        pagina = request.args.get('pagina')
+        creadores_de_contenido = []
+        try:
+            if cantidad is not None or pagina is not None:
+                cantidad = int(cantidad)
+                pagina = int(pagina)
+            else:
+                cantidad = 10
+                pagina = 1
+            creadores_de_contenido = CreadorDeContenido.obtener_creador_de_contenido_por_busqueda(cadena_busqueda,
+                                                                                                  cantidad,
+                                                                                                  pagina)
+        except ValueError:
+            creadores_de_contenido = CreadorDeContenido.obtener_creador_de_contenido_por_busqueda(cadena_busqueda)
+
+        creadores_de_contenido_diccionario = []
+        if len(creadores_de_contenido) > 0:
+            for creador_de_contenido in creadores_de_contenido:
+                creadores_de_contenido_diccionario.append(creador_de_contenido.obtener_json())
+        return creadores_de_contenido_diccionario
