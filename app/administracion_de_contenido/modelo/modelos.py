@@ -225,3 +225,107 @@ class Disquera(base_de_datos.Model):
         diccionario_de_los_atributos = {'id': self.id_disquera, 'nombre': self.nombre, 'direccion': self.direccion,
                                         'email': self.email, 'telefono': self.telefono, 'es_empresa': self.es_empresa}
         return diccionario_de_los_atributos
+
+
+class Album(base_de_datos.Model):
+    id_album = base_de_datos.Column(base_de_datos.Integer, primary_key=True)
+    nombre = base_de_datos.Column(base_de_datos.String(70), nullable=False)
+    anio_lanzamiento = base_de_datos.Column(base_de_datos.String(4), nullable=False)
+    duracion_total_segundos = base_de_datos.Column(base_de_datos.Float)
+    eliminado = base_de_datos.Column(base_de_datos.Boolean, nullable=False, default=False)
+    creador_de_contenido_id = base_de_datos.Column(base_de_datos.Integer,
+                                                   base_de_datos.
+                                                   ForeignKey('creador_de_contenido.id_creador_de_contenido'),
+                                                   nullable=False)
+
+    def guardar(self):
+        """
+        Se encarga de guardar el objeto actual en la base de datos
+        """
+        base_de_datos.session.add(self)
+        base_de_datos.session.commit()
+
+    def actualizar_informacion(self, nombre, anio_lanzamiento):
+        """
+        Actualiza la informacion del nombre del objeto y lo guarda en la base de datos
+        :param nombre: El nombre actualizado
+        :param anio_lanzamiento: El año de lanzamiento actualizado
+        """
+        self.nombre = nombre
+        self.anio_lanzamiento = anio_lanzamiento
+        base_de_datos.session.commit()
+
+    def eliminar_informacion(self):
+        """
+        Actualiza la informacion del valor eliminado del objeto y lo guarda en la base de datos
+        :param eliminado: El valor eliminado actualizado
+        """
+        self.eliminado = True
+        base_de_datos.session.commit()
+
+
+    @staticmethod
+    def obtener_abumes_creador_de_contenido(id_creador_de_contenido):
+        """
+        Obtener un listado de álbumes pertenecientes a un
+        creador de contenido
+        :param id_creador_de_contenido: El id del creador de contenido que es dueño del álbum
+        :return: Una lista de álbumes o una lista vacía
+        """
+        albumes = Album.query.filter_by(creador_de_contenido_id = id_creador_de_contenido, eliminado=False).all()
+        if albumes is None:
+            return []
+        return albumes
+
+    @staticmethod
+    def obtener_album_por_id(id_album):
+        """
+        Recupera de la base de datos el álbum que tiene el id_album
+        :param id_album: El id del álbum a recuperar
+        :return: El álbum que coincide con el id_album o None si ningún álbum tiene el id_album
+        """
+        album = Album.query.filter_by(id_album=id_album, eliminado=False).first()
+        return album
+
+    @staticmethod
+    def verificar_album_existe(id_album):
+        """
+        Verifica si un álbum existe en la base de datos
+        :param id_album: El id del álbum a verificar si existe
+        :return: Verdadero si el álbum existe, falso si no
+        """
+        cantidad_de_albumes_con_el_id = Album.query.filter_by(id_album=id_album).count()
+        return cantidad_de_albumes_con_el_id > 0
+    
+    @staticmethod
+    def obtener_album_por_busqueda(cadena_busqueda):
+        """
+        Busca los álbumes cuyo nombre contenga la cadena de búsqueda
+        :param cadena_busqueda: La cadena que se utilizará para realizar la búsqueda
+        :return: Una lista con los álbumes que coinciden con la cadena de búsqueda
+        """
+        expresion_regular_de_busqueda = "%" + cadena_busqueda + "%"
+        albumes = Album.query. \
+            filter(Album.nombre.ilike(expresion_regular_de_busqueda)).all()
+        return albumes
+
+    @staticmethod
+    def verificar_existe_creador_contenido(id_creador_contenido):
+        """
+        Verifica si id_creador_contenido pertenece a un creador de contenido
+        :param id_creador_contenido: El id del CreadorDeContenido a validar si existe
+        :return: Verdadero si el id_creador_cotenido es de un CreadorDeContenido o falso si no
+        """
+        cantidad_creadores_contenido_con_mismo_id = \
+            CreadorDeContenido.query.filter_by(id_creador_de_contenido=id_creador_contenido).count()
+        return cantidad_creadores_contenido_con_mismo_id > 0
+
+
+    def obtener_json(self):
+        """
+        Crea un diccionario con los atributos del objeto
+        :return: Un diccionario con los atributos del objeto
+        """
+        diccionario_del_objeto = {'id': self.id_album, 'nombre': self.nombre, 'anio_lanzamiento': self.anio_lanzamiento,
+                                  'duracion_total': self.duracion_total_segundos}
+        return diccionario_del_objeto

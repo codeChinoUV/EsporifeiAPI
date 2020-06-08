@@ -68,7 +68,7 @@ class LoginControlador(Resource):
         """
         login = request.authorization
         error = {'error': 'parametros_faltantes', 'mensaje': 'Los siguientes parametros faltan en tu solicitud: '}
-        if not login.username and not login.password:
+        if login is None or (not login.username and not login.password):
             error['mensaje'] += '<username>, <password>'
             return error, 400
         elif not login.username:
