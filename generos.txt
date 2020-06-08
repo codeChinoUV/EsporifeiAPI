@@ -1,0 +1,5 @@
+INSERT INTO genero(genero) VALUES('Rock');
+INSERT INTO genero(genero) VALUES('Pop');
+INSERT INTO genero(genero) VALUES('R&B');
+INSERT INTO genero(genero) VALUES('Dance');
+INSERT INTO genero(genero) VALUES('Jazz');

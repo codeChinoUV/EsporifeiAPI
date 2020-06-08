@@ -58,7 +58,7 @@ class CreadorDeContenido(base_de_datos.Model):
         """
         generos = []
         for genero in self.generos:
-            generos.append(genero)
+            generos.append(genero.obtener_json())
         json = {'id': self.id_creador_de_contenido, 'nombre': self.nombre, 'biografia': self.biografia,
                 'generos': generos, 'es_grupo': self.es_grupo}
         return json
@@ -117,6 +117,19 @@ class CreadorDeContenido(base_de_datos.Model):
             filter(CreadorDeContenido.nombre.ilike(expresion_regular_de_busqueda)).all()
         return creadores_de_contenido
 
+    def validar_tiene_genero(self, id_genero):
+        """
+        Valida si el creador de contenido tiene el genero con el id_genero
+        :param id_genero: El id del genero a buscar
+        :return: True si lo tiene o False si no
+        """
+        tiene_genero = False
+        for genero in self.generos:
+            if genero.id_genero == id_genero:
+                tiene_genero = True
+                break
+        return tiene_genero
+
 
 class Genero(base_de_datos.Model):
     """
@@ -134,6 +147,16 @@ class Genero(base_de_datos.Model):
         generos = Genero.query.all()
         return generos
 
+    @staticmethod
+    def obtener_genero_por_id(id_genero):
+        """
+        Recupera el genero que tiene el id_genero
+        :param id_genero: El id del genero a recuperar
+        :return: Un genero o None si el genero no existe
+        """
+        genero = Genero.query.filter_by(id_genero=id_genero).first()
+        return genero
+
     def obtener_json(self):
         """
         Crea un diccionario con los atributos del objeto
@@ -141,6 +164,24 @@ class Genero(base_de_datos.Model):
         """
         diccionario_de_los_atributos = {'id': self.id_genero, 'genero': self.genero}
         return diccionario_de_los_atributos
+
+    def agregar_creador_de_contenido(self, creador_de_contenido):
+        """
+        Agrega un creador_de_contenido a la lista de creadores de contenido
+        :param creador_de_contenido: El creador de contenido a agregar
+        :return: None
+        """
+        self.creadores_de_contenido.append(creador_de_contenido)
+        base_de_datos.session.commit()
+
+    def eliminar_creador_de_contenido(self, creador_de_contenido):
+        """
+        Elimina a un creador de contenido del genero
+        :param creador_de_contenido: El creador de contenido a eliminar
+        :return: None
+        """
+        self.creadores_de_contenido.remove(creador_de_contenido)
+        base_de_datos.session.commit()
 
 
 class Disquera(base_de_datos.Model):
