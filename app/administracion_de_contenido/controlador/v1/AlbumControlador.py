@@ -57,7 +57,6 @@ class CreadorDeContenidoAlbum(Resource):
     @token_requerido
     @solo_creador_de_contenido
     def get(self, usuario_actual, id_album):
-        # return {"id_album":id_album}, 200
         """
         Se encarga de responder a una solictud GET con la informacion del Álbum o con una lista de los errores
         ocurridos y su código
