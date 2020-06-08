@@ -1,7 +1,7 @@
 from . import api
 from .controlador.v1.CreadorDeContenidoControlador import CreadorDeContenidoControlador, \
-    CreadorDeContenidoPublicoControlador, CreadorDeContenidoGenerosControlador, CreadorDeContenidoGeneroControlador
-from .controlador.v1.CreadoresDeContenidoControlador import CreadoresDeContenidoBuscarControlador
+    CreadorDeContenidoPublicoControlador, CreadorDeContenidoGenerosControlador, CreadorDeContenidoGeneroControlador, \
+    CreadoresDeContenidoBuscarControlador
 from .controlador.v1.GenerosControlador import GenerosControlador
 
 api.add_resource(CreadorDeContenidoControlador, '/v1/creador-de-contenido')

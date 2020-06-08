@@ -106,16 +106,28 @@ class CreadorDeContenido(base_de_datos.Model):
         return creador_de_contenido
 
     @staticmethod
-    def obtener_creador_de_contenido_por_busqueda(cadena_busqueda):
+    def obtener_creador_de_contenido_por_busqueda(cadena_busqueda, cantidad = 10, pagina = 1 ):
         """
         Busca a los creadores de contenido que su nombre contenga la candena de busqueda
         :param cadena_busqueda: La cadena de se utilizara para realizar la busqueda
         :return: Una lista con los creadores que consisten con la cadena de busqueda
         """
         expresion_regular_de_busqueda = "%" + cadena_busqueda + "%"
+        cantidad_total = cantidad * pagina
         creadores_de_contenido = CreadorDeContenido.query. \
-            filter(CreadorDeContenido.nombre.ilike(expresion_regular_de_busqueda)).all()
-        return creadores_de_contenido
+            filter(CreadorDeContenido.nombre.ilike(expresion_regular_de_busqueda)).limit(cantidad_total).all()
+        if len(creadores_de_contenido) > (cantidad * (pagina-1)):
+            creadores_de_cotenido_pagina = []
+            for i in range(cantidad):
+                posicion = i + (cantidad * (pagina - 1))
+                try:
+                    creadores_de_cotenido_pagina.append(creadores_de_contenido[posicion])
+                except IndexError:
+                    break
+            return creadores_de_cotenido_pagina
+        else:
+            creadores_de_contenido = []
+            return creadores_de_contenido
 
     def validar_tiene_genero(self, id_genero):
         """
