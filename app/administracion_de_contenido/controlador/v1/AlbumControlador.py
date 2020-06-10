@@ -27,7 +27,7 @@ class CreadorDeContenidoAlbumes(Resource):
         if len(errores_validaciones) > 0:
             return errores_validaciones, 400
         album_a_registrar.creador_de_contenido_id = CreadorDeContenido \
-            .obtener_creador_de_contenido_por_usuario(usuario_actual.nombre_usuario).id_creador_de_contenido
+            .obtener_creador_de_contenido_por_id_usuario(usuario_actual.id_usuario).id_creador_de_contenido
         album_a_registrar.guardar()
         return album_a_registrar.obtener_json(), 201
 
@@ -61,12 +61,12 @@ class CreadorDeContenidoAlbum(Resource):
         Se encarga de responder a una solictud GET con la informacion del Álbum o con una lista de los errores
         ocurridos y su código
         """
-        creador_contenido = CreadorDeContenido.obtener_creador_de_contenido_por_usuario(usuario_actual.nombre_usuario)
+        creador_contenido = CreadorDeContenido.obtener_creador_de_contenido_por_id_usuario(usuario_actual.id_usuario)
         album = Album.obtener_album_por_id(id_album)
         if album is None:
             return None, 404
         return album.obtener_json()
-    
+
     @token_requerido
     @solo_creador_de_contenido
     def delete(self, usuario_actual, id_album):
@@ -77,7 +77,7 @@ class CreadorDeContenidoAlbum(Resource):
         error_no_existe_album = ValidacionAlbum.validar_album_existe(id_album)
         if error_no_existe_album is not None:
             return error_no_existe_album, 404
-        creador_contenido = CreadorDeContenido.obtener_creador_de_contenido_por_usuario(usuario_actual.nombre_usuario)
+        creador_contenido = CreadorDeContenido.obtener_creador_de_contenido_por_id_usuario(usuario_actual.id_usuario)
         album_a_modificar = Album.obtener_album_por_id(id_album)
         album_a_modificar.eliminar_informacion()
         return album_a_modificar.obtener_json(), 202
@@ -91,7 +91,7 @@ class CreadorDeContenidoAlbum(Resource):
         error_no_existe_album = ValidacionAlbum.validar_album_existe(id_album)
         if error_no_existe_album is not None:
             return error_no_existe_album, 404
-        creador_contenido = CreadorDeContenido.obtener_creador_de_contenido_por_usuario(usuario_actual.nombre_usuario)
+        creador_contenido = CreadorDeContenido.obtener_creador_de_contenido_por_id_usuario(usuario_actual.id_usuario)
         # error_no_es_dueno = ValidacionAlbum \
         #    .validar_usuario_es_dueno_de_artista(creador_contenido.id_creador_de_contenido, id_artista)
         # if error_no_es_dueno is not None:
@@ -104,6 +104,7 @@ class CreadorDeContenidoAlbum(Resource):
         album_a_modificar = Album.obtener_album_por_id(id_album)
         album_a_modificar.actualizar_informacion(album_a_validar.nombre, album_a_validar.anio_lanzamiento)
         return album_a_modificar.obtener_json(), 202
+
 
 class AlbumesPublicoControlador(Resource):
 
