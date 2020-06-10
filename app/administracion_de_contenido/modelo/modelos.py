@@ -14,6 +14,19 @@ artistas_generos = base_de_datos.Table('artistas_generos',
                                                             primary_key=True)
                                        )
 
+creadores_de_contenido_de_la_cancion = base_de_datos.Table('creadores_canciones',
+                                                           base_de_datos.Column('id_creador_de_contenido',
+                                                                                base_de_datos.Integer,
+                                                                                base_de_datos.ForeignKey(
+                                                                                    'creador_de_contenido'
+                                                                                    '.id_creador_de_contenido'),
+                                                                                primary_key=True),
+                                                           base_de_datos.Column('id_cancion', base_de_datos.Integer,
+                                                                                base_de_datos.ForeignKey(
+                                                                                    'cancion.id_cancion'),
+                                                                                primary_key=True)
+                                                           )
+
 
 class CreadorDeContenido(base_de_datos.Model):
     """
@@ -63,6 +76,16 @@ class CreadorDeContenido(base_de_datos.Model):
                 'generos': generos, 'es_grupo': self.es_grupo}
         return json
 
+    def obtener_json_sin_genero(self):
+        """
+        Crea un diccionario con los datos del objeto omitiendo los generos para poder devolverse como un json
+        :return: Un diccionario con los datos de los atributos
+        """
+        generos = []
+        json = {'id': self.id_creador_de_contenido, 'nombre': self.nombre, 'biografia': self.biografia,
+                'generos': generos, 'es_grupo': self.es_grupo}
+        return json
+
     @staticmethod
     def verificar_usuario_tiene_creador_contenido_registrado(id_usuario):
         """
@@ -73,17 +96,6 @@ class CreadorDeContenido(base_de_datos.Model):
         perfiles_con_el_mismo_usuario = CreadorDeContenido.query. \
             filter_by(usuario_id_usuario=id_usuario).count()
         return perfiles_con_el_mismo_usuario > 0
-
-    @staticmethod
-    def verificar_existe_creador_contenido(id_creador_contenido):
-        """
-        Verifica si id_creador_cotenido pertence a un creador de contenido
-        :param id_creador_contenido: El id del CreadorDeContenido a validar si existe
-        :return: Verdadero si el id_creador_cotenido es de un CreadorDeContenido o falso si no
-        """
-        cantidad_creadores_contenido_con_mismo_id = \
-            CreadorDeContenido.query.filter_by(id_creador_de_contenido=id_creador_contenido).count()
-        return cantidad_creadores_contenido_con_mismo_id > 0
 
     @staticmethod
     def obtener_creador_de_contenido_por_id(id_creador_contenido):
@@ -106,17 +118,19 @@ class CreadorDeContenido(base_de_datos.Model):
         return creador_de_contenido
 
     @staticmethod
-    def obtener_creador_de_contenido_por_busqueda(cadena_busqueda, cantidad = 10, pagina = 1 ):
+    def obtener_creador_de_contenido_por_busqueda(cadena_busqueda, cantidad=10, pagina=1):
         """
         Busca a los creadores de contenido que su nombre contenga la candena de busqueda
         :param cadena_busqueda: La cadena de se utilizara para realizar la busqueda
+        :param cantidad: La cantidad de elementos a recuperar por pagina, el valor por defecto es 10
+        :param pagina: El numero de pagina el cual se desea recuperar, el valor por defecto es 1
         :return: Una lista con los creadores que consisten con la cadena de busqueda
         """
         expresion_regular_de_busqueda = "%" + cadena_busqueda + "%"
         cantidad_total = cantidad * pagina
         creadores_de_contenido = CreadorDeContenido.query. \
             filter(CreadorDeContenido.nombre.ilike(expresion_regular_de_busqueda)).limit(cantidad_total).all()
-        if len(creadores_de_contenido) > (cantidad * (pagina-1)):
+        if len(creadores_de_contenido) > (cantidad * (pagina - 1)):
             creadores_de_cotenido_pagina = []
             for i in range(cantidad):
                 posicion = i + (cantidad * (pagina - 1))
@@ -128,6 +142,17 @@ class CreadorDeContenido(base_de_datos.Model):
         else:
             creadores_de_contenido = []
             return creadores_de_contenido
+
+    @staticmethod
+    def verificar_existe_creador_contenido(id_creador_contenido):
+        """
+        Verifica si id_creador_contenido pertenece a un creador de contenido
+        :param id_creador_contenido: El id del CreadorDeContenido a validar si existe
+        :return: Verdadero si el id_creador_cotenido es de un CreadorDeContenido o falso si no
+        """
+        cantidad_creadores_contenido_con_mismo_id = \
+            CreadorDeContenido.query.filter_by(id_creador_de_contenido=id_creador_contenido).count()
+        return cantidad_creadores_contenido_con_mismo_id > 0
 
     def validar_tiene_genero(self, id_genero):
         """
@@ -227,6 +252,17 @@ class Disquera(base_de_datos.Model):
         return diccionario_de_los_atributos
 
 
+albumes_de_la_cancion = base_de_datos.Table('albumes_de_la_cancion',
+                                            base_de_datos.Column('id_album', base_de_datos.Integer,
+                                                                 base_de_datos.ForeignKey(
+                                                                     'album.id_album'),
+                                                                 primary_key=True),
+                                            base_de_datos.Column('id_cancion', base_de_datos.Integer,
+                                                                 base_de_datos.ForeignKey('cancion.id_cancion'),
+                                                                 primary_key=True)
+                                            )
+
+
 class Album(base_de_datos.Model):
     id_album = base_de_datos.Column(base_de_datos.Integer, primary_key=True)
     nombre = base_de_datos.Column(base_de_datos.String(70), nullable=False)
@@ -237,6 +273,8 @@ class Album(base_de_datos.Model):
                                                    base_de_datos.
                                                    ForeignKey('creador_de_contenido.id_creador_de_contenido'),
                                                    nullable=False)
+    canciones = base_de_datos.relationship('Cancion', secondary=albumes_de_la_cancion, lazy='subquery',
+                                           backref=base_de_datos.backref('albumes', lazy=True))
 
     def guardar(self):
         """
@@ -258,11 +296,10 @@ class Album(base_de_datos.Model):
     def eliminar_informacion(self):
         """
         Actualiza la informacion del valor eliminado del objeto y lo guarda en la base de datos
-        :param eliminado: El valor eliminado actualizado
+        :return: None
         """
         self.eliminado = True
         base_de_datos.session.commit()
-
 
     @staticmethod
     def obtener_abumes_creador_de_contenido(id_creador_de_contenido):
@@ -272,7 +309,7 @@ class Album(base_de_datos.Model):
         :param id_creador_de_contenido: El id del creador de contenido que es dueño del álbum
         :return: Una lista de álbumes o una lista vacía
         """
-        albumes = Album.query.filter_by(creador_de_contenido_id = id_creador_de_contenido, eliminado=False).all()
+        albumes = Album.query.filter_by(creador_de_contenido_id=id_creador_de_contenido, eliminado=False).all()
         if albumes is None:
             return []
         return albumes
@@ -296,7 +333,7 @@ class Album(base_de_datos.Model):
         """
         cantidad_de_albumes_con_el_id = Album.query.filter_by(id_album=id_album).count()
         return cantidad_de_albumes_con_el_id > 0
-    
+
     @staticmethod
     def obtener_album_por_busqueda(cadena_busqueda):
         """
@@ -310,16 +347,16 @@ class Album(base_de_datos.Model):
         return albumes
 
     @staticmethod
-    def verificar_existe_creador_contenido(id_creador_contenido):
+    def validar_pertenece_album(id_creador_de_contenido, id_album):
         """
-        Verifica si id_creador_contenido pertenece a un creador de contenido
-        :param id_creador_contenido: El id del CreadorDeContenido a validar si existe
-        :return: Verdadero si el id_creador_cotenido es de un CreadorDeContenido o falso si no
+        Valida si el album es dueño del creador de contenido
+        :param id_album: El id del album a verificar el dueño
+        :param id_creador_de_contenido: El creador de contenido a validar si es dueño
+        :return: Verdadero si el creador de contenido es dueño o falso si no
         """
-        cantidad_creadores_contenido_con_mismo_id = \
-            CreadorDeContenido.query.filter_by(id_creador_de_contenido=id_creador_contenido).count()
-        return cantidad_creadores_contenido_con_mismo_id > 0
-
+        cantidad_de_albumes = Album.query.filter_by(id_album=id_album, creador_de_contenido_id=id_creador_de_contenido)\
+            .count()
+        return cantidad_de_albumes > 0
 
     def obtener_json(self):
         """
@@ -329,3 +366,52 @@ class Album(base_de_datos.Model):
         diccionario_del_objeto = {'id': self.id_album, 'nombre': self.nombre, 'anio_lanzamiento': self.anio_lanzamiento,
                                   'duracion_total': self.duracion_total_segundos}
         return diccionario_del_objeto
+
+    def agregar_cancion(self, cancion, creador_de_contenido):
+        """
+        Agrega una cancion al album y agrega el creador_de_contenido a la cancion y la guarda en la base de datos
+        :param cancion: La cancion a agregar al album
+        :param creador_de_contenido: El creador de contenido a agregar a la cancion
+        :return: None
+        """
+        self.canciones.append(cancion)
+        cancion.creadores_de_contenido.append(creador_de_contenido)
+        base_de_datos.session.commit()
+
+
+class Cancion(base_de_datos.Model):
+    id_cancion = base_de_datos.Column(base_de_datos.Integer, primary_key=True)
+    nombre = base_de_datos.Column(base_de_datos.String(70), nullable=False)
+    duracion_en_segundos = base_de_datos.Column(base_de_datos.Float, default=0)
+    cantidad_de_reproducciones = base_de_datos.Column(base_de_datos.Integer, default=0)
+    calificacion_promedio = base_de_datos.Column(base_de_datos.Float, default=0)
+    eliminada = base_de_datos.Column(base_de_datos.Boolean, default=False)
+    creadores_de_contenido = base_de_datos.relationship('CreadorDeContenido',
+                                                        secondary=creadores_de_contenido_de_la_cancion, lazy='subquery',
+                                                        backref=base_de_datos.backref('creadores_de_contenido',
+                                                                                      lazy=True))
+
+    def obtener_json_con_creadores(self):
+        """
+        Crea un diccionario con la informacion de las cancion, incluyendo la informacion de los creadores de contenido
+        :return: Un diccionario
+        """
+        creadores_de_contenido = []
+        for creador_de_contenido in self.creadores_de_contenido:
+            creadores_de_contenido.append(creador_de_contenido.obtener_json_sin_genero())
+        diccionario = {'id: ': self.id_cancion, 'nombre': self.nombre,
+                       'duracion': self.duracion_en_segundos,
+                       'cantidad_de_reproducciones': self.cantidad_de_reproducciones,
+                       'creadores_de_contenido': creadores_de_contenido,
+                       'calificacion_promedio': self.calificacion_promedio,
+                       'album': None}
+        return diccionario
+
+    def agregar_creador_de_contenido(self, creador_de_contenido):
+        """
+        Agrega un creador_de_contenido a la cancion
+        :param creador_de_contenido: El creador de contenido a agregar
+        :return: None
+        """
+        self.creadores_de_contenido.append(creador_de_contenido)
+        base_de_datos.session.commit()
