@@ -78,3 +78,11 @@ class ValidacionAlbum():
             error = {'error': 'creador_de_contenido_inexistente',
                      'mensaje': 'No existe ningun CreadorDeContenido registrado con el id indicado'}
             return error
+
+    @staticmethod
+    def validar_creador_de_contenido_es_dueno_de_album(id_usuario, id_album):
+        creador_de_contenido = CreadorDeContenido.obtener_creador_de_contenido_por_id_usuario(id_usuario)
+        es_dueno = Album.validar_pertenece_album(creador_de_contenido.id_creador_de_contenido, id_album)
+        if not es_dueno:
+            error = {'error': 'operacion_no_permitida', 'mensaje': 'El usuario no es el dueño del album'}
+            return error
