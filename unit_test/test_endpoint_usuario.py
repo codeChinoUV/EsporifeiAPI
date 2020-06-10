@@ -1,4 +1,4 @@
-from app.test import BaseTestClass
+from . import BaseTestClass
 from app.manejo_de_usuarios.modelo.modelos import Usuario
 
 
