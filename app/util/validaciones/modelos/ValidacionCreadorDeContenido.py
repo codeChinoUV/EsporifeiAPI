@@ -128,7 +128,7 @@ class ValidacionCreadorDeContenido:
         :param usuario: El usuario a validar si tiene un CreadorDeContenido
         :return: Un diccionario con el codigo del error y el mensaje del error o None si existe el CreadorDeContenido
         """
-        creador_de_contenido = CreadorDeContenido.obtener_creador_de_contenido_por_usuario(usuario.nombre_usuario)
+        creador_de_contenido = CreadorDeContenido.obtener_creador_de_contenido_por_id_usuario(usuario.id_usuario)
         if creador_de_contenido is None:
             error = {'error': 'usuario_no_tiene_un_creador_de_contenido',
                      'mensaje': 'El usuario con el cual se autentico no tiene ningun CreadorDeContenido registrado'}
