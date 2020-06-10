@@ -415,3 +415,13 @@ class Cancion(base_de_datos.Model):
         """
         self.creadores_de_contenido.append(creador_de_contenido)
         base_de_datos.session.commit()
+
+    @staticmethod
+    def obtener_cancion_por_id(id_cancion):
+        """
+        Recupera la cancion que tiene el id_cancion
+        :param id_cancion: El id de la cancion a recuperar
+        :return: La cancion que tiene el id_cancion o None si no existe la cancion con ese id
+        """
+        cancion = Cancion.query.filter_by(id_cancion=id_cancion).first()
+        return cancion

@@ -31,7 +31,8 @@ class CreadorDeContenidoAlbumCanciones(Resource):
         album = Album.obtener_album_por_id(id_album)
         canciones = []
         for cancion in album.canciones:
-            canciones.append(cancion.obtener_json_con_creadores())
+            if not cancion.eliminada:
+                canciones.append(cancion.obtener_json_con_creadores())
         return canciones, 200
 
     @token_requerido

@@ -1,6 +1,6 @@
 import unittest
 from app import create_app, base_de_datos
-from app.administracion_de_contenido.modelo.modelos import Genero, CreadorDeContenido
+from app.administracion_de_contenido.modelo.modelos import Genero, CreadorDeContenido, Album, Cancion
 from app.manejo_de_usuarios.modelo.modelos import Usuario
 
 
@@ -24,7 +24,9 @@ class BaseTestClass(unittest.TestCase):
                                          "creador_de_contenido2@exmaple.com")
             BaseTestClass._crear_genero("Dance")
             BaseTestClass._crear_genero("Regueton")
-            BaseTestClass._crear_creador_de_contenido("prueba1", "Es solo una prueba", True, 1)
+            creador_de_contenido = BaseTestClass._crear_creador_de_contenido("prueba1", "Es solo una prueba", True, 1)
+            album = BaseTestClass._crear_album("Album de prueba", "2001", 1)
+            BaseTestClass._agregar_cancion(album, creador_de_contenido, "cancion de prueba")
 
     def tearDown(self):
         """
@@ -58,11 +60,12 @@ class BaseTestClass(unittest.TestCase):
         :param biografia: La biografia del creador de contenido
         :param es_grupo: Indica si el creador de contenido es un grupo
         :param id_usuario: El id del usuario del cual es el creador de contenido
-        :return: None
+        :return: El creador de contenido realizado
         """
         creador_de_contenido = CreadorDeContenido(nombre=nombre, biografia=biografia, es_grupo=es_grupo,
                                                   usuario_id_usuario=id_usuario)
         creador_de_contenido.guardar()
+        return creador_de_contenido
 
     @staticmethod
     def _crear_genero(nombre_genero):
@@ -74,3 +77,28 @@ class BaseTestClass(unittest.TestCase):
         genero = Genero(genero=nombre_genero)
         base_de_datos.session.add(genero)
         base_de_datos.session.commit()
+
+    @staticmethod
+    def _crear_album(nombre, anio_lanzamiento, id_creador_de_contenido):
+        """
+        Crea un nuevo album y lo guarda en la base de datos
+        :param nombre: El nombre del album
+        :param anio_lanzamiento: El anio de lanzamiento del album
+        :param id_creador_de_contenido: El id del creador de contenido al cual le pertece el album
+        :return: El Album creado
+        """
+        album = Album(nombre=nombre, anio_lanzamiento=anio_lanzamiento, creador_de_contenido_id=id_creador_de_contenido)
+        album.guardar()
+        return album
+
+    @staticmethod
+    def _agregar_cancion(album, creador_de_contenido, nombre_cancion):
+        """
+        Crea una cancion y la agrega a el album
+        :param album: El album en donde se agregara la cancion
+        :param creador_de_contenido: El creador_de_contenido que agrego la cancion
+        :param nombre_cancion: El nombre que tendra la cancion
+        :return: None
+        """
+        cancion = Cancion(nombre=nombre_cancion)
+        album.agregar_cancion(cancion, creador_de_contenido)

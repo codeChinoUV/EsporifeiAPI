@@ -28,6 +28,6 @@ class ValidacionCancion:
         error_parametros_faltantes = ValidacionCancion._validar_parametros_requeridos(cancion)
         if error_parametros_faltantes is not None:
             return error_parametros_faltantes
-        error_tamano_atributos_texto = ValidacionCancion._validar_parametros_requeridos(cancion)
-        if error_parametros_faltantes is not None:
+        error_tamano_atributos_texto = ValidacionCancion._validar_tamano_atributos_texto(cancion)
+        if error_tamano_atributos_texto is not None:
             return error_tamano_atributos_texto

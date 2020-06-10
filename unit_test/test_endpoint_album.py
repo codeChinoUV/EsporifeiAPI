@@ -1,7 +1,7 @@
 from app.manejo_de_usuarios.modelo.enum.enums import TipoUsuario
 from app.manejo_de_usuarios.modelo.modelos import Usuario
 from app.util.validaciones.modelos.ValidacionCreadorDeContenido import ValidacionCreadorDeContenido
-from . import BaseTestClass
+from app.test import BaseTestClass
 
 
 class AlbumControlador(BaseTestClass):
