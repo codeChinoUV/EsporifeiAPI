@@ -21,6 +21,20 @@ class CancionTest(BaseTestClass):
             cancion = Cancion.obtener_cancion_por_id(id_cancion)
             self.assertEqual(id_cancion, cancion.id_cancion)
 
+    def test_eliminar_cancion(self):
+        with self.app.app_context():
+            cancion = Cancion.obtener_cancion_por_id(1)
+            cancion.eliminar()
+            cancion_eliminada = Cancion.obtener_cancion_por_id(1)
+            self.assertEqual(None, cancion_eliminada)
+
+    def test_editar_cancion(self):
+        with self.app.app_context():
+            nombre = "prueba 2"
+            cancion = Cancion.obtener_cancion_por_id(1)
+            cancion.editar(nombre)
+            self.assertEqual(nombre, cancion.nombre)
+
 
 class ValidacionCancionTest(BaseTestClass):
 
