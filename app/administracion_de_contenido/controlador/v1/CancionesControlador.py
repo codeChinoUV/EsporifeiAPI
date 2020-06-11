@@ -248,7 +248,7 @@ class CreadoresDeContenidoAlbumesCanciones(Resource):
 
     def get(self, id_creador_de_contenido, id_album):
         """
-        Se encarga de procesar una solicitud GET al devolver las canciones del album del creador de cotenido
+        Se encarga de procesar una solicitud GET al devolver las canciones del album del creador de contenido
         :param id_album: El id del album a recuperar las canciones
         :param id_creador_de_contenido: El id del creador de contenido a recuperar las canciones
         :return: Un diccionario y un codigo de error
@@ -268,9 +268,45 @@ class CreadoresDeContenidoAlbumesCanciones(Resource):
         return canciones, 200
 
 
+class CreadorDeContenidoAlbumesCancionCreadoresDeContenidoControlador(Resource):
+
+    def __init__(self):
+        self.parser = reqparse.RequestParser()
+        self.parser.add_argument('id')
+        self.argumentos = self.parser.parse_args()
+
+    @token_requerido
+    @solo_creador_de_contenido
+    def post(self, usuario_actual, id_album, id_cancion):
+        """
+        Se encarga de procesar una solicitud de tipo POST al agregar un creador de contenido a la cancion
+        :param usuario_actual: El usuario logeado
+        :param id_album: El id del album al que pertence la cancion
+        :param id_cancion: El id de la cancion a la que se le agregara el creador de contenido
+        :return: Un diccionario y un codigo de estado
+        """
+        errores_permiso = CreadorDeContenidoAlbumCancion. \
+            validaciones_de_acceso_y_existencia(usuario_actual, id_album, id_cancion)
+        if errores_permiso is not None:
+            return errores_permiso
+        errores_validacion_id = ValidacionCreadorDeContenido.validar_agregar_creador_de_contenido(self.argumentos['id'])
+        if errores_validacion_id is not None:
+            return errores_validacion_id, 400
+        creador_de_contenido = CreadorDeContenido.obtener_creador_de_contenido_por_id(self.argumentos['id'])
+        cancion = Cancion.obtener_cancion_por_id(id_cancion)
+        cancion.agregar_creador_de_contenido(creador_de_contenido)
+        return creador_de_contenido.obtener_json_sin_genero(), 201
+
+
 class CancionesBucarControlador(Resource):
 
     def get(self, cadena_busqueda):
+        """
+        Se encarga de responder a una solicitud de tipo GET al devolver las canciones que coincidan con la cadena de
+        busqueda
+        :param cadena_busqueda: La cadena de busqueda
+        :return: Un diccionario y en codigo de estado
+        """
         cantidad = request.args.get('cantidad')
         pagina = request.args.get('pagina')
         try:
