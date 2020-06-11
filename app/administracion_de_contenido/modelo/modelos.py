@@ -168,6 +168,17 @@ class CreadorDeContenido(base_de_datos.Model):
         return tiene_genero
 
 
+generos_de_la_cancion = base_de_datos.Table('generos_de_la_cancion',
+                                            base_de_datos.Column('id_cancion', base_de_datos.Integer,
+                                                                 base_de_datos.ForeignKey(
+                                                                     'cancion.id_cancion'),
+                                                                 primary_key=True),
+                                            base_de_datos.Column('id_genero', base_de_datos.Integer,
+                                                                 base_de_datos.ForeignKey('genero.id_genero'),
+                                                                 primary_key=True)
+                                            )
+
+
 class Genero(base_de_datos.Model):
     """
     Representa a un Genero que agrupa canciones y creadores de contenido
@@ -390,6 +401,9 @@ class Cancion(base_de_datos.Model):
                                                         secondary=creadores_de_contenido_de_la_cancion, lazy='subquery',
                                                         backref=base_de_datos.backref('creadores_de_contenido',
                                                                                       lazy=True))
+    generos = base_de_datos.relationship('Genero',
+                                         secondary=generos_de_la_cancion, lazy='subquery',
+                                         backref=base_de_datos.backref('generos', lazy=True))
 
     def obtener_json_con_creadores(self):
         """
@@ -457,4 +471,22 @@ class Cancion(base_de_datos.Model):
         :return: None
         """
         self.eliminada = True
+        base_de_datos.session.commit()
+
+    def agregar_genero(self, genero):
+        """
+        Agrega un genero a la lista de generos de la cancion
+        :param genero: El genero a agregar
+        :return: None
+        """
+        self.generos.append(genero)
+        base_de_datos.session.commit()
+
+    def eliminar_genero(self, genero):
+        """
+        Elimina un genero de la lista de generos de la cancion
+        :param genero: El genero a eliminar
+        :return: None
+        """
+        self.generos.remove(genero)
         base_de_datos.session.commit()

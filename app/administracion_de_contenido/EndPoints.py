@@ -1,5 +1,6 @@
 from . import api
-from .controlador.v1.CancionesControlador import CreadorDeContenidoAlbumCanciones, CreadorDeContenidoAlbumCancion
+from .controlador.v1.CancionesControlador import CreadorDeContenidoAlbumCanciones, CreadorDeContenidoAlbumCancion, \
+    CreadorDeContenidoAlbumCancionGeneros
 from .controlador.v1.CreadorDeContenidoControlador import CreadorDeContenidoControlador, \
     CreadorDeContenidoPublicoControlador, CreadorDeContenidoGenerosControlador, CreadorDeContenidoGeneroControlador, \
     CreadoresDeContenidoBuscarControlador
@@ -21,3 +22,5 @@ api.add_resource(AlbumesPublicoControlador, '/v1/creadores-de-contenido/<int:id_
 api.add_resource(CreadorDeContenidoAlbumCanciones, '/v1/creador-de-contenido/albumes/<int:id_album>/canciones')
 api.add_resource(CreadorDeContenidoAlbumCancion, '/v1/creador-de-contenido/albumes/<int:id_album>/canciones/<int'
                                                  ':id_cancion>')
+api.add_resource(CreadorDeContenidoAlbumCancionGeneros, '/v1/creador-de-contenido/albumes/<int:id_album>/canciones/<int'
+                                                        ':id_cancion>/generos')

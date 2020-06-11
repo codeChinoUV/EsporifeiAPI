@@ -1,4 +1,4 @@
-from app.administracion_de_contenido.modelo.modelos import CreadorDeContenido, Cancion
+from app.administracion_de_contenido.modelo.modelos import CreadorDeContenido, Cancion, Genero
 from app.util.validaciones.modelos.ValidacionCancion import ValidacionCancion
 from . import BaseTestClass
 
@@ -34,6 +34,23 @@ class CancionTest(BaseTestClass):
             cancion = Cancion.obtener_cancion_por_id(1)
             cancion.editar(nombre)
             self.assertEqual(nombre, cancion.nombre)
+
+    def test_agregar_genero(self):
+        with self.app.app_context():
+            cancion = Cancion.obtener_cancion_por_id(1)
+            genero = Genero.obtener_genero_por_id(1)
+            cancion.agregar_genero(genero)
+            cantidad_generos = 1
+            self.assertEqual(cantidad_generos, len(cancion.generos))
+
+    def test_eliminar_genero(self):
+        with self.app.app_context():
+            cancion = Cancion.obtener_cancion_por_id(1)
+            genero = Genero.obtener_genero_por_id(1)
+            cancion.agregar_genero(genero)
+            cancion.eliminar_genero(genero)
+            cantidad_generos = 0
+            self.assertEqual(cantidad_generos, len(cancion.generos))
 
 
 class ValidacionCancionTest(BaseTestClass):
