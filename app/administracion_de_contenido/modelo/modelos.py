@@ -423,5 +423,38 @@ class Cancion(base_de_datos.Model):
         :param id_cancion: El id de la cancion a recuperar
         :return: La cancion que tiene el id_cancion o None si no existe la cancion con ese id
         """
-        cancion = Cancion.query.filter_by(id_cancion=id_cancion).first()
+        cancion = Cancion.query.filter_by(id_cancion=id_cancion, eliminada=False).first()
         return cancion
+
+    @staticmethod
+    def validar_existe_cancion_en_album(id_album, id_cancion):
+        """
+        Valida si el id de la cancion pertenece a la cancion
+        :param id_album: El id del album en donde se buscara la cancion
+        :param id_cancion: El id de la cancion a validar si existe
+        :return: Verdadero si existe una cancion con el id o Falso si no
+        """
+        se_encuentra_en_album = False
+        album = Album.obtener_album_por_id(id_album)
+        for cancion in album.canciones:
+            if cancion.id_cancion == id_cancion:
+                se_encuentra_en_album = True
+                break
+        return se_encuentra_en_album
+
+    def editar(self, nombre):
+        """
+        Actualiza la informaciòn del nombre de la cancion
+        :param nombre: El nombre que se le asignara a la cancion
+        :return: None
+        """
+        self.nombre = nombre
+        base_de_datos.session.commit()
+
+    def eliminar(self):
+        """
+        Cambia el estado de eliminado a la cancion
+        :return: None
+        """
+        self.eliminada = True
+        base_de_datos.session.commit()
