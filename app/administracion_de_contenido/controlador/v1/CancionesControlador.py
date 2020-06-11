@@ -1,3 +1,4 @@
+from flask import request
 from flask_restful import reqparse, Resource
 
 from app.administracion_de_contenido.modelo.modelos import Album, Cancion, CreadorDeContenido, Genero
@@ -216,3 +217,73 @@ class CreadorDeContenidoAlbumCancionGeneros(Resource):
             generos.append(genero.obtener_json())
         return generos, 200
 
+
+class CreadorDeContenidoAlbumCancionGenero(Resource):
+
+    @token_requerido
+    @solo_creador_de_contenido
+    def delete(self, usuario_actual, id_album, id_cancion, id_genero):
+        """
+        Se encarga de responder a una solicitud DELETE a eliminar un Genero de la lista de Generos de la Cancion
+        :param usuario_actual: El usuario logeado
+        :param id_album: El id del album al cual pertenece la cancion
+        :param id_cancion: El id de la cancion a eliminar el genero
+        :param id_genero: El id del genero a quitar de la cancion
+        :return: Un diccionario y un codigo de error
+        """
+        errores_permiso = CreadorDeContenidoAlbumCancion. \
+            validaciones_de_acceso_y_existencia(usuario_actual, id_album, id_cancion)
+        if errores_permiso is not None:
+            return errores_permiso
+        cancion = Cancion.obtener_cancion_por_id(id_cancion)
+        error_no_tiene_genero = ValidacionCancion.validar_tiene_genero(cancion, id_genero)
+        if error_no_tiene_genero is not None:
+            return error_no_tiene_genero, 404
+        genero = Genero.obtener_genero_por_id(id_genero)
+        cancion.eliminar_genero(genero)
+        return genero.obtener_json(), 202
+
+
+class CreadoresDeContenidoAlbumesCanciones(Resource):
+
+    def get(self, id_creador_de_contenido, id_album):
+        """
+        Se encarga de procesar una solicitud GET al devolver las canciones del album del creador de cotenido
+        :param id_album: El id del album a recuperar las canciones
+        :param id_creador_de_contenido: El id del creador de contenido a recuperar las canciones
+        :return: Un diccionario y un codigo de error
+        """
+        error_creador_no_existe = ValidacionCreadorDeContenido. \
+            validar_existe_creador_de_contenido(id_creador_de_contenido)
+        if error_creador_no_existe is not None:
+            return error_creador_no_existe, 404
+        error_album_no_existe = ValidacionAlbum.validar_creador_de_contenido_tiene_album(id_creador_de_contenido,
+                                                                                         id_album)
+        if error_album_no_existe is not None:
+            return error_album_no_existe, 404
+        canciones = []
+        album = Album.obtener_album_por_id(id_album)
+        for cancion in album.canciones:
+            canciones.append(cancion.obtener_json_con_creadores())
+        return canciones, 200
+
+
+class CancionesBucarControlador(Resource):
+
+    def get(self, cadena_busqueda):
+        cantidad = request.args.get('cantidad')
+        pagina = request.args.get('pagina')
+        try:
+            if cantidad is not None or pagina is not None:
+                cantidad = int(cantidad)
+                pagina = int(pagina)
+            else:
+                cantidad = 10
+                pagina = 1
+            canciones = Cancion.obtener_canciones_por_busqueda(cadena_busqueda, cantidad, pagina)
+        except ValueError:
+            canciones = Cancion.obtener_canciones_por_busqueda(cadena_busqueda)
+        canciones_dicionario = []
+        for cancion in canciones:
+            canciones_dicionario.append(cancion.obtener_json_con_album())
+        return canciones_dicionario, 200

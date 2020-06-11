@@ -365,8 +365,8 @@ class Album(base_de_datos.Model):
         :param id_creador_de_contenido: El creador de contenido a validar si es dueño
         :return: Verdadero si el creador de contenido es dueño o falso si no
         """
-        cantidad_de_albumes = Album.query.filter_by(id_album=id_album, creador_de_contenido_id=id_creador_de_contenido)\
-            .count()
+        cantidad_de_albumes = Album.query\
+            .filter_by(id_album=id_album, creador_de_contenido_id=id_creador_de_contenido).count()
         return cantidad_de_albumes > 0
 
     def obtener_json(self):
@@ -419,6 +419,17 @@ class Cancion(base_de_datos.Model):
                        'creadores_de_contenido': creadores_de_contenido,
                        'calificacion_promedio': self.calificacion_promedio,
                        'album': None}
+        return diccionario
+
+    def obtener_json_con_album(self):
+        """
+        Crea un diccionario con la informacion de las cancion, incluyendo la informacion de los creadores de contenido y
+        del album al que pertenece
+        :return: Un diccionario
+        """
+        album = self.albumes[0]
+        diccionario = self.obtener_json_con_creadores()
+        diccionario['album'] = album.obtener_json()
         return diccionario
 
     def agregar_creador_de_contenido(self, creador_de_contenido):
@@ -490,3 +501,43 @@ class Cancion(base_de_datos.Model):
         """
         self.generos.remove(genero)
         base_de_datos.session.commit()
+
+    def validar_tiene_genero(self, id_genero):
+        """
+        Valida si la cancion tiene un genero con el id_genero
+        :param id_genero: El id del genero a validar
+        :return: Verdadero si tiene el genero o Falso si no
+        """
+        tiene_genero = False
+        for genero in self.generos:
+            if genero.id_genero == id_genero:
+                tiene_genero = True
+                break
+        return tiene_genero
+
+    @staticmethod
+    def obtener_canciones_por_busqueda(cadena_busqueda, cantidad=10, pagina=1):
+        """
+        Busca a las canciones que su nombre contenga la candena de busqueda
+        :param cadena_busqueda: La cadena de busqueda que se utilizara para realizar la busqueda
+        :param cantidad: La cantidad de elementos a recuperar por pagina, el valor por defecto es 10
+        :param pagina: El numero de pagina el cual se desea recuperar, el valor por defecto es 1
+        :return: Una lista con las canciones que coinciden con la cadena de busqueda
+        """
+        expresion_regular_de_busqueda = "%" + cadena_busqueda + "%"
+        cantidad_total = cantidad * pagina
+        canciones = Cancion.query. \
+            filter(Cancion.nombre.ilike(expresion_regular_de_busqueda)).order_by(Cancion.cantidad_de_reproducciones) \
+            .limit(cantidad_total).all()
+        if len(canciones) > (cantidad * (pagina - 1)):
+            canciones_de_la_pagina = []
+            for i in range(cantidad):
+                posicion = i + (cantidad * (pagina - 1))
+                try:
+                    canciones_de_la_pagina.append(canciones[posicion])
+                except IndexError:
+                    break
+            return canciones_de_la_pagina
+        else:
+            canciones = []
+            return canciones

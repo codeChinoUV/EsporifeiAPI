@@ -35,7 +35,7 @@ class ValidacionAlbum():
         try:
             if anio_lanzamiento is not None:
                 anio_lanzamiento = int(anio_lanzamiento)
-                if anio_lanzamiento <= 0 or len(str(anio_lanzamiento)) !=4:
+                if anio_lanzamiento <= 0 or len(str(anio_lanzamiento)) != 4:
                     return error
         except ValueError:
             return error
@@ -51,7 +51,7 @@ class ValidacionAlbum():
             lista_de_errores.append(error_tamano_campos)
         error_anio_invalido = ValidacionAlbum._valdidar_anio_lanzamiento(album.anio_lanzamiento)
         if error_anio_invalido is not None:
-            lista_de_errores.append(error_anio_invalido) 
+            lista_de_errores.append(error_anio_invalido)
         return lista_de_errores
 
     @staticmethod
@@ -85,4 +85,17 @@ class ValidacionAlbum():
         es_dueno = Album.validar_pertenece_album(creador_de_contenido.id_creador_de_contenido, id_album)
         if not es_dueno:
             error = {'error': 'operacion_no_permitida', 'mensaje': 'El usuario no es el dueño del album'}
+            return error
+
+    @staticmethod
+    def validar_creador_de_contenido_tiene_album(id_creador_de_contenido, id_album):
+        """
+        Valida si el creador de contenido tiene el album con el id_album
+        :param id_creador_de_contenido: El id del creador de contenido a valiadr si tiene el album
+        :param id_album: El id del álbum a validar si existe
+        :return: None si el álbum existe o un diccionario con el error y el mensaje del error si no existe el álbum
+        """
+        if not Album.validar_pertenece_album(id_creador_de_contenido, id_album):
+            error = {'error': 'album_inexistente',
+                     'mensaje': 'El creador de contenido no tiene registrado ningún álbum registrado con el id_album'}
             return error

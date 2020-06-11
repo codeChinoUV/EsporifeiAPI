@@ -52,6 +52,12 @@ class CancionTest(BaseTestClass):
             cantidad_generos = 0
             self.assertEqual(cantidad_generos, len(cancion.generos))
 
+    def test_buscar(self):
+        with self.app.app_context():
+            canciones = Cancion.obtener_canciones_por_busqueda("cancion")
+            cantidad_de_canciones_que_coinciden = 1
+            self.assertEqual(cantidad_de_canciones_que_coinciden, len(canciones))
+
 
 class ValidacionCancionTest(BaseTestClass):
 
