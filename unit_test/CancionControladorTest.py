@@ -1,5 +1,6 @@
 from app.administracion_de_contenido.modelo.modelos import CreadorDeContenido, Cancion, Genero
 from app.util.validaciones.modelos.ValidacionCancion import ValidacionCancion
+from app.util.validaciones.modelos.ValidacionCreadorDeContenido import ValidacionCreadorDeContenido
 from . import BaseTestClass
 
 
@@ -58,6 +59,17 @@ class CancionTest(BaseTestClass):
             cantidad_de_canciones_que_coinciden = 1
             self.assertEqual(cantidad_de_canciones_que_coinciden, len(canciones))
 
+    def test_eliminar_creador_de_contenido(self):
+        with self.app.app_context():
+            creador_de_contenido = CreadorDeContenido(usuario_id_usuario=2, nombre="Credor de contenido 2",
+                                                      es_grupo=True)
+            creador_de_contenido.guardar()
+            cancion = Cancion.obtener_cancion_por_id(1)
+            cancion.agregar_creador_de_contenido(creador_de_contenido)
+            cancion.eliminar_creador_de_contenido(creador_de_contenido)
+            cantidad_creadores_de_contenido = 1
+            self.assertEqual(cantidad_creadores_de_contenido, len(cancion.creadores_de_contenido))
+
 
 class ValidacionCancionTest(BaseTestClass):
 
@@ -80,3 +92,29 @@ class ValidacionCancionTest(BaseTestClass):
             cancion = Cancion(nombre="hola amor")
             error_validacion = ValidacionCancion.validar_registro_cancion(cancion)
             self.assertEqual(None, error_validacion)
+
+
+class CreadorDeContenidoCancionTest(BaseTestClass):
+
+    def test_parametros_requeridos(self):
+        with self.app.app_context():
+            id_creador_de_contenido = None
+            error_parametro_faltante = ValidacionCreadorDeContenido. \
+                validar_agregar_creador_de_contenido(id_creador_de_contenido)
+            codigo_error = "parametros_faltantes"
+            self.assertEqual(codigo_error, error_parametro_faltante['error'])
+
+    def test_id_no_entero(self):
+        with self.app.app_context():
+            id_creador_de_contenido = "hola"
+            error_id_no_entero = ValidacionCreadorDeContenido.validar_agregar_creador_de_contenido(
+                id_creador_de_contenido)
+            codigo_error = "id_no_es_entero"
+            self.assertEqual(codigo_error, error_id_no_entero['error'])
+
+    def test_id_valido(self):
+        with self.app.app_context():
+            id_creador_de_cotenido = 1
+            error_validacion = ValidacionCreadorDeContenido.validar_agregar_creador_de_contenido(id_creador_de_cotenido)
+            codigo_error = None
+            self.assertEqual(codigo_error, error_validacion)

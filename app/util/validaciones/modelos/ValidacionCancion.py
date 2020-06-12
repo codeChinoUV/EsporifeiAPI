@@ -93,3 +93,17 @@ class ValidacionCancion:
             error = {'error': 'cancion_no_tiene_el_genero', 'mensaje': 'La cancion no tiene ningun genero con el'
                                                                        'id indicado'}
             return error
+
+    @staticmethod
+    def validar_tiene_creador_de_contenido(cancion, id_creador_de_contenido):
+        """
+        Valida si la cancion tiene el creador de contenido
+        :param cancion: La cancion que se validara si tiene el creador de contenido
+        :param id_creador_de_contenido: El id del creador de contenido a validar si esta en la cancion
+        :retun: None si tiene el creador de contenido o un diccionario indicando el error si no
+        """
+        if not cancion.validar_cancion_tiene_creador_de_contenido(id_creador_de_contenido):
+            error = {'error': 'cancion_no_tiene_el_creador',
+                     'mensaje': 'La cancion no tiene ningun creador de contenido'
+                                ' con el id indicado'}
+            return error

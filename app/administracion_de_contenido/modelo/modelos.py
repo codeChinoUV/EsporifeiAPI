@@ -365,7 +365,7 @@ class Album(base_de_datos.Model):
         :param id_creador_de_contenido: El creador de contenido a validar si es dueño
         :return: Verdadero si el creador de contenido es dueño o falso si no
         """
-        cantidad_de_albumes = Album.query\
+        cantidad_de_albumes = Album.query \
             .filter_by(id_album=id_album, creador_de_contenido_id=id_creador_de_contenido).count()
         return cantidad_de_albumes > 0
 
@@ -440,6 +440,16 @@ class Cancion(base_de_datos.Model):
         """
         self.creadores_de_contenido.append(creador_de_contenido)
         base_de_datos.session.commit()
+
+    def eliminar_creador_de_contenido(self, creador_de_contenido):
+        """
+        Elimina al creador de contenido de la lista de creadores de contenido
+        :param creador_de_contenido: El creador de contenido a quitar
+        :return: None
+        """
+        if creador_de_contenido != self.creadores_de_contenido[0]:
+            self.creadores_de_contenido.remove(creador_de_contenido)
+            base_de_datos.session.commit()
 
     @staticmethod
     def obtener_cancion_por_id(id_cancion):
@@ -541,3 +551,16 @@ class Cancion(base_de_datos.Model):
         else:
             canciones = []
             return canciones
+
+    def validar_cancion_tiene_creador_de_contenido(self, id_creador_de_contenido):
+        """
+        Se encarga de validar si la cancion tiene el creador de contenido
+        :param id_creador_de_contenido: El id del creador de contenido a validar si lo tiene
+        :return: True si la cancion tiene al creador de contenido o False si no
+        """
+        tiene_creador = False
+        for creador in self.creadores_de_contenido:
+            if creador.id_creador_de_contenido == id_creador_de_contenido:
+                tiene_creador = True
+                break
+        return tiene_creador

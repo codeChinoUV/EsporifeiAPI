@@ -229,7 +229,7 @@ class CreadorDeContenidoAlbumCancionGenero(Resource):
         :param id_album: El id del album al cual pertenece la cancion
         :param id_cancion: El id de la cancion a eliminar el genero
         :param id_genero: El id del genero a quitar de la cancion
-        :return: Un diccionario y un codigo de error
+        :return: Un diccionario y un codigo de estado
         """
         errores_permiso = CreadorDeContenidoAlbumCancion. \
             validaciones_de_acceso_y_existencia(usuario_actual, id_album, id_cancion)
@@ -251,7 +251,7 @@ class CreadoresDeContenidoAlbumesCanciones(Resource):
         Se encarga de procesar una solicitud GET al devolver las canciones del album del creador de contenido
         :param id_album: El id del album a recuperar las canciones
         :param id_creador_de_contenido: El id del creador de contenido a recuperar las canciones
-        :return: Un diccionario y un codigo de error
+        :return: Un diccionario y un codigo de estado
         """
         error_creador_no_existe = ValidacionCreadorDeContenido. \
             validar_existe_creador_de_contenido(id_creador_de_contenido)
@@ -296,6 +296,34 @@ class CreadorDeContenidoAlbumesCancionCreadoresDeContenidoControlador(Resource):
         cancion = Cancion.obtener_cancion_por_id(id_cancion)
         cancion.agregar_creador_de_contenido(creador_de_contenido)
         return creador_de_contenido.obtener_json_sin_genero(), 201
+
+
+class CreadorDeContenidoAlbumesCancionCreadorDeContenidoControlador(Resource):
+
+    @token_requerido
+    @solo_creador_de_contenido
+    def delete(self, usuario_actual, id_album, id_cancion, id_creador_contenido):
+        """
+        Se encarga de responder a una solicitud DELETE a eliminar un creador de contenido
+         de la lista de creadores de contenido de la Cancion
+        :param usuario_actual: El usuario logeado
+        :param id_album: El id del album al cual pertenece la cancion
+        :param id_cancion: El id de la cancion a eliminar el creador de la cancion
+        :param id_creador_contenido: El id del creador de contenido a quitar
+        :return: Un diccionario y un codigo de estado
+        """
+        errores_permiso = CreadorDeContenidoAlbumCancion. \
+            validaciones_de_acceso_y_existencia(usuario_actual, id_album, id_cancion)
+        if errores_permiso is not None:
+            return errores_permiso
+        cancion = Cancion.obtener_cancion_por_id(id_cancion)
+        error_no_tiene_creador_contenido = ValidacionCancion.validar_tiene_creador_de_contenido(cancion,
+                                                                                                id_creador_contenido)
+        if error_no_tiene_creador_contenido is not None:
+            return error_no_tiene_creador_contenido, 404
+        creador_de_contenido = CreadorDeContenido.obtener_creador_de_contenido_por_id_usuario(id_creador_contenido)
+        cancion.eliminar_creador_de_contenido(creador_de_contenido)
+        return creador_de_contenido.obtener_json(), 202
 
 
 class CancionesBucarControlador(Resource):
