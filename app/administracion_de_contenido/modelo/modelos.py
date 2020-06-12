@@ -168,6 +168,17 @@ class CreadorDeContenido(base_de_datos.Model):
         return tiene_genero
 
 
+generos_de_la_cancion = base_de_datos.Table('generos_de_la_cancion',
+                                            base_de_datos.Column('id_cancion', base_de_datos.Integer,
+                                                                 base_de_datos.ForeignKey(
+                                                                     'cancion.id_cancion'),
+                                                                 primary_key=True),
+                                            base_de_datos.Column('id_genero', base_de_datos.Integer,
+                                                                 base_de_datos.ForeignKey('genero.id_genero'),
+                                                                 primary_key=True)
+                                            )
+
+
 class Genero(base_de_datos.Model):
     """
     Representa a un Genero que agrupa canciones y creadores de contenido
@@ -354,8 +365,8 @@ class Album(base_de_datos.Model):
         :param id_creador_de_contenido: El creador de contenido a validar si es dueño
         :return: Verdadero si el creador de contenido es dueño o falso si no
         """
-        cantidad_de_albumes = Album.query.filter_by(id_album=id_album, creador_de_contenido_id=id_creador_de_contenido)\
-            .count()
+        cantidad_de_albumes = Album.query \
+            .filter_by(id_album=id_album, creador_de_contenido_id=id_creador_de_contenido).count()
         return cantidad_de_albumes > 0
 
     def obtener_json(self):
@@ -390,6 +401,9 @@ class Cancion(base_de_datos.Model):
                                                         secondary=creadores_de_contenido_de_la_cancion, lazy='subquery',
                                                         backref=base_de_datos.backref('creadores_de_contenido',
                                                                                       lazy=True))
+    generos = base_de_datos.relationship('Genero',
+                                         secondary=generos_de_la_cancion, lazy='subquery',
+                                         backref=base_de_datos.backref('generos', lazy=True))
 
     def obtener_json_con_creadores(self):
         """
@@ -407,6 +421,17 @@ class Cancion(base_de_datos.Model):
                        'album': None}
         return diccionario
 
+    def obtener_json_con_album(self):
+        """
+        Crea un diccionario con la informacion de las cancion, incluyendo la informacion de los creadores de contenido y
+        del album al que pertenece
+        :return: Un diccionario
+        """
+        album = self.albumes[0]
+        diccionario = self.obtener_json_con_creadores()
+        diccionario['album'] = album.obtener_json()
+        return diccionario
+
     def agregar_creador_de_contenido(self, creador_de_contenido):
         """
         Agrega un creador_de_contenido a la cancion
@@ -415,6 +440,16 @@ class Cancion(base_de_datos.Model):
         """
         self.creadores_de_contenido.append(creador_de_contenido)
         base_de_datos.session.commit()
+
+    def eliminar_creador_de_contenido(self, creador_de_contenido):
+        """
+        Elimina al creador de contenido de la lista de creadores de contenido
+        :param creador_de_contenido: El creador de contenido a quitar
+        :return: None
+        """
+        if creador_de_contenido != self.creadores_de_contenido[0]:
+            self.creadores_de_contenido.remove(creador_de_contenido)
+            base_de_datos.session.commit()
 
     @staticmethod
     def obtener_cancion_por_id(id_cancion):
@@ -458,3 +493,74 @@ class Cancion(base_de_datos.Model):
         """
         self.eliminada = True
         base_de_datos.session.commit()
+
+    def agregar_genero(self, genero):
+        """
+        Agrega un genero a la lista de generos de la cancion
+        :param genero: El genero a agregar
+        :return: None
+        """
+        self.generos.append(genero)
+        base_de_datos.session.commit()
+
+    def eliminar_genero(self, genero):
+        """
+        Elimina un genero de la lista de generos de la cancion
+        :param genero: El genero a eliminar
+        :return: None
+        """
+        self.generos.remove(genero)
+        base_de_datos.session.commit()
+
+    def validar_tiene_genero(self, id_genero):
+        """
+        Valida si la cancion tiene un genero con el id_genero
+        :param id_genero: El id del genero a validar
+        :return: Verdadero si tiene el genero o Falso si no
+        """
+        tiene_genero = False
+        for genero in self.generos:
+            if genero.id_genero == id_genero:
+                tiene_genero = True
+                break
+        return tiene_genero
+
+    @staticmethod
+    def obtener_canciones_por_busqueda(cadena_busqueda, cantidad=10, pagina=1):
+        """
+        Busca a las canciones que su nombre contenga la candena de busqueda
+        :param cadena_busqueda: La cadena de busqueda que se utilizara para realizar la busqueda
+        :param cantidad: La cantidad de elementos a recuperar por pagina, el valor por defecto es 10
+        :param pagina: El numero de pagina el cual se desea recuperar, el valor por defecto es 1
+        :return: Una lista con las canciones que coinciden con la cadena de busqueda
+        """
+        expresion_regular_de_busqueda = "%" + cadena_busqueda + "%"
+        cantidad_total = cantidad * pagina
+        canciones = Cancion.query. \
+            filter(Cancion.nombre.ilike(expresion_regular_de_busqueda)).order_by(Cancion.cantidad_de_reproducciones) \
+            .limit(cantidad_total).all()
+        if len(canciones) > (cantidad * (pagina - 1)):
+            canciones_de_la_pagina = []
+            for i in range(cantidad):
+                posicion = i + (cantidad * (pagina - 1))
+                try:
+                    canciones_de_la_pagina.append(canciones[posicion])
+                except IndexError:
+                    break
+            return canciones_de_la_pagina
+        else:
+            canciones = []
+            return canciones
+
+    def validar_cancion_tiene_creador_de_contenido(self, id_creador_de_contenido):
+        """
+        Se encarga de validar si la cancion tiene el creador de contenido
+        :param id_creador_de_contenido: El id del creador de contenido a validar si lo tiene
+        :return: True si la cancion tiene al creador de contenido o False si no
+        """
+        tiene_creador = False
+        for creador in self.creadores_de_contenido:
+            if creador.id_creador_de_contenido == id_creador_de_contenido:
+                tiene_creador = True
+                break
+        return tiene_creador

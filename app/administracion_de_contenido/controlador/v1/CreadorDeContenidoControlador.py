@@ -171,7 +171,6 @@ class CreadoresDeContenidoBuscarControlador(Resource):
         """
         cantidad = request.args.get('cantidad')
         pagina = request.args.get('pagina')
-        creadores_de_contenido = []
         try:
             if cantidad is not None or pagina is not None:
                 cantidad = int(cantidad)

@@ -12,7 +12,7 @@ class ValidacionGenero:
         """
         if id_genero is None:
             error = {'error': 'parametros_faltantes', 'mensaje': 'Los siguientes parametros faltan en tu solicitud: '
-                                                                 '<id_genero>'}
+                                                                 '<id>'}
             return error
 
     @staticmethod

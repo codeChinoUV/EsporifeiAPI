@@ -160,3 +160,50 @@ class ValidacionCreadorDeContenido:
             error = {'error': 'creador_de_contenido_inexistente',
                      'mensaje': 'No existe ningun CreadorDeContenido registrado con el id indicado'}
             return error
+
+    @staticmethod
+    def _validar_parametros_requeridos_agregar_creador_de_contenido(id_creador):
+        """
+        Valida si el id_creador es None
+        :param id_creador: El id a validar
+        :return: None si el id_creador no es None o un diccionario indicando el error si lo es
+        """
+        parametros_faltantes = ""
+        if id_creador is None:
+            parametros_faltantes += "<id> "
+        if len(parametros_faltantes) > 0:
+            mensaje = "Los siguientes parametros faltan en tu solicitud: " + parametros_faltantes
+            errores = {'error': 'parametros_faltantes', 'mensaje': mensaje}
+            return errores
+
+    @staticmethod
+    def _validar_id_creador_es_entero(id_creador):
+        """
+        Valida que el id_creador sea de tipo int
+        :param id_creador: EL id a validar
+        :return: None si es de tipo entero o un diccionario indicando el error si no es de tipo entero
+        """
+        try:
+            int(id_creador)
+        except ValueError:
+            error = {'error': 'id_no_es_entero', 'mensaje': 'El id del creador de contenido a agregar debe de ser '
+                                                            'entero'}
+            return error
+
+    @staticmethod
+    def validar_agregar_creador_de_contenido(id_creador):
+        """
+        Realiza las validaciones sobre el id_creador para poder ser agregado a una cancion
+        :param id_creador: El id_creador a validar
+        :return: None si el id es valido y existe un creador de contenido con el id o un diccionario indicando el error
+        """
+        error_parametros_requeridos = ValidacionCreadorDeContenido.\
+            _validar_parametros_requeridos_agregar_creador_de_contenido(id_creador)
+        if error_parametros_requeridos is not None:
+            return error_parametros_requeridos
+        error_no_entero = ValidacionCreadorDeContenido._validar_id_creador_es_entero(id_creador)
+        if error_no_entero is not None:
+            return error_no_entero
+        error_no_existe = ValidacionCreadorDeContenido.validar_existe_creador_de_contenido(id_creador)
+        if error_no_existe is not None:
+            return error_no_existe
