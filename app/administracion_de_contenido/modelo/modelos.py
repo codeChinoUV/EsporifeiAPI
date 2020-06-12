@@ -451,6 +451,15 @@ class Cancion(base_de_datos.Model):
             self.creadores_de_contenido.remove(creador_de_contenido)
             base_de_datos.session.commit()
 
+    def actualizar_calificacion_promedio(self, nueva_calificacion):
+        """
+        Actualiza la calificacion promedio de la cancion
+        :param nueva_calificacion: La nueva calificacion promedio que tendra la cancion
+        :return: None
+        """
+        self.calificacion_promedio = nueva_calificacion
+        base_de_datos.session.commit()
+
     @staticmethod
     def obtener_cancion_por_id(id_cancion):
         """
@@ -564,3 +573,113 @@ class Cancion(base_de_datos.Model):
                 tiene_creador = True
                 break
         return tiene_creador
+
+
+class Calificacion(base_de_datos.Model):
+    id_usuario = base_de_datos.Column(base_de_datos.Integer, base_de_datos.ForeignKey('usuario.id_usuario'),
+                                      nullable=False, primary_key=True)
+    id_cancion = base_de_datos.Column(base_de_datos.Integer, base_de_datos.ForeignKey('cancion.id_cancion'),
+                                      nullable=False, primary_key=True)
+    calificacion_estrellas = base_de_datos.Column(base_de_datos.Integer, nullable=False)
+
+    def guardar(self):
+        """
+        Guarda el objeto actual y actualiza la calificacion promedio de la cancion
+        """
+        Calificacion._actualizar_nueva_calificacion_promedio_cancion(self.id_cancion, self.calificacion_estrellas)
+        base_de_datos.session.add(self)
+        base_de_datos.session.commit()
+
+    def eliminar(self):
+        """
+        Elimina la calificacion actual y actualiza la calificacion promedio de la cancion
+        :return: None
+        """
+        Calificacion._actualizar_quitar_calificacion_promedio_cancion(self.id_cancion, self.calificacion_estrellas)
+        base_de_datos.session.delete(self)
+        base_de_datos.session.commit()
+
+    def editar_calificacion(self, calificacion):
+        """
+        Edita la calificacion actual y actualiza la calificacion promedio de la cancion
+        :param calificacion: La nueva calificacion
+        :return: None
+        """
+        Calificacion._actualizar_editar_calificacion_promedio_cancion(self.id_cancion, self.calificacion_estrellas,
+                                                                      calificacion)
+        self.calificacion_estrellas = calificacion
+        base_de_datos.session.commit()
+
+    @staticmethod
+    def obtener_calificacion(id_cancion, id_usuario):
+        """
+        Recupera la calificacion que tenga el id_cancion y el id_usuario
+        :param id_cancion: El id de la cancion que calificada
+        :param id_usuario: El id del usuario que califica a la cancion
+        :return: Una Calificacion
+        """
+        calificacion = Calificacion.query.filter_by(id_usuario=id_usuario, id_cancion=id_cancion).first()
+        return calificacion
+
+    @staticmethod
+    def _actualizar_quitar_calificacion_promedio_cancion(id_cancion, calificacion):
+        """
+        Calcula la nueva calificacion promedio y se la actualiza a la cancion
+        :param calificacion: La calificacion quitada
+        :return: None
+        """
+        cancion = Cancion.obtener_cancion_por_id(id_cancion)
+        cantidad_calificaciones = Calificacion._obtener_cantidad_de_calificaciones(id_cancion)
+        total_calificacion = (cantidad_calificaciones * cancion.calificacion_promedio) - int(calificacion)
+        cantidad_calificaciones = (cantidad_calificaciones - 1)
+        nuevo_promedio = 0
+        if cantidad_calificaciones == 0:
+            nuevo_promedio = 0
+        else:
+            nuevo_promedio = total_calificacion / (cantidad_calificaciones - 1)
+        cancion.actualizar_calificacion_promedio(nuevo_promedio)
+
+    @staticmethod
+    def _actualizar_editar_calificacion_promedio_cancion(id_cancion, calificacion_antigua, calificacion_nueva):
+        """
+        Calcula la nueva calificacion promedio y se la actualiza a la cancion
+        :param id_cancion: El id de la cancion a modificar el promedio de la calificacion
+        :param calificacion_antigua: La calificacion que tenia antes
+        :param calificacion_nueva: La nueva calificacion
+        :return: None
+        """
+        cancion = Cancion.obtener_cancion_por_id(id_cancion)
+        cantidad_calificaciones = Calificacion._obtener_cantidad_de_calificaciones(id_cancion)
+        total_calificacion = (cantidad_calificaciones * cancion.calificacion_promedio) - int(calificacion_antigua)
+        nuevo_promedio = (total_calificacion + int(calificacion_nueva)) / cantidad_calificaciones
+        cancion.actualizar_calificacion_promedio(nuevo_promedio)
+
+    @staticmethod
+    def _actualizar_nueva_calificacion_promedio_cancion(id_cancion, nueva_calificacion):
+        """
+        Calcula la nueva calificacion promedio y se la actualiza a la cancion
+        :param nueva_calificacion: La calificacion agregada
+        :return: None
+        """
+        cancion = Cancion.obtener_cancion_por_id(id_cancion)
+        cantidad_calificaciones = Calificacion._obtener_cantidad_de_calificaciones(id_cancion)
+        total_calificacion = (cantidad_calificaciones * cancion.calificacion_promedio) + int(nueva_calificacion)
+        nuevo_promedio = total_calificacion/(cantidad_calificaciones + 1)
+        cancion.actualizar_calificacion_promedio(nuevo_promedio)
+
+    @staticmethod
+    def _obtener_cantidad_de_calificaciones(id_cancion):
+        """
+        Obtiene el total de calificaciones de una cancion
+        :param id_cancion: La cancion la cual se le contara la cantidad de calificaciones que tiene
+        :return: La cantidad de calificaciones de la cancion
+        """
+        cantidad_calificaciones = Calificacion.query.filter_by(id_cancion=id_cancion).count()
+        return cantidad_calificaciones
+
+    def obtener_json(self):
+        """
+        Crea un diccionario con los atributos del modelo
+        """
+        diccionario = {'calificacion_estrellas': self.calificacion_estrellas}
+        return diccionario

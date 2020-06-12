@@ -1,6 +1,6 @@
 import unittest
 from app import create_app, base_de_datos
-from app.administracion_de_contenido.modelo.modelos import Genero, CreadorDeContenido, Album, Cancion
+from app.administracion_de_contenido.modelo.modelos import Genero, CreadorDeContenido, Album, Cancion, Calificacion
 from app.manejo_de_usuarios.modelo.modelos import Usuario
 
 
@@ -27,6 +27,7 @@ class BaseTestClass(unittest.TestCase):
             creador_de_contenido = BaseTestClass._crear_creador_de_contenido("prueba1", "Es solo una prueba", True, 1)
             album = BaseTestClass._crear_album("Album de prueba", "2001", 1)
             BaseTestClass._agregar_cancion(album, creador_de_contenido, "cancion de prueba")
+            BaseTestClass._agregar_calificacion(1, 1, 3)
 
     def tearDown(self):
         """
@@ -102,3 +103,14 @@ class BaseTestClass(unittest.TestCase):
         """
         cancion = Cancion(nombre=nombre_cancion)
         album.agregar_cancion(cancion, creador_de_contenido)
+
+    @staticmethod
+    def _agregar_calificacion(id_usuario, id_cancion, calificacion):
+        """
+        Crea una calificacion y la guarda en la base de datos
+        :param id_cancion: El id de la calificacion a guardar
+        :param id_usuario: El id del usuario que realiza la calificacion
+        :return: None
+        """
+        calificacion = Calificacion(id_usuario=id_usuario, id_cancion=id_cancion, calificacion_estrellas=calificacion)
+        calificacion.guardar()
