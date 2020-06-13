@@ -49,10 +49,13 @@ class ValidacionListaDeReproduccion:
         :param lista_de_reproduccion: La lista de reproduccion a validar
         :return: Una lista con diccionarios indicando los errores o None si no hay ningun error
         """
+        lista_errores = []
         error_parametros_requeridos = ValidacionListaDeReproduccion\
             ._validar_parametros_requeridos(lista_de_reproduccion)
         if error_parametros_requeridos is not None:
-            return error_parametros_requeridos
+            lista_errores.append(error_parametros_requeridos)
+            return lista_errores
         errores_de_tamano = ValidacionListaDeReproduccion._validar_tamano_atributos_texto(lista_de_reproduccion)
         if len(errores_de_tamano) > 0:
             return errores_de_tamano
+        return lista_errores

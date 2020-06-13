@@ -708,3 +708,7 @@ class ListaDeReproduccion(base_de_datos.Model):
         """
         listas_de_reproduccion = ListaDeReproduccion.query.filter_by(usuario_id=id_usuario).all()
         return listas_de_reproduccion
+
+    def obtener_json(self):
+        diccionario = {'id': self.id_lista_de_reproduccion, 'nombre': self.nombre, 'descripcion': self.descripcion}
+        return diccionario
