@@ -2,6 +2,7 @@ from flask_restful import Resource
 
 from app.administracion_de_contenido.modelo.modelos import Album
 
+
 class AlbumBuscarControlador(Resource):
     def get(self, cadena_busqueda):
         """

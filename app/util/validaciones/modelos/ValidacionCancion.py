@@ -82,6 +82,19 @@ class ValidacionCancion:
             return error
 
     @staticmethod
+    def validar_existe_cancion(id_cancion):
+        """
+        Valida si una cancion existe por su id
+        :param id_cancion: El id de la cancion a validar si existe
+        :return: None si la cancion existe o un diccionario indicando el error si no
+        """
+        cancion = Cancion.obtener_cancion_por_id(id_cancion)
+        if cancion is None:
+            error_no_existe_cancion = {'error': 'cancion_inexistente', 'mensaje': 'No existe ninguna cancion con el id '
+                                                                                  'indicado'}
+            return  error_no_existe_cancion
+
+    @staticmethod
     def validar_tiene_genero(cancion, id_genero):
         """
         Valida si la cancion tiene el genero
