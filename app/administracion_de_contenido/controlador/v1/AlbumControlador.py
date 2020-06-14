@@ -38,8 +38,8 @@ class CreadorDeContenidoAlbumes(Resource):
             .validar_creador_de_contenido_existe_a_partir_de_usuario(usuario_actual)
         if error_no_existe_creador_cotenido is not None:
             return error_no_existe_creador_cotenido, 404
-        creador_de_contenido = CreadorDeContenido.obtener_creador_de_contenido_por_usuario(
-            usuario_actual.nombre_usuario)
+        creador_de_contenido = CreadorDeContenido.obtener_creador_de_contenido_por_id_usuario(
+            usuario_actual.id_usuario)
         albumes = Album.obtener_abumes_creador_de_contenido(creador_de_contenido.id_creador_de_contenido)
         lista_de_albumes = []
         for album in albumes:
