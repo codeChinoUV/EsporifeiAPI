@@ -15,7 +15,7 @@ class CreadorDeContenidoControlador(Resource):
         self.parser.add_argument('nombre')
         self.parser.add_argument('biografia')
         self.parser.add_argument('es_grupo')
-        self.argumentos = self.parser.parse_args(strict=True)
+        self.argumentos = self.parser.parse_args()
 
     @token_requerido
     @solo_creador_de_contenido
@@ -97,7 +97,7 @@ class CreadorDeContenidoGenerosControlador(Resource):
     def __init__(self):
         self.parser = reqparse.RequestParser()
         self.parser.add_argument('id')
-        self.argumentos = self.parser.parse_args(strict=True)
+        self.argumentos = self.parser.parse_args()
 
     @token_requerido
     @solo_creador_de_contenido

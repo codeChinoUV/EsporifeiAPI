@@ -12,7 +12,8 @@ from .controlador.v1.AlbumesControlador import AlbumBuscarControlador
 from .controlador.v1.AlbumControlador import AlbumesPublicoControlador, CreadorDeContenidoAlbum, \
     CreadorDeContenidoAlbumes
 # Creadores de contenido
-from .controlador.v1.ListaDeReproduccionControlador import ListasDeReproduccionControlador
+from .controlador.v1.ListaDeReproduccionControlador import ListasDeReproduccionControlador, \
+    ListaDeReproduccionControlador
 
 api.add_resource(CreadorDeContenidoControlador, '/v1/creador-de-contenido')
 api.add_resource(CreadorDeContenidoPublicoControlador, '/v1/creadores-de-contenido/<int:id_creador_de_contenido>')
@@ -58,3 +59,4 @@ api.add_resource(CancionCalificacionControlador, '/v1/canciones/<int:id_cancion>
 
 # Lista de reproduccion
 api.add_resource(ListasDeReproduccionControlador, '/v1/listas-de-reproduccion')
+api.add_resource(ListaDeReproduccionControlador, '/v1/listas-de-reproduccion/<int:id_lista_de_reproduccion>')

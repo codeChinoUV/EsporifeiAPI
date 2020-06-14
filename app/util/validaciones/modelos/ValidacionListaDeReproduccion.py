@@ -1,3 +1,4 @@
+from app.administracion_de_contenido.modelo.modelos import ListaDeReproduccion
 from app.util.validaciones.ValidacioCadenas import ValidacionCadenas
 
 
@@ -59,3 +60,45 @@ class ValidacionListaDeReproduccion:
         if len(errores_de_tamano) > 0:
             return errores_de_tamano
         return lista_errores
+
+    @staticmethod
+    def validar_no_existe_lista_de_reproduccion(id_lista_de_reproduccion):
+        """
+        Valida si no existe una lista de reproduccion
+        :param id_lista_de_reproduccion: El id de la lista de reproduccion a validar si existe
+        :return: None si la lista de reproduccion existe o un diccionario que indica que no existe
+        """
+        if not ListaDeReproduccion.validar_existe_lista_de_reproduccion(id_lista_de_reproduccion):
+            error = {'error': 'lista_reproduccion_inexistente', 'mensaje': 'No existe ninguna lista de reproduccion con'
+                                                                           ' el id indicado'}
+            return error
+
+    @staticmethod
+    def validar_usuario_es_dueno_de_lista_de_reproduccion(id_lista_reproduccion, id_usuario):
+        """
+        Valida si el usuario es dueño de la lista de reproduccion
+        :param id_lista_reproduccion: El id de la lista de reproduccion a validar
+        :param id_usuario: El id del usuario a validar si es dueño de la lista de reproduccion
+        :return: None si el usuario si es dueño o un diccionario si no es dueño
+        """
+        if not ListaDeReproduccion.validar_usuario_es_dueno_de_lista_de_reproduccion(id_lista_reproduccion, id_usuario):
+            error = {'error': 'operacion_no_permitida', 'mensaje': 'El usuario no es dueño de la lista de reproduccion'}
+            return error
+
+    @staticmethod
+    def validar_edicion_lista_de_reproduccion(lista_de_reproduccion):
+        """
+        Realiza las validaciones necesarias para la edicion de una lista de reproduccion
+        :param lista_de_reproduccion: La lista de reproduccion a valdiar
+        :return: None si la lista de reproduccion es valida o un diccionario si no
+        """
+        errores_validacion = []
+        if lista_de_reproduccion.nombre is None and lista_de_reproduccion.descripcion is None:
+            error_no_campos = {'error': 'solicitud_sin_parametros_a_modificar', 'mensaje': 'La solicitud no contiene '
+                                                                                           'ningun parametro a '
+                                                                                           'modificar'}
+            errores_validacion.append(error_no_campos)
+        error_tamano_parametros = ValidacionListaDeReproduccion._validar_tamano_atributos_texto(lista_de_reproduccion)
+        if error_tamano_parametros is not None:
+            return error_tamano_parametros
+        return errores_validacion

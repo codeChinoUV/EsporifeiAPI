@@ -688,6 +688,7 @@ class ListaDeReproduccion(base_de_datos.Model):
     id_lista_de_reproduccion = base_de_datos.Column(base_de_datos.Integer, primary_key=True)
     nombre = base_de_datos.Column(base_de_datos.String(70), nullable=False)
     descripcion = base_de_datos.Column(base_de_datos.String(300))
+    duracion_total = base_de_datos.Column(base_de_datos.Integer, default=0)
     usuario_id = base_de_datos.Column(base_de_datos.Integer, base_de_datos.ForeignKey('usuario.id_usuario'),
                                       nullable=False)
 
@@ -697,6 +698,27 @@ class ListaDeReproduccion(base_de_datos.Model):
         :return: None
         """
         base_de_datos.session.add(self)
+        base_de_datos.session.commit()
+
+    def editar(self, nombre, descripcion):
+        """
+        Edita la informacion del objeto actual
+        :param nombre: El nuevo nombre que tendra la lista de reproduccion
+        :param descripcion: La nueva descripcion que tendra la lista
+        :return: None
+        """
+        if nombre is not None:
+            self.nombre = nombre
+        if descripcion is not None:
+            self.descripcion = descripcion
+        base_de_datos.session.commit()
+
+    def eliminar(self):
+        """
+        Elimina el objeto actual de la base de datos
+        :return: None
+        """
+        base_de_datos.session.delete(self)
         base_de_datos.session.commit()
 
     @staticmethod
@@ -709,6 +731,44 @@ class ListaDeReproduccion(base_de_datos.Model):
         listas_de_reproduccion = ListaDeReproduccion.query.filter_by(usuario_id=id_usuario).all()
         return listas_de_reproduccion
 
+    @staticmethod
+    def obtener_lista_de_reproduccion(id_lista_de_reproduccion):
+        """
+        Recupera la lista de reproduccion con el id lista de reproduccion y el id usuario
+        :param id_lista_de_reproduccion: El id de la lista de reproduccion a validar
+        :return: Una ListaDeReproduccion
+        """
+        lista_de_reproduccion = ListaDeReproduccion.query.filter_by(id_lista_de_reproduccion=id_lista_de_reproduccion).\
+            first()
+        return lista_de_reproduccion
+
     def obtener_json(self):
-        diccionario = {'id': self.id_lista_de_reproduccion, 'nombre': self.nombre, 'descripcion': self.descripcion}
+        """
+        Genera un diccionario con los atributos del objeto
+        :return: Un diccionario
+        """
+        diccionario = {'id': self.id_lista_de_reproduccion, 'nombre': self.nombre, 'descripcion': self.descripcion,
+                       'duracion_total': self.duracion_total}
         return diccionario
+
+    @staticmethod
+    def validar_existe_lista_de_reproduccion(id_lista_de_reproduccion):
+        """
+        Valida si existe una lista con el id indicado
+        :param id_lista_de_reproduccion: El id de la lista de reproduccion a validar si existe
+        :return: Verdadero si existe el una lista con el id indicado o False si no existe
+        """
+        cantidad_listas = ListaDeReproduccion.query.filter_by(id_lista_de_reproduccion=id_lista_de_reproduccion).count()
+        return cantidad_listas > 0
+
+    @staticmethod
+    def validar_usuario_es_dueno_de_lista_de_reproduccion(id_lista_reproduccion, id_usuario):
+        """
+        Valida si el usuario con el id usuario es dueño de la lista de reproduccion con el id lista reproduccion
+        :param id_lista_reproduccion: El id de la lista de reproduccion a validar
+        :param id_usuario: El id del usuario a validar si es dueño de la cancion
+        :return: Vardadero si el usuario es dueño de la cancion
+        """
+        cantidad_listas = ListaDeReproduccion.query.filter_by(id_lista_de_reproduccion=id_lista_reproduccion,
+                                                              usuario_id=id_usuario).count()
+        return cantidad_listas > 0
