@@ -632,7 +632,6 @@ class Calificacion(base_de_datos.Model):
         cantidad_calificaciones = Calificacion._obtener_cantidad_de_calificaciones(id_cancion)
         total_calificacion = (cantidad_calificaciones * cancion.calificacion_promedio) - int(calificacion)
         cantidad_calificaciones = (cantidad_calificaciones - 1)
-        nuevo_promedio = 0
         if cantidad_calificaciones == 0:
             nuevo_promedio = 0
         else:
@@ -664,7 +663,7 @@ class Calificacion(base_de_datos.Model):
         cancion = Cancion.obtener_cancion_por_id(id_cancion)
         cantidad_calificaciones = Calificacion._obtener_cantidad_de_calificaciones(id_cancion)
         total_calificacion = (cantidad_calificaciones * cancion.calificacion_promedio) + int(nueva_calificacion)
-        nuevo_promedio = total_calificacion/(cantidad_calificaciones + 1)
+        nuevo_promedio = total_calificacion / (cantidad_calificaciones + 1)
         cancion.actualizar_calificacion_promedio(nuevo_promedio)
 
     @staticmethod
@@ -682,4 +681,34 @@ class Calificacion(base_de_datos.Model):
         Crea un diccionario con los atributos del modelo
         """
         diccionario = {'calificacion_estrellas': self.calificacion_estrellas}
+        return diccionario
+
+
+class ListaDeReproduccion(base_de_datos.Model):
+    id_lista_de_reproduccion = base_de_datos.Column(base_de_datos.Integer, primary_key=True)
+    nombre = base_de_datos.Column(base_de_datos.String(70), nullable=False)
+    descripcion = base_de_datos.Column(base_de_datos.String(300))
+    usuario_id = base_de_datos.Column(base_de_datos.Integer, base_de_datos.ForeignKey('usuario.id_usuario'),
+                                      nullable=False)
+
+    def guardar(self):
+        """
+        Guarda en la base de datos el objeto actual
+        :return: None
+        """
+        base_de_datos.session.add(self)
+        base_de_datos.session.commit()
+
+    @staticmethod
+    def obtener_listas_de_reproduccion_de_usuario(id_usuario):
+        """
+        Recupera de la base de datos todas las listas de reproduccion de un usuario
+        :param id_usuario: El id del usuario del cual se van a recuperar sus listas de reproduccion
+        :return: Una lista de Lista de reproduccion
+        """
+        listas_de_reproduccion = ListaDeReproduccion.query.filter_by(usuario_id=id_usuario).all()
+        return listas_de_reproduccion
+
+    def obtener_json(self):
+        diccionario = {'id': self.id_lista_de_reproduccion, 'nombre': self.nombre, 'descripcion': self.descripcion}
         return diccionario
