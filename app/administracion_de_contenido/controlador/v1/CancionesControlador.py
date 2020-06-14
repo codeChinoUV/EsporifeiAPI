@@ -78,7 +78,7 @@ class CreadorDeContenidoAlbumCancion(Resource):
     def __init__(self):
         self.parser = reqparse.RequestParser()
         self.parser.add_argument('nombre')
-        self.argumentos = self.parser.parse_args(strict=True)
+        self.argumentos = self.parser.parse_args()
 
     @staticmethod
     def validaciones_de_acceso_y_existencia(usuario_actual, id_album, id_cancion):

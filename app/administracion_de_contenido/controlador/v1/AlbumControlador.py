@@ -12,7 +12,7 @@ class CreadorDeContenidoAlbumes(Resource):
         self.parser = reqparse.RequestParser()
         self.parser.add_argument('nombre')
         self.parser.add_argument('anio_lanzamiento')
-        self.argumentos = self.parser.parse_args(strict=True)
+        self.argumentos = self.parser.parse_args()
 
     @token_requerido
     @solo_creador_de_contenido
@@ -52,7 +52,7 @@ class CreadorDeContenidoAlbum(Resource):
         self.parser = reqparse.RequestParser()
         self.parser.add_argument('nombre')
         self.parser.add_argument('anio_lanzamiento')
-        self.argumentos = self.parser.parse_args(strict=True)
+        self.argumentos = self.parser.parse_args()
 
     @token_requerido
     @solo_creador_de_contenido

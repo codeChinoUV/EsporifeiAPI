@@ -15,7 +15,7 @@ class DisquerasControlador(Resource):
         self.parser.add_argument('email')
         self.parser.add_argument('telefono')
         self.parser.add_argument('es_empresa')
-        self.argumentos = self.parser.parse_args(strict=True)
+        self.argumentos = self.parser.parse_args()
 
     @token_requerido
     @solo_creador_de_contenido
