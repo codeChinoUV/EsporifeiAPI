@@ -88,11 +88,18 @@ class ValidacionCancion:
         :param id_cancion: El id de la cancion a validar si existe
         :return: None si la cancion existe o un diccionario indicando el error si no
         """
-        cancion = Cancion.obtener_cancion_por_id(id_cancion)
-        if cancion is None:
-            error_no_existe_cancion = {'error': 'cancion_inexistente', 'mensaje': 'No existe ninguna cancion con el id '
-                                                                                  'indicado'}
-            return  error_no_existe_cancion
+        try:
+            if id_cancion is not None:
+                id_cancion = int(id_cancion)
+                cancion = Cancion.obtener_cancion_por_id(id_cancion)
+                if cancion is None:
+                    error_no_existe_cancion = {'error': 'cancion_inexistente',
+                                               'mensaje': 'No existe ninguna cancion con el id '
+                                                          'indicado'}
+                    return error_no_existe_cancion
+        except ValueError:
+            error = {'error': 'id_no_es_entero', 'mensaje': 'El id del genero debe de ser un entero'}
+            return error
 
     @staticmethod
     def validar_tiene_genero(cancion, id_genero):

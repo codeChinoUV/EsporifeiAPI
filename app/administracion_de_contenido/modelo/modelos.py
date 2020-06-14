@@ -390,6 +390,20 @@ class Album(base_de_datos.Model):
         base_de_datos.session.commit()
 
 
+canciones_de_listas_reproduccion = base_de_datos.Table('canciones_de_listas_reproduccion',
+                                                       base_de_datos.Column('id_lista_de_reproduccion',
+                                                                            base_de_datos.Integer,
+                                                                            base_de_datos.ForeignKey(
+                                                                                'lista_de_reproduccion'
+                                                                                '.id_lista_de_reproduccion'),
+                                                                            primary_key=True),
+                                                       base_de_datos.Column('id_cancion', base_de_datos.Integer,
+                                                                            base_de_datos.ForeignKey(
+                                                                                'cancion.id_cancion'),
+                                                                            primary_key=True)
+                                                       )
+
+
 class Cancion(base_de_datos.Model):
     id_cancion = base_de_datos.Column(base_de_datos.Integer, primary_key=True)
     nombre = base_de_datos.Column(base_de_datos.String(70), nullable=False)
@@ -691,6 +705,9 @@ class ListaDeReproduccion(base_de_datos.Model):
     duracion_total = base_de_datos.Column(base_de_datos.Integer, default=0)
     usuario_id = base_de_datos.Column(base_de_datos.Integer, base_de_datos.ForeignKey('usuario.id_usuario'),
                                       nullable=False)
+    canciones = base_de_datos.relationship('Cancion',
+                                           secondary=canciones_de_listas_reproduccion, lazy='subquery',
+                                           backref=base_de_datos.backref('cancion', lazy=True))
 
     def guardar(self):
         """
@@ -721,6 +738,18 @@ class ListaDeReproduccion(base_de_datos.Model):
         base_de_datos.session.delete(self)
         base_de_datos.session.commit()
 
+    def agregar_cancion(self, cancion):
+        """
+        Agrega una cancion a la lista de reproduccion
+        :param cancion: La cancion a agregar
+        :return: None
+        """
+        self.canciones.append(cancion)
+        if self.duracion_total is None:
+            self.duracion_total = 0
+        self.duracion_total += cancion.duracion_en_segundos
+        base_de_datos.session.commit()
+
     @staticmethod
     def obtener_listas_de_reproduccion_de_usuario(id_usuario):
         """
@@ -738,8 +767,8 @@ class ListaDeReproduccion(base_de_datos.Model):
         :param id_lista_de_reproduccion: El id de la lista de reproduccion a validar
         :return: Una ListaDeReproduccion
         """
-        lista_de_reproduccion = ListaDeReproduccion.query.filter_by(id_lista_de_reproduccion=id_lista_de_reproduccion).\
-            first()
+        lista_de_reproduccion = ListaDeReproduccion.query.\
+            filter_by(id_lista_de_reproduccion=id_lista_de_reproduccion).first()
         return lista_de_reproduccion
 
     def obtener_json(self):

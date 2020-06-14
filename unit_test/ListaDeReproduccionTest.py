@@ -99,4 +99,25 @@ class ValidacionListaDeReproduccionTest(BaseTestClass):
             error_sin_parametros = ValidacionListaDeReproduccion.\
                 validar_edicion_lista_de_reproduccion(lista_de_reproduccion)
             codigo_error = "solicitud_sin_parametros_a_modificar"
-            self.assertEqual(codigo_error, error_sin_parametros['error'])
+            self.assertEqual(codigo_error, error_sin_parametros[0]['error'])
+
+    def test_agregar_cancion_parametros_faltantes(self):
+        with self.app.app_context():
+            id_cancion = None
+            error_parametros_faltantes = ValidacionListaDeReproduccion.validar_agregar_cancion(id_cancion)
+            codigo_error = "pametros_faltantes"
+            self.assertEqual(codigo_error, error_parametros_faltantes['error'])
+
+    def test_agregar_cancion_id_no_es_entero(self):
+        with self.app.app_context():
+            id_cancion = "asf"
+            error_id_no_entero = ValidacionListaDeReproduccion.validar_agregar_cancion(id_cancion)
+            codigo_error = "id_no_es_entero"
+            self.assertEqual(codigo_error, error_id_no_entero['error'])
+
+    def test_agregar_cancion_cancion_inexistente(self):
+        with self.app.app_context():
+            id_cancion = 400
+            error_cancion_no_existe = ValidacionListaDeReproduccion.validar_agregar_cancion(id_cancion)
+            codigo_error = "cancion_inexistente"
+            self.assertEqual(codigo_error, error_cancion_no_existe['error'])

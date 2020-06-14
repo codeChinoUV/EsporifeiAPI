@@ -1,5 +1,6 @@
 from app.administracion_de_contenido.modelo.modelos import ListaDeReproduccion
 from app.util.validaciones.ValidacioCadenas import ValidacionCadenas
+from app.util.validaciones.modelos.ValidacionCancion import ValidacionCancion
 
 
 class ValidacionListaDeReproduccion:
@@ -98,7 +99,38 @@ class ValidacionListaDeReproduccion:
                                                                                            'ningun parametro a '
                                                                                            'modificar'}
             errores_validacion.append(error_no_campos)
+            return errores_validacion
         error_tamano_parametros = ValidacionListaDeReproduccion._validar_tamano_atributos_texto(lista_de_reproduccion)
         if error_tamano_parametros is not None:
             return error_tamano_parametros
-        return errores_validacion
+
+    @staticmethod
+    def _validar_parametros_requeridos_agregar_cancion(id_cancion):
+        """
+        Valida que el id_cancion no sea este vacio
+        :param id_cancion: El id de la cancion a validar
+        :return: Un diccionario si el id_cancion esta vacio o None si no
+        """
+        parametros_faltante = ""
+        if id_cancion is None:
+            parametros_faltante += "<id>"
+        if len(parametros_faltante) > 0:
+            mensaje = "Los siguientes parametros faltan en tu solicitud: " + parametros_faltante
+            error = {'error': 'pametros_faltantes',
+                     'mensaje': mensaje}
+            return error
+
+    @staticmethod
+    def validar_agregar_cancion(id_cancion):
+        """
+        Realiza las validaciones necesarias para agreagar una cancion a una lista de reproduccion
+        :param id_cancion: El id de la cancion a agregar
+        :return: Un diccionario si algun campo no cumple los requisitos o None si los cumple
+        """
+        error_parametros_faltantes = ValidacionListaDeReproduccion.\
+            _validar_parametros_requeridos_agregar_cancion(id_cancion)
+        if error_parametros_faltantes is not None:
+            return error_parametros_faltantes
+        error_cancion_no_existe = ValidacionCancion.validar_existe_cancion(id_cancion)
+        if error_cancion_no_existe is not None:
+            return error_cancion_no_existe
