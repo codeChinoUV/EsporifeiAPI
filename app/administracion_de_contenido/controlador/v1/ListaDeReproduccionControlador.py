@@ -69,18 +69,16 @@ class ListaDeReproduccionControlador(Resource):
         if error_no_es_dueno is not None:
             return error_no_es_dueno, 403
 
-    @token_requerido
-    def get(self, usuario_actual, id_lista_de_reproduccion):
+    def get(self, id_lista_de_reproduccion):
         """
         Se encarga de responder a una solicitud GET al regresar la lista de reproduccion con el id_lista_de_reproduccion
-        :param usuario_actual: El usuario logeado
         :param id_lista_de_reproduccion: El id de la lista de reproduccion a obtener
         :return: Un diccionario y un codigo de estado
         """
-        validaciones_permisos = ListaDeReproduccionControlador.\
-            validaciones_existencia_de_lista_y_permisos(usuario_actual, id_lista_de_reproduccion)
-        if validaciones_permisos is not None:
-            return validaciones_permisos
+        error_no_existe_cancion = ValidacionListaDeReproduccion. \
+            validar_no_existe_lista_de_reproduccion(id_lista_de_reproduccion)
+        if error_no_existe_cancion is not None:
+            return error_no_existe_cancion, 404
         lista_de_reproduccion = ListaDeReproduccion.obtener_lista_de_reproduccion(id_lista_de_reproduccion)
         return lista_de_reproduccion.obtener_json(), 200
 
