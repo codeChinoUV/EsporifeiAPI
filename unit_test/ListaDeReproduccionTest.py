@@ -53,6 +53,12 @@ class ListaDeReproduccionTest(BaseTestClass):
             cantidad_de_canciones = 0
             self.assertEqual(cantidad_de_canciones, len(lista_de_reproduccion.canciones))
 
+    def test_buscar_lista_de_reproduccion(self):
+        with self.app.app_context():
+            listas_de_reproduccion = ListaDeReproduccion.obtener_listas_de_reproduccion_por_busqueda("lista")
+            cantidad_listas = 1
+            self.assertEqual(cantidad_listas, len(listas_de_reproduccion))
+
 
 class ValidacionListaDeReproduccionTest(BaseTestClass):
 

@@ -810,3 +810,26 @@ class ListaDeReproduccion(base_de_datos.Model):
         cantidad_listas = ListaDeReproduccion.query.filter_by(id_lista_de_reproduccion=id_lista_reproduccion,
                                                               usuario_id=id_usuario).count()
         return cantidad_listas > 0
+
+    @staticmethod
+    def obtener_listas_de_reproduccion_por_busqueda(cadena_busqueda, cantidad=10, pagina=1):
+        """
+        Recupera las listas de reproduccion que coincidan que la cadena_busqueda coincida con el nombre
+        :param cadena_busqueda: La cadena que se utilizara para realizar la busqueda
+        :param cantidad: La cantidad de resultados que se devolveran, la cantidad por defecto es 10
+        :param pagina: La pagina de los resultados, por defecto es 1
+        :return: Una lista de ListaDeReproduccion
+        """
+        expresion_regular_de_busqueda = "%" + cadena_busqueda + "%"
+        cantidad_total = cantidad * pagina
+        listas_de_reproduccion = ListaDeReproduccion.query. \
+            filter(ListaDeReproduccion.nombre.ilike(expresion_regular_de_busqueda)).limit(cantidad_total).all()
+        listas_de_la_pagina = []
+        if len(listas_de_reproduccion) > (cantidad * (pagina - 1)):
+            for i in range(cantidad):
+                posicion = i + (cantidad * (pagina - 1))
+                try:
+                    listas_de_la_pagina.append(listas_de_reproduccion[posicion])
+                except IndexError:
+                    break
+        return listas_de_la_pagina

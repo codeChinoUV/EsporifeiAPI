@@ -338,7 +338,7 @@ class CancionesBucarControlador(Resource):
         cantidad = request.args.get('cantidad')
         pagina = request.args.get('pagina')
         try:
-            if cantidad is not None or pagina is not None:
+            if cantidad is not None and pagina is not None:
                 cantidad = int(cantidad)
                 pagina = int(pagina)
             else:

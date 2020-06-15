@@ -13,7 +13,8 @@ from .controlador.v1.AlbumControlador import AlbumesPublicoControlador, CreadorD
     CreadorDeContenidoAlbumes
 # Creadores de contenido
 from .controlador.v1.ListaDeReproduccionControlador import ListasDeReproduccionControlador, \
-    ListaDeReproduccionControlador, ListaDeReproduccionCanciones, ListaDeReproduccionCancion
+    ListaDeReproduccionControlador, ListaDeReproduccionCanciones, ListaDeReproduccionCancion, \
+    ListaDeReproduccionBuscarControlador
 
 api.add_resource(CreadorDeContenidoControlador, '/v1/creador-de-contenido')
 api.add_resource(CreadorDeContenidoPublicoControlador, '/v1/creadores-de-contenido/<int:id_creador_de_contenido>')
@@ -65,3 +66,4 @@ api.add_resource(ListaDeReproduccionControlador, '/v1/listas-de-reproduccion/<in
 api.add_resource(ListaDeReproduccionCanciones, '/v1/listas-de-reproduccion/<int:id_lista_de_reproduccion>/canciones')
 api.add_resource(ListaDeReproduccionCancion, '/v1/listas-de-reproduccion/<int:id_lista_de_reproduccion>/canciones/'
                                              '<int:id_cancion>')
+api.add_resource(ListaDeReproduccionBuscarControlador, '/v1/listas-de-reproduccion/buscar/<string:cadena_busqueda>')

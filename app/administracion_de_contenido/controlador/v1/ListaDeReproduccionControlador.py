@@ -1,8 +1,8 @@
+from flask import request
 from flask_restful import Resource, reqparse
 
 from app.administracion_de_contenido.modelo.modelos import ListaDeReproduccion, Cancion
 from app.manejo_de_usuarios.controlador.v1.LoginControlador import token_requerido
-from app.util.validaciones.modelos.ValidacionCancion import ValidacionCancion
 from app.util.validaciones.modelos.ValidacionListaDeReproduccion import ValidacionListaDeReproduccion
 
 
@@ -187,3 +187,34 @@ class ListaDeReproduccionCancion(Resource):
         lista_de_reproduccion = ListaDeReproduccion.obtener_lista_de_reproduccion(id_lista_de_reproduccion)
         lista_de_reproduccion.quitar_cancion(cancion)
         return cancion.obtener_json_con_album(), 202
+
+
+class ListaDeReproduccionBuscarControlador(Resource):
+
+    def get(self, cadena_busqueda):
+        """
+        Se encarga de procesar una solicitud GET al devolver las listas de reproduccion que coincidan con la cadena de
+        busqueda
+        :param cadena_busqueda: La cadena de busqueda
+        :return: Un diccionario y un codigo de estado
+        """
+        cantidad = request.args.get('cantidad')
+        pagina = request.args.get('pagina')
+        try:
+            if cantidad is not None and pagina is not None:
+                cantidad = int(cantidad)
+                pagina = int(pagina)
+            else:
+                cantidad = 10
+                pagina = 1
+            listas_de_reproduccion = ListaDeReproduccion.obtener_listas_de_reproduccion_por_busqueda(cadena_busqueda,
+                                                                                                     cantidad,
+                                                                                                     pagina)
+        except ValueError:
+            listas_de_reproduccion = ListaDeReproduccion.obtener_listas_de_reproduccion_por_busqueda(cadena_busqueda)
+
+        listas_de_reproduccion_diccionario = []
+        if len(listas_de_reproduccion) > 0:
+            for lista_de_reproduccion in listas_de_reproduccion:
+                listas_de_reproduccion_diccionario.append(lista_de_reproduccion.obtener_json())
+        return listas_de_reproduccion_diccionario, 200
