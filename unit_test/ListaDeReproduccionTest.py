@@ -1,4 +1,4 @@
-from app.administracion_de_contenido.modelo.modelos import ListaDeReproduccion
+from app.administracion_de_contenido.modelo.modelos import ListaDeReproduccion, Cancion
 from app.util.validaciones.modelos.ValidacionListaDeReproduccion import ValidacionListaDeReproduccion
 from . import BaseTestClass
 
@@ -17,7 +17,7 @@ class ListaDeReproduccionTest(BaseTestClass):
             lista_de_reproduccion = ListaDeReproduccion(usuario_id=1, nombre="Lista de reproduccion prueba")
             lista_de_reproduccion.guardar()
             listas_de_reproduccion_del_usuario = ListaDeReproduccion.obtener_listas_de_reproduccion_de_usuario(1)
-            cantidad_lista_reproduccion = 1
+            cantidad_lista_reproduccion = 2
             self.assertEqual(cantidad_lista_reproduccion, len(listas_de_reproduccion_del_usuario))
 
     def test_editar_lista_de_reproduccion(self):
@@ -33,8 +33,25 @@ class ListaDeReproduccionTest(BaseTestClass):
             lista_de_reproduccion = ListaDeReproduccion(usuario_id=1, nombre="Lista de reproduccion prueba")
             lista_de_reproduccion.guardar()
             lista_de_reproduccion.eliminar()
-            lista_eliminada = ListaDeReproduccion.obtener_lista_de_reproduccion(1)
+            lista_eliminada = ListaDeReproduccion.obtener_lista_de_reproduccion(2)
             self.assertEqual(None, lista_eliminada)
+
+    def test_agregar_cancion(self):
+        with self.app.app_context():
+            lista_de_reproduccion = ListaDeReproduccion.obtener_lista_de_reproduccion(1)
+            cancion = Cancion.obtener_cancion_por_id(1)
+            lista_de_reproduccion.agregar_cancion(cancion)
+            cantidad_de_canciones = 1
+            self.assertEqual(cantidad_de_canciones, len(lista_de_reproduccion.canciones))
+
+    def test_quitar_cancion(self):
+        with self.app.app_context():
+            lista_de_reproduccion = ListaDeReproduccion.obtener_lista_de_reproduccion(1)
+            cancion = Cancion.obtener_cancion_por_id(1)
+            lista_de_reproduccion.agregar_cancion(cancion)
+            lista_de_reproduccion.quitar_cancion(cancion)
+            cantidad_de_canciones = 0
+            self.assertEqual(cantidad_de_canciones, len(lista_de_reproduccion.canciones))
 
 
 class ValidacionListaDeReproduccionTest(BaseTestClass):
@@ -65,7 +82,7 @@ class ValidacionListaDeReproduccionTest(BaseTestClass):
 
     def test_no_existe_lista_de_reproduccion(self):
         with self.app.app_context():
-            error_no_existe = ValidacionListaDeReproduccion.validar_no_existe_lista_de_reproduccion(1)
+            error_no_existe = ValidacionListaDeReproduccion.validar_no_existe_lista_de_reproduccion(2)
             codigo_error = "lista_reproduccion_inexistente"
             self.assertEqual(codigo_error, error_no_existe['error'])
 
@@ -81,7 +98,7 @@ class ValidacionListaDeReproduccionTest(BaseTestClass):
         with self.app.app_context():
             lista_de_reproduccion = ListaDeReproduccion(nombre="Prueba", usuario_id=2)
             lista_de_reproduccion.guardar()
-            error_no_es_dueno = ValidacionListaDeReproduccion.validar_usuario_es_dueno_de_lista_de_reproduccion(1, 1)
+            error_no_es_dueno = ValidacionListaDeReproduccion.validar_usuario_es_dueno_de_lista_de_reproduccion(2, 1)
             codigo_error = "operacion_no_permitida"
             self.assertEqual(codigo_error, error_no_es_dueno['error'])
 
@@ -96,7 +113,7 @@ class ValidacionListaDeReproduccionTest(BaseTestClass):
     def test_solicitud_vacia(self):
         with self.app.app_context():
             lista_de_reproduccion = ListaDeReproduccion(nombre=None, descripcion=None)
-            error_sin_parametros = ValidacionListaDeReproduccion.\
+            error_sin_parametros = ValidacionListaDeReproduccion. \
                 validar_edicion_lista_de_reproduccion(lista_de_reproduccion)
             codigo_error = "solicitud_sin_parametros_a_modificar"
             self.assertEqual(codigo_error, error_sin_parametros[0]['error'])
@@ -121,3 +138,20 @@ class ValidacionListaDeReproduccionTest(BaseTestClass):
             error_cancion_no_existe = ValidacionListaDeReproduccion.validar_agregar_cancion(id_cancion)
             codigo_error = "cancion_inexistente"
             self.assertEqual(codigo_error, error_cancion_no_existe['error'])
+
+    def test_lista_no_tiene_cancion(self):
+        with self.app.app_context():
+            validacion_no_tiene_cancion = ValidacionListaDeReproduccion. \
+                validar_existe_cancion_en_lista_de_reproduccion(1, 1)
+            codigo_error = "cancion_inexistente"
+            self.assertEqual(codigo_error, validacion_no_tiene_cancion['error'])
+
+    def test_lista_tiene_cancion(self):
+        with self.app.app_context():
+            lista_reproduccion = ListaDeReproduccion.obtener_lista_de_reproduccion(1)
+            cancion = Cancion.obtener_cancion_por_id(1)
+            lista_reproduccion.agregar_cancion(cancion)
+            validacion_tiene_cancion = ValidacionListaDeReproduccion. \
+                validar_existe_cancion_en_lista_de_reproduccion(1, 1)
+            codigo_error = None
+            self.assertEqual(codigo_error, validacion_tiene_cancion)

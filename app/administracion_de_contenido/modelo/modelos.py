@@ -750,6 +750,15 @@ class ListaDeReproduccion(base_de_datos.Model):
         self.duracion_total += cancion.duracion_en_segundos
         base_de_datos.session.commit()
 
+    def quitar_cancion(self, cancion):
+        """
+        Quita la cancion de la lista de canciones
+        :param cancion: La cancion a quitar
+        :return: None
+        """
+        self.canciones.remove(cancion)
+        base_de_datos.session.commit()
+
     @staticmethod
     def obtener_listas_de_reproduccion_de_usuario(id_usuario):
         """
