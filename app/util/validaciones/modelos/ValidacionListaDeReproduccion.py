@@ -134,3 +134,22 @@ class ValidacionListaDeReproduccion:
         error_cancion_no_existe = ValidacionCancion.validar_existe_cancion(id_cancion)
         if error_cancion_no_existe is not None:
             return error_cancion_no_existe
+
+    @staticmethod
+    def validar_existe_cancion_en_lista_de_reproduccion(id_lista_de_reproduccion, id_cancion):
+        """
+        Valida si la lista de reproduccion tiene la cancion con el id indicado
+        :param id_lista_de_reproduccion: La lista de reproduccion a validar si tiene la cancion
+        :param id_cancion: La cancion a validar si esta en la lista de reproduccion
+        :return: None si la cancion si existe en el album o un diccionario si no
+        """
+        lista_de_reproduccion = ListaDeReproduccion.obtener_lista_de_reproduccion(id_lista_de_reproduccion)
+        esta_en_lista = False
+        for cancion in lista_de_reproduccion.canciones:
+            if cancion.id_cancion == id_cancion:
+                esta_en_lista = True
+                break
+        if not esta_en_lista:
+            error = {'error': 'cancion_inexistente', 'mensaje': 'No existe ninguna cancion con el id indicado en la '
+                                                                'lista de reproduccion'}
+            return error

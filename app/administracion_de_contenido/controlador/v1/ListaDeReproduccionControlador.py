@@ -131,11 +131,11 @@ class ListaDeReproduccionCanciones(Resource):
 
     @token_requerido
     def post(self, usuario_actual, id_lista_de_reproduccion):
-        error_no_existe_lista_reproduccion = ValidacionListaDeReproduccion.\
+        error_no_existe_lista_reproduccion = ValidacionListaDeReproduccion. \
             validar_no_existe_lista_de_reproduccion(id_lista_de_reproduccion)
         if error_no_existe_lista_reproduccion is not None:
             return error_no_existe_lista_reproduccion, 404
-        error_no_es_dueno = ValidacionListaDeReproduccion.\
+        error_no_es_dueno = ValidacionListaDeReproduccion. \
             validar_usuario_es_dueno_de_lista_de_reproduccion(id_lista_de_reproduccion, usuario_actual.id_usuario)
         if error_no_es_dueno is not None:
             return error_no_es_dueno, 403
@@ -157,3 +157,33 @@ class ListaDeReproduccionCanciones(Resource):
         for cancion in lista_de_reproduccion.canciones:
             lista_de_canciones.append(cancion.obtener_json_con_album())
         return lista_de_canciones, 200
+
+
+class ListaDeReproduccionCancion(Resource):
+
+    @token_requerido
+    def delete(self, usuario_actual, id_lista_de_reproduccion, id_cancion):
+        """
+        Se encarga de procesar una solicitud DELETE al eliminar la cancion con el id_cancion en la lista de reproduccion
+        con el id_lista_de_reproduccion
+        :param usuario_actual: El usuario logeado
+        :param id_cancion: El id de la cancion a quitar de la lista de reproduccion
+        :param id_lista_de_reproduccion: La lista de reproduccion de la cual se eliminara la cancion
+        :return: Un diccionario y un codigo de estado
+        """
+        error_no_existe_lista_reproduccion = ValidacionListaDeReproduccion. \
+            validar_no_existe_lista_de_reproduccion(id_lista_de_reproduccion)
+        if error_no_existe_lista_reproduccion is not None:
+            return error_no_existe_lista_reproduccion, 404
+        error_no_es_dueno = ValidacionListaDeReproduccion. \
+            validar_usuario_es_dueno_de_lista_de_reproduccion(id_lista_de_reproduccion, usuario_actual.id_usuario)
+        if error_no_es_dueno is not None:
+            return error_no_es_dueno, 403
+        error_cancion_no_en_lista = ValidacionListaDeReproduccion. \
+            validar_existe_cancion_en_lista_de_reproduccion(id_lista_de_reproduccion, id_cancion)
+        if error_cancion_no_en_lista is not None:
+            return error_cancion_no_en_lista, 404
+        cancion = Cancion.obtener_cancion_por_id(id_cancion)
+        lista_de_reproduccion = ListaDeReproduccion.obtener_lista_de_reproduccion(id_lista_de_reproduccion)
+        lista_de_reproduccion.quitar_cancion(cancion)
+        return cancion.obtener_json_con_album(), 202

@@ -1,6 +1,7 @@
 import unittest
 from app import create_app, base_de_datos
-from app.administracion_de_contenido.modelo.modelos import Genero, CreadorDeContenido, Album, Cancion, Calificacion
+from app.administracion_de_contenido.modelo.modelos import Genero, CreadorDeContenido, Album, Cancion, Calificacion, \
+    ListaDeReproduccion
 from app.manejo_de_usuarios.modelo.modelos import Usuario
 
 
@@ -28,6 +29,7 @@ class BaseTestClass(unittest.TestCase):
             album = BaseTestClass._crear_album("Album de prueba", "2001", 1)
             BaseTestClass._agregar_cancion(album, creador_de_contenido, "cancion de prueba")
             BaseTestClass._agregar_calificacion(1, 1, 3)
+            BaseTestClass._crear_lista_de_reproduccion(1, "Lista de reproduccion de prueba", None)
 
     def tearDown(self):
         """
@@ -114,3 +116,14 @@ class BaseTestClass(unittest.TestCase):
         """
         calificacion = Calificacion(id_usuario=id_usuario, id_cancion=id_cancion, calificacion_estrellas=calificacion)
         calificacion.guardar()
+
+    @staticmethod
+    def _crear_lista_de_reproduccion(id_usuario, nombre, descripcion):
+        """
+        Crea y registra una Lista de reproduccion
+        :param id_usuario: El id del usuario al cual pertencera la lista
+        :param nombre: El nombre que tendra la lista de reproduccion
+        :param descripcion: La descripcion de la lista de reproduccion
+        """
+        lista_de_reproduccion = ListaDeReproduccion(usuario_id=id_usuario, nombre=nombre, descripcion=descripcion)
+        lista_de_reproduccion.guardar()
