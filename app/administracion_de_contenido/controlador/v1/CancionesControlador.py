@@ -1,7 +1,7 @@
 from flask import request
 from flask_restful import reqparse, Resource
 
-from app.administracion_de_contenido.modelo.modelos import Album, Cancion, CreadorDeContenido, Genero
+from app.administracion_de_contenido.modelo.modelos import Album, Cancion, CreadorDeContenido, Genero, HistorialCancion
 from app.manejo_de_usuarios.controlador.v1.LoginControlador import token_requerido, solo_creador_de_contenido
 from app.util.validaciones.modelos.ValidacionAlbum import ValidacionAlbum
 from app.util.validaciones.modelos.ValidacionCancion import ValidacionCancion
