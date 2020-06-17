@@ -903,3 +903,91 @@ class HistorialCancion(base_de_datos.Model):
                 except IndexError:
                     break
         return lista_de_canciones
+
+
+class CancionPersonal(base_de_datos.Model):
+    id_cancion_personal = base_de_datos.Column(base_de_datos.Integer, primary_key=True)
+    nombre = base_de_datos.Column(base_de_datos.String(70), nullable=False)
+    artistas = base_de_datos.Column(base_de_datos.String(100), nullable=False)
+    duracion_en_segundos = base_de_datos.Column(base_de_datos.Integer, default=0)
+    album = base_de_datos.Column(base_de_datos.String(70))
+    id_usuario = base_de_datos.Column(base_de_datos.Integer, base_de_datos.ForeignKey('usuario.id_usuario'),
+                                      nullable=False)
+
+    def guardar(self):
+        """
+        Se encarga de guardar el objeto actual
+        :return: None
+        """
+        base_de_datos.session.add(self)
+        base_de_datos.session.commit()
+
+    def eliminar(self):
+        """
+        Elimina el objeto actual de la base de datos
+        :return: None
+        """
+        base_de_datos.session.delete(self)
+        base_de_datos.session.commit()
+
+    def obtener_json(self):
+        """
+        Crea un diccionario con la informacion de los atributos del objeto
+        :return: Un diccionario
+        """
+        diccionario = {'id': self.id_cancion_personal, 'nombre': self.nombre, 'artistas': self.artistas,
+                       'album': self.album}
+        return diccionario
+
+    @staticmethod
+    def obtener_cantidad_de_canciones(id_usuario):
+        """
+        Recupera la cantidad de canciones que tiene el usuario
+        :param id_usuario: El id del usuario al que se le contaran las canciones
+        :return: Un entero
+        """
+        cantidad_canciones = CancionPersonal.query.filter_by(id_usuario=id_usuario).count()
+        return cantidad_canciones
+
+    @staticmethod
+    def obtener_canciones_de_usuario(id_usuario, cantidad=10, pagina=1):
+        """
+        Recupera las canciones que tiene el usuario
+        :param id_usuario: El id del usuario a recuperar sus canciones
+        :param cantidad: La cantidad de canciones a recuperar
+        :param pagina: La pagina a recuperar de los resultados
+        :return: Una lista de CancionPersonal
+        """
+        cantidad_total = cantidad * pagina
+        canciones_en_biblioteca = CancionPersonal.query.filter_by(id_usuario=id_usuario).limit(cantidad_total).all()
+        lista_de_canciones = []
+        if len(canciones_en_biblioteca) > (cantidad * (pagina - 1)):
+            for i in range(cantidad):
+                posicion = i + (cantidad * (pagina - 1))
+                try:
+                    lista_de_canciones.append(canciones_en_biblioteca[posicion])
+                except IndexError:
+                    break
+        return lista_de_canciones
+
+    @staticmethod
+    def obtener_cancion_por_id(id_cancion):
+        """
+        Recupera la cancionPersonal con el id_cancion
+        :param id_cancion: El id de la cancion personal a recuperar
+        :return: La cancionPersonal con el id_cancion
+        """
+        cancion = CancionPersonal.query.filter_by(id_cancion_personal=id_cancion).first()
+        return cancion
+
+    @staticmethod
+    def validar_cancion_personal_es_de_usuario(id_usuario, id_cancion_personal):
+        """
+        Valida si existe una cancion con el id_cancion_personal y el id_usuario
+        :param id_usuario: El id del usuario a validar si es dueno de la cancion personal
+        :param id_cancion_personal: El id de la cancion personal a validar si el del usuario
+        :return: Verdadero si la cancion personal es del usuario o falso si no
+        """
+        cancion_personal = CancionPersonal.query.filter_by(id_usuario=id_usuario,
+                                                           id_cancion_personal=id_cancion_personal).count()
+        return cancion_personal > 0
