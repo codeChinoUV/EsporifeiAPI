@@ -903,3 +903,61 @@ class HistorialCancion(base_de_datos.Model):
                 except IndexError:
                     break
         return lista_de_canciones
+
+
+class CancionPersonal(base_de_datos.Model):
+    id_cancion_personal = base_de_datos.Column(base_de_datos.Integer, primary_key=True)
+    nombre = base_de_datos.Column(base_de_datos.String(70), nullable=False)
+    artistas = base_de_datos.Column(base_de_datos.String(100), nullable=False)
+    duracion_en_segundos = base_de_datos.Column(base_de_datos.Integer, default=0)
+    album = base_de_datos.Column(base_de_datos.String(70))
+    id_usuario = base_de_datos.Column(base_de_datos.Integer, base_de_datos.ForeignKey('usuario.id_usuario'),
+                                      nullable=False)
+
+    def guardar(self):
+        """
+        Se encarga de guardar el objeto actual
+        :return: None
+        """
+        base_de_datos.session.add(self)
+        base_de_datos.session.commit()
+
+    def obtener_json(self):
+        """
+        Crea un diccionario con la informacion de los atributos del objeto
+        :return: Un diccionario
+        """
+        diccionario = {'id': self.id_cancion_personal, 'nombre': self.nombre, 'artistas': self.artistas,
+                       'album': self.album}
+        return diccionario
+
+    @staticmethod
+    def obtener_cantidad_de_canciones(id_usuario):
+        """
+        Recupera la cantidad de canciones que tiene el usuario
+        :param id_usuario: El id del usuario al que se le contaran las canciones
+        :return: Un entero
+        """
+        cantidad_canciones = CancionPersonal.query.filter_by(id_usuario=id_usuario).count()
+        return cantidad_canciones
+
+    @staticmethod
+    def obtener_canciones_de_usuario(id_usuario, cantidad=10, pagina=1):
+        """
+        Recupera las canciones que tiene el usuario
+        :param id_usuario: El id del usuario a recuperar sus canciones
+        :param cantidad: La cantidad de canciones a recuperar
+        :param pagina: La pagina a recuperar de los resultados
+        :return: Una lista de CancionPersonal
+        """
+        cantidad_total = cantidad * pagina
+        canciones_en_biblioteca = CancionPersonal.query.filter_by(id_usuario=id_usuario).limit(cantidad_total).all()
+        lista_de_canciones = []
+        if len(canciones_en_biblioteca) > (cantidad * (pagina - 1)):
+            for i in range(cantidad):
+                posicion = i + (cantidad * (pagina - 1))
+                try:
+                    lista_de_canciones.append(canciones_en_biblioteca[posicion])
+                except IndexError:
+                    break
+        return lista_de_canciones
