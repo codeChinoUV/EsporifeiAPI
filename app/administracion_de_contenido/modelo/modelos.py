@@ -1,6 +1,10 @@
 """
     Se encarga de representar a un CreadorDeContenido y manejar el acceso del objeto a la base de datos
 """
+import datetime
+
+from sqlalchemy import desc
+
 from app import base_de_datos
 from app.util.JsonBool import JsonBool
 
@@ -474,6 +478,15 @@ class Cancion(base_de_datos.Model):
         self.calificacion_promedio = nueva_calificacion
         base_de_datos.session.commit()
 
+    def agregar_usuario_reproducio_cancion(self, usuario):
+        """
+        Agrega un usuario que reproducio la cancion
+        :param usuario: El usuario que reproducio la cancion
+        :return: None
+        """
+        self.usuarios_reproductores.append(usuario)
+        base_de_datos.session.commit()
+
     @staticmethod
     def obtener_cancion_por_id(id_cancion):
         """
@@ -776,7 +789,7 @@ class ListaDeReproduccion(base_de_datos.Model):
         :param id_lista_de_reproduccion: El id de la lista de reproduccion a validar
         :return: Una ListaDeReproduccion
         """
-        lista_de_reproduccion = ListaDeReproduccion.query.\
+        lista_de_reproduccion = ListaDeReproduccion.query. \
             filter_by(id_lista_de_reproduccion=id_lista_de_reproduccion).first()
         return lista_de_reproduccion
 
@@ -833,3 +846,60 @@ class ListaDeReproduccion(base_de_datos.Model):
                 except IndexError:
                     break
         return listas_de_la_pagina
+
+
+class HistorialCancion(base_de_datos.Model):
+    id_usuario = base_de_datos.Column(base_de_datos.Integer, base_de_datos.ForeignKey('usuario.id_usuario'),
+                                      nullable=False, primary_key=True)
+    id_cancion = base_de_datos.Column(base_de_datos.Integer, base_de_datos.ForeignKey('cancion.id_cancion'),
+                                      nullable=False, primary_key=True)
+    fecha_de_reproduccion = base_de_datos.Column(base_de_datos.DateTime(), default=datetime.datetime.now)
+
+    def guardar(self):
+        """
+        Guarda el objeto actual en la base de datos
+        :return: None
+        """
+        base_de_datos.session.add(self)
+        base_de_datos.session.commit()
+
+    def guardar_con_fecha(self, hace_dias):
+        """
+        Se encarga de guardar el objeto indicando la fecha en la cual se reproducio
+        :param hace_dias: La cantidad de dias desde hoy en la que se reproducio la cancion
+        :return: None
+        """
+        ahora = datetime.datetime.now()
+        fecha_a_registrar = ahora - datetime.timedelta(days=hace_dias)
+        self.fecha_de_reproduccion = fecha_a_registrar
+        base_de_datos.session.add(self)
+        base_de_datos.session.commit()
+
+    @staticmethod
+    def obtener_canciones_de_usuario(id_usuario, cantidad=10, pagina=1, ultimos_dias_a_obtener=7):
+        """
+        Recupera las canciones que ha reproducido el usuario
+        :param id_usuario: El id del usuario con las canciones a recuperar
+        :param cantidad: La cantidad de canciones a recuperar por pagina
+        :param pagina: La pagina a recuperar
+        :param ultimos_dias_a_obtener: La cantidad de dias a recuperar a partir de hoy
+        :return: Una lista de HistorialCancion
+        """
+        cantidad_total = cantidad * pagina
+        ahora = datetime.datetime.now()
+        fecha_inicio_recuperar = ahora - datetime.timedelta(days=ultimos_dias_a_obtener)
+        canciones_reproducidas = \
+            HistorialCancion.query.filter(HistorialCancion.id_usuario == id_usuario, HistorialCancion.
+                                          fecha_de_reproduccion <= ahora, HistorialCancion.
+                                          fecha_de_reproduccion >= fecha_inicio_recuperar
+                                          ).order_by(desc(HistorialCancion.fecha_de_reproduccion)).limit(
+                cantidad_total).all()
+        lista_de_canciones = []
+        if len(canciones_reproducidas) > (cantidad * (pagina - 1)):
+            for i in range(cantidad):
+                posicion = i + (cantidad * (pagina - 1))
+                try:
+                    lista_de_canciones.append(canciones_reproducidas[posicion])
+                except IndexError:
+                    break
+        return lista_de_canciones
