@@ -922,6 +922,14 @@ class CancionPersonal(base_de_datos.Model):
         base_de_datos.session.add(self)
         base_de_datos.session.commit()
 
+    def eliminar(self):
+        """
+        Elimina el objeto actual de la base de datos
+        :return: None
+        """
+        base_de_datos.session.delete(self)
+        base_de_datos.session.commit()
+
     def obtener_json(self):
         """
         Crea un diccionario con la informacion de los atributos del objeto
@@ -961,3 +969,25 @@ class CancionPersonal(base_de_datos.Model):
                 except IndexError:
                     break
         return lista_de_canciones
+
+    @staticmethod
+    def obtener_cancion_por_id(id_cancion):
+        """
+        Recupera la cancionPersonal con el id_cancion
+        :param id_cancion: El id de la cancion personal a recuperar
+        :return: La cancionPersonal con el id_cancion
+        """
+        cancion = CancionPersonal.query.filter_by(id_cancion_personal=id_cancion).first()
+        return cancion
+
+    @staticmethod
+    def validar_cancion_personal_es_de_usuario(id_usuario, id_cancion_personal):
+        """
+        Valida si existe una cancion con el id_cancion_personal y el id_usuario
+        :param id_usuario: El id del usuario a validar si es dueno de la cancion personal
+        :param id_cancion_personal: El id de la cancion personal a validar si el del usuario
+        :return: Verdadero si la cancion personal es del usuario o falso si no
+        """
+        cancion_personal = CancionPersonal.query.filter_by(id_usuario=id_usuario,
+                                                           id_cancion_personal=id_cancion_personal).count()
+        return cancion_personal > 0

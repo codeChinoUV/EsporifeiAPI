@@ -1,5 +1,5 @@
 from . import api
-from .controlador.v1.BibliotecaPersonalControlador import BibliotecaPersonalCanciones
+from .controlador.v1.BibliotecaPersonalControlador import BibliotecaPersonalCanciones, BibliotecaPersonalCancionControlador
 from .controlador.v1.CalificacionControlador import CancionCalificacionControlador
 from .controlador.v1.CancionesControlador import CreadorDeContenidoAlbumCanciones, CreadorDeContenidoAlbumCancion, \
     CreadorDeContenidoAlbumCancionGeneros, CreadorDeContenidoAlbumCancionGenero, CreadoresDeContenidoAlbumesCanciones, \
@@ -75,4 +75,4 @@ api.add_resource(HistorialCancionControlador, '/v1/historial-reproduccion/cancio
 
 # Biblioteca personal
 api.add_resource(BibliotecaPersonalCanciones, '/v1/biblioteca-personal/canciones')
-
+api.add_resource(BibliotecaPersonalCancionControlador, '/v1/biblioteca-personal/canciones/<int:id_cancion_personal>')

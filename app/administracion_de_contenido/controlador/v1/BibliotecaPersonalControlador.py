@@ -53,3 +53,19 @@ class BibliotecaPersonalCanciones(Resource):
         for cancion in canciones:
             lista_canciones.append(cancion.obtener_json())
         return lista_canciones, 200
+
+
+class BibliotecaPersonalCancionControlador(Resource):
+
+    @token_requerido
+    def delete(self, usuario_actual, id_cancion_personal):
+        error_no_existe_cancion = ValidacionCancionPersonal.validar_existe_cancion_personal(id_cancion_personal)
+        if error_no_existe_cancion is not None:
+            return error_no_existe_cancion, 404
+        error_no_es_dueno = ValidacionCancionPersonal.validar_es_dueno_cancion_personal(usuario_actual.id_usuario,
+                                                                                        id_cancion_personal)
+        if error_no_es_dueno is not None:
+            return error_no_es_dueno, 403
+        cancion_personal = CancionPersonal.obtener_cancion_por_id(id_cancion_personal)
+        cancion_personal.eliminar()
+        return cancion_personal.obtener_json(), 202

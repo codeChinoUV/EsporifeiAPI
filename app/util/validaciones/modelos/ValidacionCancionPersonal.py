@@ -81,3 +81,30 @@ class ValidacionCancionPersonal:
             _validar_cantidad_canciones_de_usuario(cancion_personal.id_usuario)
         if error_cantidad_de_canciones is not None:
             return error_cantidad_de_canciones
+
+    @staticmethod
+    def validar_existe_cancion_personal(id_cancion):
+        """
+        Valida si existe una cancionPersonal con el id_cancion
+        :param id_cancion: El id de la cancion a validar
+        :return: None si existe la cancion o un diccionario que indica el error si no existe
+        """
+        cancion_personal = CancionPersonal.obtener_cancion_por_id(id_cancion)
+        if cancion_personal is None:
+            error = {'error': 'cancion_personal_inexistente', 'mensaje': 'No existe ninguna cancion personal con el '
+                                                                         'id indicado'}
+            return error
+
+    @staticmethod
+    def validar_es_dueno_cancion_personal(id_usuario, id_cancion_personal):
+        """
+        Valida si el usuario es dueno de la cancion personal
+        :param id_usuario: El id del usuario a validar que sea dueño de la cancion personal
+        :param id_cancion_personal: El id de la cancion personal a validar que sea del usuario
+        :return: None si el usuario si es dueno de la cancion personal o falso si no
+        """
+        es_dueno = CancionPersonal.validar_cancion_personal_es_de_usuario(id_usuario, id_cancion_personal)
+        if not es_dueno:
+            error = {'error': 'cancion_persona_no_es_de_usuario', 'mensaje': 'El usuario no es el dueño de la cancion '
+                                                                             'personal'}
+            return error

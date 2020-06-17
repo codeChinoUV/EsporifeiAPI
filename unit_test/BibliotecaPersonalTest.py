@@ -52,9 +52,38 @@ class ValidacionCancionPersonalTest(BaseTestClass):
             self.assertEqual(codigo_error, errores_validacion[0]['error'])
 
     def test_registro_correcto(self):
-        if __name__ == '__main__':
-            with self.app.app_context():
-                cancion_a_registrar = CancionPersonal(nombre="asdfgh", artistas="asdfgh", id_usuario=1)
-                validacion_registro = ValidacionCancionPersonal.validar_registro_cancion_personal(cancion_a_registrar)
-                codigo_error = None
-                self.assertEqual(codigo_error, validacion_registro)
+        with self.app.app_context():
+            cancion_a_registrar = CancionPersonal(nombre="asdfgh", artistas="asdfgh", id_usuario=1)
+            validacion_registro = ValidacionCancionPersonal.validar_registro_cancion_personal(cancion_a_registrar)
+            codigo_error = None
+            self.assertEqual(codigo_error, validacion_registro)
+
+    def test_validar_no_existe_cancion_personal(self):
+        with self.app.app_context():
+            validacion_no_existe = ValidacionCancionPersonal.validar_existe_cancion_personal(1)
+            codigo_error = "cancion_personal_inexistente"
+            self.assertEqual(codigo_error, validacion_no_existe['error'])
+
+    def test_validar_no_es_dueno(self):
+        with self.app.app_context():
+            cancion_a_registrar = CancionPersonal(nombre="asdfgh", artistas="asdfgh", id_usuario=1)
+            cancion_a_registrar.guardar()
+            validacion_registro = ValidacionCancionPersonal.validar_es_dueno_cancion_personal(2, 1)
+            codigo_error = "cancion_persona_no_es_de_usuario"
+            self.assertEqual(codigo_error, validacion_registro['error'])
+
+    def test_cancion_personal_existe(self):
+        with self.app.app_context():
+            cancion_a_registrar = CancionPersonal(nombre="asdfgh", artistas="asdfgh", id_usuario=1)
+            cancion_a_registrar.guardar()
+            validacion_no_existe = ValidacionCancionPersonal.validar_existe_cancion_personal(1)
+            codigo_error = None
+            self.assertEqual(codigo_error, validacion_no_existe)
+
+    def test_cancion_es_dueno(self):
+        with self.app.app_context():
+            cancion_a_registrar = CancionPersonal(nombre="asdfgh", artistas="asdfgh", id_usuario=1)
+            cancion_a_registrar.guardar()
+            validacion_registro = ValidacionCancionPersonal.validar_es_dueno_cancion_personal(1, 1)
+            codigo_error = None
+            self.assertEqual(codigo_error, validacion_registro)
