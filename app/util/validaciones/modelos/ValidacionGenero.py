@@ -16,7 +16,7 @@ class ValidacionGenero:
             return error
 
     @staticmethod
-    def _validar_existe_genero(id_genero):
+    def validar_existe_genero(id_genero):
         """
         Valida si existe un genero con el id_genero
         :param id_genero: El id del genero a validar si existe
@@ -42,6 +42,6 @@ class ValidacionGenero:
         error_parametros_requeridos = ValidacionGenero._validar_campos_requeridos(id_genero)
         if error_parametros_requeridos is not None:
             return error_parametros_requeridos
-        error_id_no_existe = ValidacionGenero._validar_existe_genero(id_genero)
+        error_id_no_existe = ValidacionGenero.validar_existe_genero(id_genero)
         if error_id_no_existe is not None:
             return error_id_no_existe
