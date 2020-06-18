@@ -15,4 +15,16 @@ def create_app(settings_module="config.dev"):
     app.register_blueprint(manejo_de_usuarios)
     from app.administracion_de_contenido import administracion_de_contenido
     app.register_blueprint(administracion_de_contenido)
+    # Custom error handlers
+    register_error_handlers(app)
     return app
+
+
+def register_error_handlers(app):
+    @app.errorhandler(500)
+    def base_error_handler(e):
+        return {}, 500
+
+    @app.errorhandler(404)
+    def error_404_handler(e):
+        return {}, 404
