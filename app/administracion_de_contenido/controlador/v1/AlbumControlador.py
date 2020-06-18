@@ -77,7 +77,10 @@ class CreadorDeContenidoAlbum(Resource):
         error_no_existe_album = ValidacionAlbum.validar_album_existe(id_album)
         if error_no_existe_album is not None:
             return error_no_existe_album, 404
-        creador_contenido = CreadorDeContenido.obtener_creador_de_contenido_por_id_usuario(usuario_actual.id_usuario)
+        error_no_es_dueno = ValidacionAlbum.validar_creador_de_contenido_es_dueno_de_album(usuario_actual.id_usuario,
+                                                                                           id_album)
+        if error_no_es_dueno is not None:
+            return error_no_es_dueno, 403
         album_a_modificar = Album.obtener_album_por_id(id_album)
         album_a_modificar.eliminar_informacion()
         return album_a_modificar.obtener_json(), 202
@@ -91,11 +94,10 @@ class CreadorDeContenidoAlbum(Resource):
         error_no_existe_album = ValidacionAlbum.validar_album_existe(id_album)
         if error_no_existe_album is not None:
             return error_no_existe_album, 404
-        creador_contenido = CreadorDeContenido.obtener_creador_de_contenido_por_id_usuario(usuario_actual.id_usuario)
-        # error_no_es_dueno = ValidacionAlbum \
-        #    .validar_usuario_es_dueno_de_artista(creador_contenido.id_creador_de_contenido, id_artista)
-        # if error_no_es_dueno is not None:
-        #    return error_no_es_dueno, 403
+        error_no_es_dueno = ValidacionAlbum.validar_creador_de_contenido_es_dueno_de_album(usuario_actual.id_usuario,
+                                                                                           id_album)
+        if error_no_es_dueno is not None:
+            return error_no_es_dueno, 403
         album_a_validar = Album(nombre=self.argumentos['nombre'],
                                 anio_lanzamiento=self.argumentos['anio_lanzamiento'])
         errores_validaciones = ValidacionAlbum.validar_registro_album(album_a_validar)
@@ -120,3 +122,18 @@ class AlbumesPublicoControlador(Resource):
         for album in albumes_del_creador_de_contenido:
             lista_de_albumes.append(album.obtener_json())
         return lista_de_albumes
+
+
+class AlbumBuscarControlador(Resource):
+    def get(self, cadena_busqueda):
+        """
+        Se encarga de responder una peticion GET al buscar todos los álbumes que coincidan
+        con la cadena de busqueda
+        :param cadena_busqueda: La cadena de busqueda que se utlizara para filtrar los álbumes
+        """
+        albumes = Album.obtener_album_por_busqueda(cadena_busqueda)
+        albumes_diccionario = []
+        if len(albumes) > 0:
+            for album in albumes:
+                albumes_diccionario.append(album.obtener_json())
+        return albumes_diccionario

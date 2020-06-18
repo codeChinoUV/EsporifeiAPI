@@ -235,6 +235,56 @@ class Genero(base_de_datos.Model):
         self.creadores_de_contenido.remove(creador_de_contenido)
         base_de_datos.session.commit()
 
+    @staticmethod
+    def obtener_canciones_por_genero(id_genero, cantidad=10, pagina=1):
+        """
+        Obtiene las canciones del mismo genero
+        :param id_genero: El id del genero a recuperar
+        :param cantidad: La cantidad de canciones a recuperar
+        :param pagina: La pagina de los resultados
+        :return: Una lista de canciones
+        """
+        cantidad_total = cantidad * pagina
+        canciones_del_genero = Cancion.query.join(Cancion.generos).filter_by(id_genero=id_genero)\
+            .order_by(desc(Cancion.cantidad_de_reproducciones)).limit(cantidad_total).all()
+        if len(canciones_del_genero) > (cantidad * (pagina - 1)):
+            canciones_de_la_pagina = []
+            for i in range(cantidad):
+                posicion = i + (cantidad * (pagina - 1))
+                try:
+                    canciones_de_la_pagina.append(canciones_del_genero[posicion])
+                except IndexError:
+                    break
+            return canciones_de_la_pagina
+        else:
+            canciones = []
+            return canciones
+
+    @staticmethod
+    def obtener_cradores_de_contenido_por_genero(id_genero, cantidad=10, pagina=1):
+        """
+        Obtiene las creadores de contenido del mismo genero
+        :param id_genero: El id del genero a recuperar
+        :param cantidad: La cantidad de creadores de contenido a recuperar
+        :param pagina: La pagina de los resultados
+        :return: Una lista de creadores de contenido
+        """
+        cantidad_total = cantidad * pagina
+        creadores_de_cotenido_del_genero = CreadorDeContenido.query.join(CreadorDeContenido.generos)\
+            .filter_by(id_genero=id_genero).order_by(desc(CreadorDeContenido.nombre)).limit(cantidad_total).all()
+        if len(creadores_de_cotenido_del_genero) > (cantidad * (pagina - 1)):
+            creadores_de_contenido = []
+            for i in range(cantidad):
+                posicion = i + (cantidad * (pagina - 1))
+                try:
+                    creadores_de_contenido.append(creadores_de_cotenido_del_genero[posicion])
+                except IndexError:
+                    break
+            return creadores_de_contenido
+        else:
+            creadores_de_contenido = []
+            return creadores_de_contenido
+
 
 class Disquera(base_de_datos.Model):
     """
@@ -640,7 +690,7 @@ class Cancion(base_de_datos.Model):
                     if cancion not in radio_de_cancion:
                         radio_de_cancion.append(cancion)
             if len(radio_de_cancion) < total_canciones_a_recuperar:
-                canciones_a_recuperar = int((total_canciones_a_recuperar-len(radio_de_cancion))/2)
+                canciones_a_recuperar = int((total_canciones_a_recuperar - len(radio_de_cancion)) / 2)
                 canciones_mas_reproducidas = Cancion.obtener_canciones_mas_reproducidas(canciones_a_recuperar)
                 for cancion in canciones_mas_reproducidas:
                     if cancion not in radio_de_cancion:
@@ -694,7 +744,7 @@ class Cancion(base_de_datos.Model):
         """
         canciones_reproducidas_de_usuario = Cancion._obtener_canciones_de_historial_reproduccion_usuario(id_usuario)
         canciones_mas_reproducidas_para_usuario = []
-        canciones_del_genero = Cancion.query.join(Cancion.generos).filter_by(id_genero=id_genero).\
+        canciones_del_genero = Cancion.query.join(Cancion.generos).filter_by(id_genero=id_genero). \
             order_by(desc(Cancion.cantidad_de_reproducciones)).all()
         for cancion in canciones_del_genero:
             if cancion not in canciones_reproducidas_de_usuario:
@@ -714,7 +764,7 @@ class Cancion(base_de_datos.Model):
         """
         canciones_mas_reproducidas_para_usuario = []
         canciones_reproducidas_de_usuario = Cancion._obtener_canciones_de_historial_reproduccion_usuario(id_usuario)
-        canciones_del_genero = Cancion.query.join(Cancion.generos).filter_by(id_genero=id_genero).\
+        canciones_del_genero = Cancion.query.join(Cancion.generos).filter_by(id_genero=id_genero). \
             order_by(desc(Cancion.calificacion_promedio)).all()
         for cancion in canciones_del_genero:
             if cancion not in canciones_reproducidas_de_usuario:
