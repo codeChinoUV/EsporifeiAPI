@@ -1,3 +1,4 @@
+import datetime
 import os
 from functools import wraps
 
@@ -86,5 +87,6 @@ class LoginControlador(Resource):
         secret_key = obtener_secret_key()
         if secret_key is None:
             return {}, 500
-        token = jwt.encode({'id_usuario': usuario.id_usuario}, secret_key)
+        token = jwt.encode({'id_usuario': usuario.id_usuario,
+                            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60)}, secret_key)
         return jsonify({'token': token.decode('UTF-8')})
