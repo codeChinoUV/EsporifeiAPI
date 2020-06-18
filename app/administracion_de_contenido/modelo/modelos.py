@@ -260,6 +260,31 @@ class Genero(base_de_datos.Model):
             canciones = []
             return canciones
 
+    @staticmethod
+    def obtener_cradores_de_contenido_por_genero(id_genero, cantidad=10, pagina=1):
+        """
+        Obtiene las creadores de contenido del mismo genero
+        :param id_genero: El id del genero a recuperar
+        :param cantidad: La cantidad de creadores de contenido a recuperar
+        :param pagina: La pagina de los resultados
+        :return: Una lista de creadores de contenido
+        """
+        cantidad_total = cantidad * pagina
+        creadores_de_cotenido_del_genero = CreadorDeContenido.query.join(CreadorDeContenido.generos)\
+            .filter_by(id_genero=id_genero).order_by(desc(CreadorDeContenido.nombre)).limit(cantidad_total).all()
+        if len(creadores_de_cotenido_del_genero) > (cantidad * (pagina - 1)):
+            creadores_de_contenido = []
+            for i in range(cantidad):
+                posicion = i + (cantidad * (pagina - 1))
+                try:
+                    creadores_de_contenido.append(creadores_de_cotenido_del_genero[posicion])
+                except IndexError:
+                    break
+            return creadores_de_contenido
+        else:
+            creadores_de_contenido = []
+            return creadores_de_contenido
+
 
 class Disquera(base_de_datos.Model):
     """
