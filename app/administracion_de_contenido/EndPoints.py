@@ -17,6 +17,7 @@ from .controlador.v1.HistorialControlador import HistorialCancionControlador
 from .controlador.v1.ListaDeReproduccionControlador import ListasDeReproduccionControlador, \
     ListaDeReproduccionControlador, ListaDeReproduccionCanciones, ListaDeReproduccionCancion, \
     ListaDeReproduccionBuscarControlador
+from .controlador.v1.RadioControlador import RadioControlador
 
 api.add_resource(CreadorDeContenidoControlador, '/v1/creador-de-contenido')
 api.add_resource(CreadorDeContenidoPublicoControlador, '/v1/creadores-de-contenido/<int:id_creador_de_contenido>')
@@ -76,3 +77,6 @@ api.add_resource(HistorialCancionControlador, '/v1/historial-reproduccion/cancio
 # Biblioteca personal
 api.add_resource(BibliotecaPersonalCanciones, '/v1/biblioteca-personal/canciones')
 api.add_resource(BibliotecaPersonalCancionControlador, '/v1/biblioteca-personal/canciones/<int:id_cancion_personal>')
+
+# Radio
+api.add_resource(RadioControlador, '/v1/estacion-de-radio/<int:id_cancion>')
