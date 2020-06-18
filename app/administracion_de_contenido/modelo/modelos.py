@@ -601,6 +601,142 @@ class Cancion(base_de_datos.Model):
                 break
         return tiene_creador
 
+    @staticmethod
+    def obtener_estacion_de_readio_a_partir_de_cancion(id_usuario, id_cancion):
+        """
+        Crea una lista de reproduccion a partir de una cancion
+        :param id_usuario: El id del usuario que solicito la radio
+        :param id_cancion: El id de la cancion de la cual se generara la radio
+        :return: Una lista de canciones
+        """
+        canciones_reproducidas_a_recuperar = 10
+        total_canciones_a_recuperar = 30
+        cancion = Cancion.obtener_cancion_por_id(id_cancion)
+        cantidad_de_generos = len(cancion.generos)
+        radio_de_cancion = []
+        if cantidad_de_generos > 0:
+            canciones_reproducidas_a_obtener_por_genero = int(canciones_reproducidas_a_recuperar / cantidad_de_generos)
+            canciones_nuevas_obtener_por_genero = \
+                int(((total_canciones_a_recuperar - canciones_reproducidas_a_recuperar) / 2) / cantidad_de_generos)
+            for genero in cancion.generos:
+                canciones_reproducidas = \
+                    HistorialCancion.obtener_canciones_reproducidas_del_mismo_genero(genero.id_genero, id_usuario,
+                                                                                     canciones_reproducidas_a_obtener_por_genero)
+                for cancion in canciones_reproducidas:
+                    if cancion not in radio_de_cancion:
+                        radio_de_cancion.append(cancion)
+                canciones_mas_reproducidas = \
+                    Cancion.obtener_canciones_mas_reproducidas_por_genero_no_reproducida_por_usuario(id_usuario,
+                                                                                                     genero.id_genero,
+                                                                                                     canciones_nuevas_obtener_por_genero)
+                for cancion in canciones_mas_reproducidas:
+                    if cancion not in radio_de_cancion:
+                        radio_de_cancion.append(cancion)
+                canciones_mas_populares = \
+                    Cancion.obtener_canciones_mas_populares_por_genero_no_reproducida_por_usuario(id_usuario,
+                                                                                                  genero.id_genero,
+                                                                                                  canciones_nuevas_obtener_por_genero)
+                for cancion in canciones_mas_populares:
+                    if cancion not in radio_de_cancion:
+                        radio_de_cancion.append(cancion)
+            if len(radio_de_cancion) < total_canciones_a_recuperar:
+                canciones_a_recuperar = int((total_canciones_a_recuperar-len(radio_de_cancion))/2)
+                canciones_mas_reproducidas = Cancion.obtener_canciones_mas_reproducidas(canciones_a_recuperar)
+                for cancion in canciones_mas_reproducidas:
+                    if cancion not in radio_de_cancion:
+                        radio_de_cancion.append(cancion)
+                canciones_mejor_calificada = Cancion.obtener_canciones_mejor_puntaje(canciones_a_recuperar)
+                for cancion in canciones_mejor_calificada:
+                    if cancion not in radio_de_cancion:
+                        radio_de_cancion.append(cancion)
+        else:
+            cantidad_mejor_puntaje = 15
+            cantidad_mas_reproducidas = 15
+            canciones_mejor_puntaje = Cancion.obtener_canciones_mejor_puntaje(cantidad_mejor_puntaje)
+            for cancion in canciones_mejor_puntaje:
+                if cancion not in radio_de_cancion:
+                    radio_de_cancion.append(cancion)
+            canciones_mas_reproducidas = Cancion.obtener_canciones_mas_reproducidas(cantidad_mas_reproducidas)
+            for cancion in canciones_mas_reproducidas:
+                if cancion not in radio_de_cancion:
+                    radio_de_cancion.append(cancion)
+        return radio_de_cancion
+
+    @staticmethod
+    def obtener_canciones_mejor_puntaje(cantidad):
+        """
+        Recupera la cantidad indicada de canciones mas populares
+        :param cantidad: La cantidad de canciones a recuperar
+        :return: Una lista de canciones
+        """
+        canciones = Cancion.query.order_by(desc(Cancion.calificacion_promedio)).limit(cantidad).all()
+        return canciones
+
+    @staticmethod
+    def obtener_canciones_mas_reproducidas(cantidad):
+        """
+        Recupera las canciones mas reproducidas
+        :param cantidad: La cantidad de canciones a recuperar
+        :return: Una lista de canciones
+        """
+        canciones = Cancion.query.order_by(desc(Cancion.cantidad_de_reproducciones)).limit(cantidad).all()
+        return canciones
+
+    @staticmethod
+    def obtener_canciones_mas_reproducidas_por_genero_no_reproducida_por_usuario(id_usuario, id_genero, cantidad):
+        """
+        Recupera las canciones con mayor cantidad de reproducciones del genero indicado que el usuario no haya
+        reproducido
+        :param id_usuario: El id del usuario
+        :param id_genero: El id del genero
+        :param cantidad: La cantidad de canciones a recuperar
+        :return: Una lista de canciones
+        """
+        canciones_reproducidas_de_usuario = Cancion._obtener_canciones_de_historial_reproduccion_usuario(id_usuario)
+        canciones_mas_reproducidas_para_usuario = []
+        canciones_del_genero = Cancion.query.join(Cancion.generos).filter_by(id_genero=id_genero).\
+            order_by(desc(Cancion.cantidad_de_reproducciones)).all()
+        for cancion in canciones_del_genero:
+            if cancion not in canciones_reproducidas_de_usuario:
+                canciones_mas_reproducidas_para_usuario.append(cancion)
+            if len(canciones_mas_reproducidas_para_usuario) == cantidad:
+                break
+        return canciones_mas_reproducidas_para_usuario
+
+    @staticmethod
+    def obtener_canciones_mas_populares_por_genero_no_reproducida_por_usuario(id_usuario, id_genero, cantidad):
+        """
+        Recupera las canciones con las mejores calificaciones del genero indicado que el usuario no haya reproducido
+        :param id_usuario: El id del usuario
+        :param id_genero: El id del genero
+        :param cantidad: La cantidad de canciones a recuperar
+        :return: Una lista de canciones
+        """
+        canciones_mas_reproducidas_para_usuario = []
+        canciones_reproducidas_de_usuario = Cancion._obtener_canciones_de_historial_reproduccion_usuario(id_usuario)
+        canciones_del_genero = Cancion.query.join(Cancion.generos).filter_by(id_genero=id_genero).\
+            order_by(desc(Cancion.calificacion_promedio)).all()
+        for cancion in canciones_del_genero:
+            if cancion not in canciones_reproducidas_de_usuario:
+                canciones_mas_reproducidas_para_usuario.append(cancion)
+            if len(canciones_mas_reproducidas_para_usuario) == cantidad:
+                break
+        return canciones_mas_reproducidas_para_usuario
+
+    @staticmethod
+    def _obtener_canciones_de_historial_reproduccion_usuario(id_usuario):
+        """
+        Recupera las canciones del historial de reproduccion del usuario
+        :param id_usuario: El id del usuario a obtener sus canciones
+        :return: Una lista de canciones
+        """
+        canciones_reproducidas_de_usuario = []
+        historial_reproducciones_usuario = HistorialCancion.obtener_todas_las_canciones_reproducidas(id_usuario)
+        for historial_reproduccion_usuario in historial_reproducciones_usuario:
+            cancion = Cancion.obtener_cancion_por_id(historial_reproduccion_usuario.id_cancion)
+            canciones_reproducidas_de_usuario.append(cancion)
+        return canciones_reproducidas_de_usuario
+
 
 class Calificacion(base_de_datos.Model):
     id_usuario = base_de_datos.Column(base_de_datos.Integer, base_de_datos.ForeignKey('usuario.id_usuario'),
@@ -903,6 +1039,39 @@ class HistorialCancion(base_de_datos.Model):
                 except IndexError:
                     break
         return lista_de_canciones
+
+    @staticmethod
+    def obtener_todas_las_canciones_reproducidas(id_usuario):
+        """
+        Recupera toda el historial de reproducciones del usuario
+        :param id_usuario: El id del usuario a recuperar su historial
+        :return: Una lista de HistorialCancion
+        """
+        historial_reproducciones = HistorialCancion.query.filter_by(id_usuario=id_usuario).all()
+        return historial_reproducciones
+
+    @staticmethod
+    def obtener_canciones_reproducidas_del_mismo_genero(id_genero, id_usuario, cantidad_de_canciones):
+        """
+        Recupera hasta 10 canciones del mismo genero que haya reproducido el usuario
+        :param id_genero: El id del genero del cual se van a reproducir las canciones
+        :param id_usuario: El id del usuario del que se van a recuperar el usuario
+        :param cantidad_de_canciones: La cantidad de canciones a recuperar
+        :return: Una lista de canciones
+        """
+        canciones_recuperadas = 0
+        canciones_reproducidas = []
+        historial_canciones = HistorialCancion.obtener_todas_las_canciones_reproducidas(id_usuario)
+        for historial_cancion in historial_canciones:
+            cancion = Cancion.obtener_cancion_por_id(historial_cancion.id_cancion)
+            for genero in cancion.generos:
+                if genero.id_genero == id_genero:
+                    if cancion not in canciones_reproducidas:
+                        canciones_reproducidas.append(cancion)
+                        canciones_recuperadas += 1
+            if canciones_recuperadas == cantidad_de_canciones:
+                break
+        return canciones_reproducidas
 
 
 class CancionPersonal(base_de_datos.Model):
