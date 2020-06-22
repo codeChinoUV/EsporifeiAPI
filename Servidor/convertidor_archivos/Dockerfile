@@ -10,5 +10,5 @@ RUN apt-get update
 RUN apt-get upgrade -y
 
 EXPOSE 5002
-CMD["python", "ConvertidorDeArchivosServer.py"]
-CMD["tail", "-f", "EspotifeiConvertidorDeArchivos.log"]
+CMD ["python", "ConvertidorDeArchivosServer.py"]
+CMD ["tail", "-f", "EspotifeiConvertidorDeArchivos.log"]
