@@ -1,5 +1,7 @@
 import hashlib
 import pathlib
+from threading import Thread
+
 from pydub import AudioSegment
 from os import remove
 
@@ -54,9 +56,11 @@ class ConvertidorDeCanciones:
         """
         cancion = AudioSegment.from_file(self.ubicacion_fichero, channels=2)
         ruta_cancion = str(self.id_cancion) + calidad + "." + ConvertidorDeCanciones.FORMATO_MP3
-        cancion.export(ruta_cancion,
-                       format=ConvertidorDeCanciones.FORMATO_MP3,
-                       bitrate=calidad)
+        thread_convertir_cancion = Thread(target=cancion.export, args=(ruta_cancion, ConvertidorDeCanciones.FORMATO_MP3
+                                                                       , None, calidad))
+        thread_convertir_cancion.start()
+        thread_convertir_cancion.join()
+        #cancion.export(ruta_cancion, ConvertidorDeCanciones.FORMATO_MP3, None, calidad)
         return ruta_cancion
 
     def escribir_fichero(self, id_cancion, extension, arreglo_de_bytes):
