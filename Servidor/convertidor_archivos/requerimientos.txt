@@ -1,2 +1,2 @@
 grpcio-tools==1.29.0
-pydub==0.24.1
+pydub==0.23.1
