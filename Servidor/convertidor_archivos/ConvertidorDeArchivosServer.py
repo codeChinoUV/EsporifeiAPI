@@ -127,6 +127,7 @@ def serve(puerto):
                                                                                 server)
     try:
         server.add_insecure_port('[::]:' + str(puerto))
+        server.add_insecure_port('0.0.0.0:' + str(puerto))
         server.start()
         logger.info("Se ha iniciado el servidor en el puerto: " + str(puerto))
         server.wait_for_termination()
