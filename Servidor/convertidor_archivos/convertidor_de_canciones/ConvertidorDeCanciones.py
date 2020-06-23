@@ -26,6 +26,7 @@ class ConvertidorDeCanciones:
         Convierte la cancion original a mp3 a 320kbs
         :return: El lugar en donde se guardo el archivo
         """
+        self.logger.info("Se empezo a convertir la cancion con el id " + str(self.id_cancion) + " a mp3 calidad alta")
         self.ubicacion_fichero_calidad_alta = self._convetir_cancion(ConvertidorDeCanciones.CALIDAD_ALTA)
         self.logger.info("Se convirtio la cancion con el id " + str(self.id_cancion) + " a mp3 en calidad alta")
         return self.ubicacion_fichero_calidad_alta
@@ -35,6 +36,7 @@ class ConvertidorDeCanciones:
         Convierte la cancion original a mp3 a 256kbs
         :return: El lugar en donde se guardo el archivo
         """
+        self.logger.info("Se empezo a convertir la cancion con el id " + str(self.id_cancion) + " a mp3 calidad media")
         self.ubicacion_fichero_calidad_media = self._convetir_cancion(ConvertidorDeCanciones.CALIDAD_MEDIA)
         self.logger.info("Se convirtio la cancion con el id " + str(self.id_cancion) + " a mp3 en calidad media")
         return self.ubicacion_fichero_calidad_media
@@ -44,6 +46,7 @@ class ConvertidorDeCanciones:
         Convierte la cancion original a mp3 a 128kbs
         :return: El lugar en donde se guardo el archivo
         """
+        self.logger.info("Se empezo a convertir la cancion con el id " + str(self.id_cancion) + " a mp3 calidad baja")
         self.ubicacion_fichero_calidad_baja = self._convetir_cancion(ConvertidorDeCanciones.CALIDAD_BAJA)
         self.logger.info("Se convirtio la cancion con el id " + str(self.id_cancion) + " a mp3 en calidad baja")
         return self.ubicacion_fichero_calidad_baja
@@ -54,14 +57,13 @@ class ConvertidorDeCanciones:
         :param calidad: La calidad la cual tendra el archivo convertido
         :return: La ubicacion en donde se guardo el archivo
         """
-        cancion = AudioSegment.from_file(self.ubicacion_fichero, channels=2)
-        ruta_cancion = str(self.id_cancion) + calidad + "." + ConvertidorDeCanciones.FORMATO_MP3
-        thread_convertir_cancion = Thread(target=cancion.export, args=(ruta_cancion, ConvertidorDeCanciones.FORMATO_MP3
-                                                                       , None, calidad))
-        thread_convertir_cancion.start()
-        thread_convertir_cancion.join()
-        #cancion.export(ruta_cancion, ConvertidorDeCanciones.FORMATO_MP3, None, calidad)
-        return ruta_cancion
+        try:
+            cancion = AudioSegment.from_file(self.ubicacion_fichero, channels=2)
+            ruta_cancion = str(self.id_cancion) + calidad + "." + ConvertidorDeCanciones.FORMATO_MP3
+            cancion.export(ruta_cancion, format=ConvertidorDeCanciones.FORMATO_MP3, bitrate=calidad)
+            return ruta_cancion
+        except Exception as ex:
+            self.logger.info("excepcion: " + str(ex))
 
     def escribir_fichero(self, id_cancion, extension, arreglo_de_bytes):
         """
@@ -71,15 +73,18 @@ class ConvertidorDeCanciones:
         :param arreglo_de_bytes: Los bytes que contiene el archivo
         :return: La ubicacion en donde se guardo el achivo
         """
+        self.id_cancion = int(id_cancion)
         self.ubicacion_fichero = '/tmp/' + str(id_cancion) + '.' + extension
         archivo = pathlib.Path(self.ubicacion_fichero)
         try:
             if not archivo.is_file():
                 with open(self.ubicacion_fichero, 'wb') as f:
                     f.write(arreglo_de_bytes)
+                    f.close()
             else:
                 with open(self.ubicacion_fichero, 'ab') as f:
                     f.write(arreglo_de_bytes)
+                    f.close()
         except Exception as ex:
             print(ex)
 
@@ -93,6 +98,7 @@ class ConvertidorDeCanciones:
         try:
             with open(ruta, mode='rb') as archivo:
                 cancion = archivo.read()
+                archivo.close()
             return cancion
         except FileNotFoundError:
             return None

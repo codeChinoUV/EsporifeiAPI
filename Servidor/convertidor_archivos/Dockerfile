@@ -1,8 +1,8 @@
 FROM python:3
-WORKDIR /usr/src/app
 COPY ConvertidorDeArchivosServer.py .
 ADD requerimientos.txt .
 RUN mkdir protos convertidor_de_canciones
+RUN mkdir canciones
 COPY protos/ConvertidorDeArchivos.proto ./protos
 COPY convertidor_de_canciones/__init__.py ./convertidor_de_canciones
 COPY convertidor_de_canciones/ConvertidorDeCanciones.py ./convertidor_de_canciones

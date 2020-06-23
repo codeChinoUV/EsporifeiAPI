@@ -164,10 +164,14 @@ def configurar_logger():
     """
     logger_local = logging.getLogger('logger')
     logger_local.setLevel(logging.DEBUG)
+    console_handler = logging.StreamHandler()
     fh = logging.FileHandler('EspotifeiConvertidorDeArchivos.log')
+    console_handler.setLevel(logging.INFO)
+    console_handler.setFormatter(verbose_formatter())
     fh.setLevel(logging.INFO)
     fh.setFormatter(verbose_formatter())
     logger_local.addHandler(fh)
+    logger_local.addHandler(console_handler)
     return logger_local
 
 
