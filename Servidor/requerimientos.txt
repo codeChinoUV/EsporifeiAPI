@@ -6,3 +6,4 @@ wheel
 psycopg2
 Flask-JWT
 phonenumbers
+pymongo==2.8

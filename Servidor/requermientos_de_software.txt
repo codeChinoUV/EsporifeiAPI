@@ -4,3 +4,21 @@ python3-pip
 postgresql
 postgresql-contrib
 libpq-dev
+
+
+# Añadir repositorio de mongodb
+# Añadir la clave del repositorio
+wget -qO - https://www.mongodb.org/static/pgp/server-4.2.asc | sudo apt-key add -
+# Añadir el repositorio de MongoDB
+echo "deb http://repo.mongodb.org/apt/debian buster/mongodb-org/4.2 main" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.2.list
+# Actualizar los repositorios
+sudo apt-get update
+# Instalar mongo
+sudo apt-get install -y mongodb-org
+# Crear las carpetas en donde mongo guarda su informacion
+sudo mkdir -p /data/db
+sudo chmod 777 /data/db
+# Inicar mongo
+sudo systemctl start mongod
+# Iniciar mongo cada vez que se reinicie
+sudo systemctl enable mongod
