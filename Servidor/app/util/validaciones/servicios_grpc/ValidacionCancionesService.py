@@ -1,3 +1,6 @@
+import threading
+from concurrent.futures import thread
+
 from app.util.validaciones.modelos.ValidacionCancion import ValidacionCancion
 from app.util.validaciones.modelos.ValidacionCancionPersonal import ValidacionCancionPersonal
 import app.manejo_de_archivos.protos.ManejadorDeArchivos_pb2 as ManejadorDeArchivos_pb2
@@ -5,6 +8,10 @@ from app.manejo_de_usuarios.controlador.v1.LoginControlador import LoginControla
 from app.administracion_de_contenido.modelo.modelos import CreadorDeContenido
 
 from app.util.validaciones.servicios_grpc.ValidacionServiciosGrpc import ValidacionServiciosGrpc
+
+from app.manejo_de_archivos.controlador.AdministradorDeArchivos import AdministradorDeArchivos
+
+from Servidor.app.manejo_de_archivos.controlador.ManejadorCanciones import ManejadorCanciones
 
 
 class ValidacionCancionesService:
@@ -48,6 +55,25 @@ class ValidacionCancionesService:
             error.error = es_dueno['error']
             error.mensaje = es_dueno['mensaje']
             return error
+
+    @staticmethod
+    def _validar_existe_cancion(id_cancion, calidad):
+        existe_cancion = AdministradorDeArchivos.validar_existe_cancion_original(id_cancion)
+        if not existe_cancion:
+            error_no_existe_cancion = ManejadorDeArchivos_pb2.ErrorGeneral()
+            error_no_existe_cancion.error = "cancion_no_existe"
+            error_no_existe_cancion.mensaje = "La cancion no se encuentra registrada"
+            return error_no_existe_cancion
+        existe_archivo_cancion = AdministradorDeArchivos.validar_existe_archivo_cancion_original(id_cancion)
+        if not existe_archivo_cancion:
+            error_no_existe_cancion = ManejadorDeArchivos_pb2.ErrorGeneral()
+            error_no_existe_cancion.error = "cancion_no_existe"
+            error_no_existe_cancion.mensaje = "La cancion se encuentra registrada, pero no existe el archivo"
+            return error_no_existe_cancion
+        existe_cancion_calidad = AdministradorDeArchivos.validar_existe_cancion(id_cancion, calidad)
+        if not existe_cancion_calidad:
+            hilo_reconvertidor = threading.Thread(target=ManejadorCanciones.reconvertir_cancion, args=id_cancion)
+            # Falta colocar el error y retornarlo
 
     @staticmethod
     def validar_agregar_cancion(token, id_cancion):
