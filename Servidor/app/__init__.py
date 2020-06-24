@@ -44,7 +44,7 @@ def configure_logging(app):
         handlers.append(console_handler)
     elif app.config['APP_ENV'] == app.config['APP_ENV_PRODUCTION']:
         console_handler.setLevel(logging.INFO)
-        logging.basicConfig(filename='error.log', level=logging.DEBUG)
+        logging.basicConfig(filename='EspotifeiRESTAPI.log', level=logging.DEBUG)
     for log in loggers:
         for handler in handlers:
             log.addHandler(handler)
