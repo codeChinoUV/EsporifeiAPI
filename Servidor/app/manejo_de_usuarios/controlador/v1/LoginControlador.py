@@ -59,7 +59,6 @@ def solo_creador_de_contenido(f):
 
     return decorador
 
-
 class LoginControlador(Resource):
 
     def get(self):
@@ -90,3 +89,14 @@ class LoginControlador(Resource):
         token = jwt.encode({'id_usuario': usuario.id_usuario,
                             'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60)}, secret_key)
         return jsonify({'token': token.decode('UTF-8')})
+
+    @staticmethod
+    def token_requerido_grpc(token):
+        if token is not None:
+            try:
+                secret_key = obtener_secret_key()
+                datos = jwt.decode(token, secret_key)
+                usuario_actual = Usuario.obtener_usuario_por_id(datos['id_usuario'])
+                return usuario_actual
+            except:
+                return None
