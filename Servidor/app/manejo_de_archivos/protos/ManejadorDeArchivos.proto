@@ -1,0 +1,97 @@
+syntax = "proto3";
+
+package manejador_de_archivos;
+
+message ErrorGeneral {
+  string error = 1;
+  string mensaje = 2;
+}
+
+enum Calidad {
+  ALTA = 0;
+  MEDIA = 1;
+  BAJA = 2;
+}
+
+enum FormatoAudio {
+  MP3 = 0;
+  M4A = 1;
+  FLAC = 2;
+}
+
+enum FormatoImagen {
+  JPG = 0;
+  PNG = 1;
+}
+
+message InformacionCancion {
+  int32 idCancion = 1;
+  string sha256 = 2;
+  FormatoAudio formatoCancion = 3;
+}
+
+message SolicitudSubirCancion {
+  string token_autenticacion =1;
+  InformacionCancion informacionCancion = 2;
+  bytes data = 3;
+}
+
+message RespuestaSolicitudSubirArchivo {
+  ErrorGeneral error = 1;
+}
+
+message InformacionPortada {
+  int32 idElementoDePortada = 1;
+  string sha256 = 2;
+  FormatoImagen formatoImagen = 3;
+}
+
+message SolicitudSubirPortada{
+  string token_autenticacion =1;
+  InformacionCancion informacionPortada = 2;
+  bytes data = 3;
+}
+
+message SolicitudObtenerCancion {
+  string token_autenticacion =1;
+  int32 idCancion = 2;
+  Calidad calidadCancionARecuperar = 3;
+}
+
+message SolicitudObtenerPortada {
+  string token_autenticacion =1;
+  int32 idElementoDePortada = 2;
+  Calidad calidadPortadaARecuperar = 3;
+}
+
+message RespuestaObtenerCancion {
+  ErrorGeneral error = 1;
+  bytes data = 2;
+  FormatoAudio formatoCancion = 3;
+  string sha256 = 4;
+}
+
+message RespuestaObtenerPortada {
+  ErrorGeneral error = 1;
+  bytes data = 2;
+  FormatoImagen formatoPortada = 3;
+  string sha256 = 4;
+}
+
+service Canciones {
+  rpc SubirCancionPersonal(stream SolicitudSubirCancion) returns (RespuestaSolicitudSubirArchivo) {}
+  rpc SubirCancion(stream SolicitudSubirCancion) returns (RespuestaSolicitudSubirArchivo) {}
+  rpc ObtenerCancion(SolicitudObtenerCancion) returns (stream RespuestaObtenerCancion) {}
+  rpc ObtenerCancionPersonal(SolicitudObtenerCancion) returns (stream RespuestaObtenerCancion) {}
+}
+
+service Portadas {
+  rpc SubirPortadaAlbum(stream SolicitudSubirPortada) returns (RespuestaSolicitudSubirArchivo) {}
+  rpc SubirPortadaCreadorDeContenido(stream SolicitudSubirPortada) returns (RespuestaSolicitudSubirArchivo) {}
+  rpc SubirPortadaUsuario(stream SolicitudSubirPortada) returns (RespuestaSolicitudSubirArchivo) {}
+  rpc SubirPortadaListaDeReproduccion(stream SolicitudSubirPortada) returns (RespuestaSolicitudSubirArchivo) {}
+  rpc ObtenerPortadaAlbum(SolicitudObtenerPortada) returns (stream RespuestaObtenerPortada) {}
+  rpc ObtenerPortadaCreadorDeContenido(SolicitudObtenerPortada) returns (stream RespuestaObtenerPortada) {}
+  rpc ObtenerPortadaUsuario(SolicitudObtenerPortada) returns (stream RespuestaObtenerPortada) {}
+  rpc ObtenerPortadaListaDeReproduccion(SolicitudObtenerPortada) returns (stream RespuestaObtenerPortada) {}
+}
