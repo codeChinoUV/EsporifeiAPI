@@ -9,6 +9,7 @@ class Calidad(Enum):
     ALTA = 1
     MEDIA = 2
     BAJA = 3
+    ORIGINAL = 4
 
 class FormatoImagen(Enum):
     PNG = "png"
