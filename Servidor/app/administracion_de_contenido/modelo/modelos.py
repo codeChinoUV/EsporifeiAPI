@@ -1138,7 +1138,7 @@ class CancionPersonal(base_de_datos.Model):
     id_cancion_personal = base_de_datos.Column(base_de_datos.Integer, primary_key=True)
     nombre = base_de_datos.Column(base_de_datos.String(70), nullable=False)
     artistas = base_de_datos.Column(base_de_datos.String(100), nullable=False)
-    duracion_en_segundos = base_de_datos.Column(base_de_datos.Integer, default=0)
+    duracion_en_segundos = base_de_datos.Column(base_de_datos.Float, default=0)
     album = base_de_datos.Column(base_de_datos.String(70))
     id_usuario = base_de_datos.Column(base_de_datos.Integer, base_de_datos.ForeignKey('usuario.id_usuario'),
                                       nullable=False)
@@ -1167,6 +1167,15 @@ class CancionPersonal(base_de_datos.Model):
         diccionario = {'id': self.id_cancion_personal, 'nombre': self.nombre, 'artistas': self.artistas,
                        'album': self.album}
         return diccionario
+
+    def modificar_duracion(self, duracion):
+        """
+        Modifica la duracion en segundos de la cancion
+        :param duracion: La duracion en segundos de la cancion
+        :return: None
+        """
+        self.duracion_en_segundos = duracion
+        base_de_datos.session.commit()
 
     @staticmethod
     def obtener_cantidad_de_canciones(id_usuario):
