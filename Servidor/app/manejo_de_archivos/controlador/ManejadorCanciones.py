@@ -1,5 +1,6 @@
 import hashlib
 import pathlib
+import threading
 import time
 
 import app.manejo_de_archivos.protos.ManejadorDeArchivos_pb2 as ManejadorDeArchivos_pb2
@@ -12,13 +13,52 @@ from Servidor.app.administracion_de_contenido.modelo.modelos import Cancion, Can
 from Servidor.app.manejo_de_archivos.Cliente import ConvertidorDeArchivosCliente
 from Servidor.app.manejo_de_archivos.controlador.ManejadorDeArchivos import ManejadorDeArchivos
 from Servidor.app.manejo_de_archivos.modelo.enums.enums import FormatoAudio
+from pydub import AudioSegment
 
 
 class ManejadorCanciones:
 
     @staticmethod
-    def guardar_cancion(informacion_cancion, bytes_de_la_cancion):
-        pass
+    def guardar_cancion(bytes_de_la_cancion, id_cancion, formato, hash256):
+        """
+        Crea el archivo de la cancion y un ArchivoAudio con la informacion de la canciion
+        :param bytes_de_la_cancion: Los bytes de la cancion a guardar
+        :param id_cancion: El id de la cancion a la cual pertenecera la cancion
+        :param formato: El formato de la cancion
+        :param hash256: El hash256 de la cancion
+        :return: None
+        """
+        if formato == ManejadorDeArchivos_pb2.FormatoAudio.MP3:
+            formato = FormatoAudio.MP3
+        elif formato == ManejadorDeArchivos_pb2.FormatoAudio.FLAC:
+            formato = FormatoAudio.FLAC
+        elif formato == ManejadorDeArchivos_pb2.M4A:
+            formato = FormatoAudio.M4A
+        tamano = len(bytes_de_la_cancion)
+        cancion = Cancion.obtener_cancion_por_id(id_cancion)
+        ruta = ManejadorDeArchivos.guardar_cancion(id_cancion, Calidad.ORIGINAL, formato, bytes_de_la_cancion)
+        ManejadorCanciones._colocar_metadata_cancion(cancion, ruta)
+        cancion.modificar_duracion(ManejadorCanciones._obtener_duracion_cancion(ruta))
+        archivo_de_audio = ArchivoAudio.obtener_archivo_audio_cancion(id_cancion, Calidad.ORIGINAL)
+        if archivo_de_audio is None:
+            archivo_audio = ArchivoAudio(Calidad.ORIGINAL, formato, ruta, hash256, tamano, id_cancion=id_cancion,
+                                         es_original=True)
+            archivo_audio.guardar()
+        else:
+            archivo_de_audio.editar_archivo_audio(es_original=True, formato=formato, ruta=ruta, hash256=hash256,
+                                                  tamano=tamano)
+        thread_convertir_canciones = threading.Thread(target=ManejadorCanciones.convertir_cancion_mp3_todas_calidades,
+                                                      args=id_cancion).start()
+
+    @staticmethod
+    def _obtener_duracion_cancion(ruta):
+        """
+        Obtiene la duracion en segundos de un archivo
+        :param ruta: La ruta en donde se encuentra el archivo
+        :return: Un flotante con la duracion en segundos
+        """
+        cancion = AudioSegment.from_file(ruta, channels=2)
+        return cancion.duration_seconds
 
     @staticmethod
     def obtener_sha256_de_byte_array(array_de_bytes):
@@ -101,7 +141,7 @@ class ManejadorCanciones:
         return archivo.is_file()
 
     @staticmethod
-    def reconvertir_cancion(id_cancion):
+    def convertir_cancion_mp3_todas_calidades(id_cancion):
         """
         Se encarga de reconvertir la cancion con el id cancion a mp3 en todas sus calidades
         :param id_cancion: El id de la cancion a reconvertir
@@ -195,6 +235,38 @@ class ManejadorCanciones:
             cancion_calidad.guardar()
 
     @staticmethod
+    def guardar_cancion_personal(bytes_de_la_cancion, id_cancion, formato, hash256):
+        """
+        Crea el archivo de la cancion personal y un ArchivoAudio con la informacion de la cancion personal
+        :param bytes_de_la_cancion: Los bytes de la cancion a guardar
+        :param id_cancion: El id de la cancion a la cual pertenecera la cancion
+        :param formato: El formato de la cancion
+        :param hash256: El hash256 de la cancion
+        :return: None
+        """
+        if formato == ManejadorDeArchivos_pb2.FormatoAudio.MP3:
+            formato = FormatoAudio.MP3
+        elif formato == ManejadorDeArchivos_pb2.FormatoAudio.FLAC:
+            formato = FormatoAudio.FLAC
+        elif formato == ManejadorDeArchivos_pb2.M4A:
+            formato = FormatoAudio.M4A
+        tamano = len(bytes_de_la_cancion)
+        cancion_personal = CancionPersonal.obtener_cancion_por_id(id_cancion)
+        ruta = ManejadorDeArchivos.guardar_cancion_personal(id_cancion, Calidad.ORIGINAL, formato, bytes_de_la_cancion)
+        ManejadorCanciones._colocar_metadata_cancion_personal(cancion_personal, ruta)
+        cancion_personal.modificar_duracion(ManejadorCanciones._obtener_duracion_cancion(ruta))
+        archivo_de_audio = ArchivoAudio.obtener_archivo_audio_cancion_personal(id_cancion, Calidad.ORIGINAL)
+        if archivo_de_audio is None:
+            archivo_audio = ArchivoAudio(Calidad.ORIGINAL, formato, ruta, hash256, tamano,
+                                         id_cancion_personal=id_cancion, es_original=True)
+            archivo_audio.guardar()
+        else:
+            archivo_de_audio.editar_archivo_audio(es_original=True, formato=formato, ruta=ruta, hash256=hash256,
+                                                  tamano=tamano)
+        hilo_convertidorr_canciones = threading.Thread(
+            target=ManejadorCanciones.convertir_cancion_personal_mp3_todas_calidades, args=id_cancion).start()
+
+    @staticmethod
     def validar_existe_cancion_personal_original(id_cancion):
         """
         Se encarga de validar si existe el ArchivoAudio con el id_cancion_personal
@@ -255,7 +327,7 @@ class ManejadorCanciones:
         return existe_archivo
 
     @staticmethod
-    def reconvertir_cancion_personal(id_cancion):
+    def convertir_cancion_personal_mp3_todas_calidades(id_cancion):
         """
         Reconvierte una cancion personal a mp3 en todas las calidades
         :param id_cancion: El id de la cancion personal a reconvertir el archivo a todas sus calidades
@@ -280,9 +352,9 @@ class ManejadorCanciones:
     @staticmethod
     def _colocar_metadata_cancion_personal(cancion_personal, ruta):
         """
-        Coloca la informacion de la cancion al archivo
-        :param ruta: La ruta en donde se encuentra el archivo de la cancion
-        :param cancion: La cancion con la informacion de la cancion
+        Coloca la informacion de la cancion personal al archivo
+        :param ruta: La ruta en donde se encuentra el archivo de la cancion personal
+        :param cancion_personal: La cancion personal con la informacion de la cancion
         :return: None
         """
         archivo_de_audio = eyed3.load(ruta)
