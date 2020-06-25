@@ -103,7 +103,7 @@ class ValidacionCancionesService:
         existe_cancion_calidad = ManejadorCanciones.validar_existe_cancion(id_cancion, calidad)
         existe_archivo_cancion_calidad = ManejadorCanciones.validar_existe_archivo_cancion(id_cancion, calidad)
         if not existe_cancion_calidad or not existe_archivo_cancion_calidad:
-            hilo_reconvertidor = threading.Thread(target=ManejadorCanciones.reconvertir_cancion, args=id_cancion)
+            hilo_reconvertidor = threading.Thread(target=ManejadorCanciones.convertir_cancion_mp3_todas_calidades, args=id_cancion)
             hilo_reconvertidor.start()
             error_no_disponible = ManejadorDeArchivos_pb2.ErrorGeneral()
             error_no_disponible.error = "cancion_no_disponible"
@@ -137,7 +137,7 @@ class ValidacionCancionesService:
         existe_archivo_cancion_personal_calidad = ManejadorCanciones.validar_existe_archivo_cancion_personal(id_cancion,
                                                                                                              calidad)
         if not existe_cancion_personal_calidad or not existe_archivo_cancion_personal_calidad:
-            hilo_reconvertidor = threading.Thread(target=ManejadorCanciones.reconvertir_cancion_personal,
+            hilo_reconvertidor = threading.Thread(target=ManejadorCanciones.convertir_cancion_personal_mp3_todas_calidades,
                                                   args=id_cancion)
             hilo_reconvertidor.start()
             error_no_disponible = ManejadorDeArchivos_pb2.ErrorGeneral()
