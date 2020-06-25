@@ -611,6 +611,16 @@ class Cancion(base_de_datos.Model):
                 break
         return tiene_genero
 
+    def modificar_duracion_total(self, duracion_total):
+        """
+        Modifica la duracion de la cancion y actualiza la duracion total del album
+        :param duracion_total: La duracion en segundos de la cancion
+        :return: None
+        """
+        self.duracion_en_segundos = duracion_total
+        self.album.duracion_total_segundos += duracion_total
+        base_de_datos.session.commit()
+
     @staticmethod
     def obtener_canciones_por_busqueda(cadena_busqueda, cantidad=10, pagina=1):
         """
