@@ -611,7 +611,7 @@ class Cancion(base_de_datos.Model):
                 break
         return tiene_genero
 
-    def modificar_duracion_total(self, duracion_total):
+    def modificar_duracion(self, duracion_total):
         """
         Modifica la duracion de la cancion y actualiza la duracion total del album
         :param duracion_total: La duracion en segundos de la cancion
