@@ -9,3 +9,4 @@ phonenumbers
 pymongo==2.8
 grpcio-tools==1.29.0
 eyeD3==0.9.5
+pydub==0.24.1

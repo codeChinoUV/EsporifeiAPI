@@ -1,9 +1,9 @@
 import hashlib
 import pathlib
-from threading import Thread
 
 from pydub import AudioSegment
 from os import remove
+
 
 class ConvertidorDeCanciones:
     CALIDAD_ALTA = "320k"
