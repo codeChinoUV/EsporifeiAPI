@@ -13,6 +13,8 @@ class ManejadorDeArchivos:
         return ruta_cancion
 
     @staticmethod
+
+    @staticmethod
     def crear_ruta_cancion(id_cancion, calidad):
         carpeta = "/canciones/" + str(id_cancion) + "/"
         if calidad == Calidad.ALTA:
