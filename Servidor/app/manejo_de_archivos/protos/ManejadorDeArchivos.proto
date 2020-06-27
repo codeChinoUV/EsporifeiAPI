@@ -31,7 +31,7 @@ message InformacionCancion {
 }
 
 message SolicitudSubirCancion {
-  string token_autenticacion =1;
+  string token_autenticacion = 1;
   InformacionCancion informacionCancion = 2;
   bytes data = 3;
 }
@@ -47,19 +47,19 @@ message InformacionPortada {
 }
 
 message SolicitudSubirPortada{
-  string token_autenticacion =1;
+  string token_autenticacion = 1;
   InformacionCancion informacionPortada = 2;
   bytes data = 3;
 }
 
 message SolicitudObtenerCancion {
-  string token_autenticacion =1;
+  string token_autenticacion = 1;
   int32 idCancion = 2;
   Calidad calidadCancionARecuperar = 3;
 }
 
 message SolicitudObtenerPortada {
-  string token_autenticacion =1;
+  string token_autenticacion = 1;
   int32 idElementoDePortada = 2;
   Calidad calidadPortadaARecuperar = 3;
 }
@@ -68,14 +68,12 @@ message RespuestaObtenerCancion {
   ErrorGeneral error = 1;
   bytes data = 2;
   FormatoAudio formatoCancion = 3;
-  string sha256 = 4;
 }
 
 message RespuestaObtenerPortada {
   ErrorGeneral error = 1;
   bytes data = 2;
   FormatoImagen formatoPortada = 3;
-  string sha256 = 4;
 }
 
 service Canciones {
