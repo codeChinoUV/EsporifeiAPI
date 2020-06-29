@@ -2,9 +2,38 @@ syntax = "proto3";
 
 package manejador_de_archivos;
 
-message ErrorGeneral {
-  string error = 1;
-  string mensaje = 2;
+enum ErrorSeguridad {
+  HASH_NO_COINCIDE = 0;
+}
+
+enum ErrorAutenticacion {
+  TOKEN_INVALIDO = 0;
+  TOKEN_FALTANTE = 1;
+}
+
+enum ErrorOperacionNoPermitida {
+  USUARIO_NO_ES_DUENO_DEL_RECURSO = 0;
+  OPERACION_NO_PERMITIDA = 1;
+}
+
+enum ErrorRecursoInexistente {
+  CANCION_INEXISTENTE = 0;
+  CANCION_PERSONAL_INEXISTENTE = 1;
+
+}
+
+enum ErrorInterno {
+  CANCION_NO_DISPONIBLE = 0;
+  CANCION_PERSONAL_NO_DISPONIBLE = 1;
+  DESCONOCIDO = 2;
+}
+
+message Error {
+  ErrorAutenticacion errorAunteticacion = 1;
+  ErrorOperacionNoPermitida errorOperacionNoPermitida = 2;
+  ErrorRecursoInexistente errorRecursoInexistente = 3;
+  ErrorInterno errorInterno = 4;
+  ErrorSeguridad errorSeguridad = 5;
 }
 
 enum Calidad {
@@ -37,7 +66,7 @@ message SolicitudSubirCancion {
 }
 
 message RespuestaSolicitudSubirArchivo {
-  ErrorGeneral error = 1;
+  Error error = 1;
 }
 
 message InformacionPortada {
@@ -65,13 +94,13 @@ message SolicitudObtenerPortada {
 }
 
 message RespuestaObtenerCancion {
-  ErrorGeneral error = 1;
+  Error error = 1;
   bytes data = 2;
   FormatoAudio formatoCancion = 3;
 }
 
 message RespuestaObtenerPortada {
-  ErrorGeneral error = 1;
+  Error error = 1;
   bytes data = 2;
   FormatoImagen formatoPortada = 3;
 }
