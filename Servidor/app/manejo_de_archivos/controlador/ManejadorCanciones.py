@@ -9,10 +9,10 @@ import eyed3
 from app.manejo_de_archivos.modelo.enums.enums import Calidad
 from app.manejo_de_archivos.modelo.modelos import ArchivoAudio
 
-from Servidor.app.administracion_de_contenido.modelo.modelos import Cancion, CancionPersonal
-from Servidor.app.manejo_de_archivos.Cliente import ConvertidorDeArchivosCliente
-from Servidor.app.manejo_de_archivos.controlador.ManejadorDeArchivos import ManejadorDeArchivos
-from Servidor.app.manejo_de_archivos.modelo.enums.enums import FormatoAudio
+from app.administracion_de_contenido.modelo.modelos import Cancion, CancionPersonal
+from app.manejo_de_archivos.Cliente import ConvertidorDeArchivosCliente
+from app.manejo_de_archivos.controlador.ManejadorDeArchivos import ManejadorDeArchivos
+from app.manejo_de_archivos.modelo.enums.enums import FormatoAudio
 from pydub import AudioSegment
 
 
@@ -417,3 +417,41 @@ class ManejadorCanciones:
             cancion_calidad = ArchivoAudio(calidad, FormatoAudio.MP3, ruta, hash256, tamano_cancion,
                                            id_cancion_pesonal=id_cancion)
             cancion_calidad.guardar()
+
+    @staticmethod
+    def _convertir_calidad_proto_a_calidad_enum(calidad):
+        """
+        Convierte un enum ManejadorDeArchivos_pb2 a un enum Calidad
+        :param calidad: La calidad a convertir
+        :return: Un enum Calidad
+        """
+        if calidad == ManejadorDeArchivos_pb2.Calidad.ALTA:
+            return Calidad.ALTA
+        elif calidad == ManejadorDeArchivos_pb2.Calidad.MEDIA:
+            return Calidad.MEDIA
+        elif calidad == ManejadorDeArchivos_pb2.Calidad.BAJA:
+            return Calidad.BAJA
+
+    @staticmethod
+    def obtener_archivo_audio_cancion(id_cancion, calidad):
+        """
+        Recupera el archivo de audio de la cancion con la calidad indicada
+        :param id_cancion: El id de la cancion a recuperar
+        :param calidad: La calidad de la cancion a recuperar
+        :return: Un ArchivoAudio
+        """
+        calidad = ManejadorCanciones._convertir_calidad_proto_a_calidad_enum(calidad)
+        archivo_audio = ArchivoAudio.obtener_archivo_audio_cancion(id_cancion, calidad)
+        return archivo_audio
+
+    @staticmethod
+    def obtener_archivo_audio_cancion_personal(id_cancion_personal, calidad):
+        """
+        Recupera el archivo de audio de la cancionPersonal con la calidad indicada
+        :param id_cancion_personal: El id de la cancionPersonal a recuperar
+        :param calidad: La calidad de la cancionPersonal a recuperar
+        :return: Un ArchivoAudio
+        """
+        calidad = ManejadorCanciones._convertir_calidad_proto_a_calidad_enum(calidad)
+        archivo_audio = ArchivoAudio.obtener_archivo_audio_cancion_personal(id_cancion_personal, calidad)
+        return archivo_audio
