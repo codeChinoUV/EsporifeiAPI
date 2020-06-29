@@ -24,9 +24,8 @@ class ValidacionCancionesService:
         """
         existe_cancion = ValidacionCancion.validar_existe_cancion(id_cancion)
         if existe_cancion is not None:
-            error = ManejadorDeArchivos_pb2.ErrorGeneral()
-            error.error = existe_cancion['error']
-            error.mensaje = existe_cancion['mensaje']
+            error = ManejadorDeArchivos_pb2.Error()
+            error.errorRecursoInexistente = ManejadorDeArchivos_pb2.ErrorRecursoInexistente.CANCION_INEXISTENTE
             return error
 
     @staticmethod
@@ -38,9 +37,8 @@ class ValidacionCancionesService:
         """
         existe_cancion = ValidacionCancionPersonal.validar_existe_cancion_personal(id_cancion)
         if existe_cancion is not None:
-            error = ManejadorDeArchivos_pb2.ErrorGeneral()
-            error.error = existe_cancion['error']
-            error.mensaje = existe_cancion['mensaje']
+            error = ManejadorDeArchivos_pb2.Error()
+            error.errorRecursoInexistente = ManejadorDeArchivos_pb2.ErrorRecursoInexistente.CANCION_PERSONAL_INEXISTENTE
             return error
 
     @staticmethod
@@ -57,9 +55,9 @@ class ValidacionCancionesService:
         es_dueno = ValidacionCancion.\
             validar_creador_de_contenido_es_dueno_de_cancion(id_cancion, creador_de_contenido.id_creador_de_contenido)
         if es_dueno is not None:
-            error = ManejadorDeArchivos_pb2.ErrorGeneral()
-            error.error = es_dueno['error']
-            error.mensaje = es_dueno['mensaje']
+            error = ManejadorDeArchivos_pb2.Error()
+            error.errorOperacionNoPermitida = ManejadorDeArchivos_pb2.ErrorOperacionNoPermitida.\
+                USUARIO_NO_ES_DUENO_DEL_RECURSO
             return error
 
     @staticmethod
@@ -74,9 +72,9 @@ class ValidacionCancionesService:
         usuario_actual = LoginControlador.token_requerido_grpc(token)
         es_dueno = ValidacionCancionPersonal.validar_es_dueno_cancion_personal(usuario_actual.id_usuario, id_cancion)
         if es_dueno is not None:
-            error = ManejadorDeArchivos_pb2.ErrorGeneral()
-            error.error = es_dueno['error']
-            error.mensaje = es_dueno['mensaje']
+            error = ManejadorDeArchivos_pb2.Error()
+            error.errorOperacionNoPermitida = ManejadorDeArchivos_pb2.ErrorOperacionNoPermitida. \
+                USUARIO_NO_ES_DUENO_DEL_RECURSO
             return error
 
     @staticmethod
@@ -90,25 +88,22 @@ class ValidacionCancionesService:
         """
         existe_cancion = ManejadorCanciones.validar_existe_cancion_original(id_cancion)
         if not existe_cancion:
-            error_no_existe_cancion = ManejadorDeArchivos_pb2.ErrorGeneral()
-            error_no_existe_cancion.error = "cancion_no_existe"
-            error_no_existe_cancion.mensaje = "La cancion no se encuentra registrada"
-            return error_no_existe_cancion
+            error = ManejadorDeArchivos_pb2.Error()
+            error.errorRecursoInexistente = ManejadorDeArchivos_pb2.ErrorRecursoInexistente.CANCION_INEXISTENTE
+            return error
         existe_archivo_cancion = ManejadorCanciones.validar_existe_archivo_cancion_original(id_cancion)
         if not existe_archivo_cancion:
-            error_no_existe_cancion = ManejadorDeArchivos_pb2.ErrorGeneral()
-            error_no_existe_cancion.error = "cancion_no_existe"
-            error_no_existe_cancion.mensaje = "La cancion se encuentra registrada, pero no existe el archivo"
-            return error_no_existe_cancion
+            error = ManejadorDeArchivos_pb2.Error()
+            error.errorRecursoInexistente = ManejadorDeArchivos_pb2.ErrorRecursoInexistente.CANCION_INEXISTENTE
+            return error
         existe_cancion_calidad = ManejadorCanciones.validar_existe_cancion(id_cancion, calidad)
         existe_archivo_cancion_calidad = ManejadorCanciones.validar_existe_archivo_cancion(id_cancion, calidad)
         if not existe_cancion_calidad or not existe_archivo_cancion_calidad:
-            hilo_reconvertidor = threading.Thread(target=ManejadorCanciones.convertir_cancion_mp3_todas_calidades, args=id_cancion)
+            hilo_reconvertidor = threading.Thread(target=ManejadorCanciones.convertir_cancion_mp3_todas_calidades,
+                                                  args=id_cancion)
             hilo_reconvertidor.start()
-            error_no_disponible = ManejadorDeArchivos_pb2.ErrorGeneral()
-            error_no_disponible.error = "cancion_no_disponible"
-            error_no_disponible.mensaje = "La cancion no se encuentra disponible por el momento, " \
-                                          "porfavor espere unos minutos y reintentelo de nuevo"
+            error_no_disponible = ManejadorDeArchivos_pb2.Error()
+            error_no_disponible.errorInterno = ManejadorDeArchivos_pb2.ErrorInterno.CANCION_NO_DISPONIBLE
             return error_no_disponible
 
     @staticmethod
@@ -122,28 +117,24 @@ class ValidacionCancionesService:
         """
         existe_cancion_personal = ManejadorCanciones.validar_existe_cancion_personal_original(id_cancion)
         if not existe_cancion_personal:
-            error_no_existe_cancion = ManejadorDeArchivos_pb2.ErrorGeneral()
-            error_no_existe_cancion.error = "cancion_personal_no_existe"
-            error_no_existe_cancion.mensaje = "La cancion personal no se encuentra registrada"
-            return error_no_existe_cancion
+            error = ManejadorDeArchivos_pb2.Error()
+            error.errorRecursoInexistente = ManejadorDeArchivos_pb2.ErrorRecursoInexistente.CANCION_PERSONAL_INEXISTENTE
+            return error
         existe_archivo_cancion_personal = \
             ManejadorCanciones.validar_existe_archivo_cancion_personal_original(id_cancion)
         if not existe_archivo_cancion_personal:
-            error_no_existe_cancion = ManejadorDeArchivos_pb2.ErrorGeneral()
-            error_no_existe_cancion.error = "cancion_personal_no_existe"
-            error_no_existe_cancion.mensaje = "La cancion personal se encuentra registrada, pero no existe el archivo"
-            return error_no_existe_cancion
+            error = ManejadorDeArchivos_pb2.Error()
+            error.errorRecursoInexistente = ManejadorDeArchivos_pb2.ErrorRecursoInexistente.CANCION_PERSONAL_INEXISTENTE
+            return error
         existe_cancion_personal_calidad = ManejadorCanciones.validar_existe_cancion_personal(id_cancion, calidad)
         existe_archivo_cancion_personal_calidad = ManejadorCanciones.validar_existe_archivo_cancion_personal(id_cancion,
                                                                                                              calidad)
         if not existe_cancion_personal_calidad or not existe_archivo_cancion_personal_calidad:
-            hilo_reconvertidor = threading.Thread(target=ManejadorCanciones.convertir_cancion_personal_mp3_todas_calidades,
-                                                  args=id_cancion)
+            hilo_reconvertidor = threading.Thread(target=ManejadorCanciones.
+                                                  convertir_cancion_personal_mp3_todas_calidades, args=id_cancion)
             hilo_reconvertidor.start()
-            error_no_disponible = ManejadorDeArchivos_pb2.ErrorGeneral()
-            error_no_disponible.error = "cancion_personal_no_disponible"
-            error_no_disponible.mensaje = "La cancion personal no se encuentra disponible por el momento, " \
-                                          "porfavor espere unos minutos y reintentelo de nuevo"
+            error_no_disponible = ManejadorDeArchivos_pb2.Error()
+            error_no_disponible.errorInterno = ManejadorDeArchivos_pb2.ErrorInterno.CANCION_PERSONAL_NO_DISPONIBLE
             return error_no_disponible
 
     @staticmethod
