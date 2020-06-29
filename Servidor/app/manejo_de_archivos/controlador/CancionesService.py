@@ -12,6 +12,7 @@ class CancionesServicer(ManejadorDeArchivos_pb2_grpc.CancionesServicer):
     def SubirCancionPersonal(self, request_iterator, context):
         cancion = bytearray()
         sha256 = ""
+
         formato = None
         id_cancion = 0
         ya_se_valido = False
