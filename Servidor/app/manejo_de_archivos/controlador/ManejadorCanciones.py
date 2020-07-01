@@ -47,7 +47,7 @@ class ManejadorCanciones:
         else:
             archivo_de_audio.editar_archivo_audio(es_original=True, formato=formato, ruta=ruta, hash256=hash256,
                                                   tamano=tamano)
-        thread_convertir_canciones = threading.Thread(target=ManejadorCanciones.convertir_cancion_mp3_todas_calidades,
+        threading.Thread(target=ManejadorCanciones.convertir_cancion_mp3_todas_calidades,
                                                       args=id_cancion).start()
 
     @staticmethod
@@ -78,12 +78,7 @@ class ManejadorCanciones:
         :param calidad: La calidad de la cancion
         :return: True si se encuentra registrada o False si no
         """
-        if calidad == ManejadorDeArchivos_pb2.Calidad.ALTA:
-            calidad = Calidad.ALTA
-        elif calidad == ManejadorDeArchivos_pb2.Calidad.MEDIA:
-            calidad = Calidad.MEDIA
-        elif calidad == ManejadorDeArchivos_pb2.Calidad.BAJA:
-            calidad = Calidad.BAJA
+        calidad = ManejadorDeArchivos.convertir_calidad_proto_a_calidad_enum(calidad)
         archivo_cancion = ArchivoAudio.obtener_archivo_audio_cancion(id_cancion, calidad)
         return archivo_cancion is not None
 
@@ -95,12 +90,7 @@ class ManejadorCanciones:
         :param calidad: La calidad de la cancion
         :return: True si existe o false si no
         """
-        if calidad == ManejadorDeArchivos_pb2.Calidad.ALTA:
-            calidad = Calidad.ALTA
-        elif calidad == ManejadorDeArchivos_pb2.Calidad.MEDIA:
-            calidad = Calidad.MEDIA
-        elif calidad == ManejadorDeArchivos_pb2.Calidad.BAJA:
-            calidad = Calidad.BAJA
+        calidad = ManejadorDeArchivos.convertir_calidad_proto_a_calidad_enum(calidad)
         archivo_cancion = ArchivoAudio.obtener_archivo_audio_cancion(id_cancion, calidad)
         if archivo_cancion is None:
             return None
@@ -263,7 +253,7 @@ class ManejadorCanciones:
         else:
             archivo_de_audio.editar_archivo_audio(es_original=True, formato=formato, ruta=ruta, hash256=hash256,
                                                   tamano=tamano)
-        hilo_convertidorr_canciones = threading.Thread(
+        threading.Thread(
             target=ManejadorCanciones.convertir_cancion_personal_mp3_todas_calidades, args=id_cancion).start()
 
     @staticmethod
@@ -297,12 +287,7 @@ class ManejadorCanciones:
         :param calidad: La caliad del ArchivoAudio a validar si existe
         :return: True si existe el ArchivoAudio de la cancion personal con la calidad indicada
         """
-        if calidad == ManejadorDeArchivos_pb2.Calidad.ALTA:
-            calidad = Calidad.ALTA
-        elif calidad == ManejadorDeArchivos_pb2.Calidad.MEDIA:
-            calidad = Calidad.MEDIA
-        elif calidad == ManejadorDeArchivos_pb2.Calidad.BAJA:
-            calidad = Calidad.BAJA
+        calidad = ManejadorDeArchivos.convertir_calidad_proto_a_calidad_enum(calidad)
         archivo_cancion = ArchivoAudio.obtener_archivo_audio_cancion_personal(id_cancion, calidad)
         return archivo_cancion is not None
 
@@ -314,12 +299,7 @@ class ManejadorCanciones:
         :param calidad: La calidad de la cancion a validar si existe su archivo
         :return: True si existe el archivo o False si no
         """
-        if calidad == ManejadorDeArchivos_pb2.Calidad.ALTA:
-            calidad = Calidad.ALTA
-        elif calidad == ManejadorDeArchivos_pb2.Calidad.MEDIA:
-            calidad = Calidad.MEDIA
-        elif calidad == ManejadorDeArchivos_pb2.Calidad.BAJA:
-            calidad = Calidad.BAJA
+        calidad = ManejadorDeArchivos.convertir_calidad_proto_a_calidad_enum(calidad)
         archivo_cancion = ArchivoAudio.obtener_archivo_audio_cancion_personal(id_cancion, calidad)
         if archivo_cancion is None:
             return None
@@ -419,20 +399,6 @@ class ManejadorCanciones:
             cancion_calidad.guardar()
 
     @staticmethod
-    def _convertir_calidad_proto_a_calidad_enum(calidad):
-        """
-        Convierte un enum ManejadorDeArchivos_pb2 a un enum Calidad
-        :param calidad: La calidad a convertir
-        :return: Un enum Calidad
-        """
-        if calidad == ManejadorDeArchivos_pb2.Calidad.ALTA:
-            return Calidad.ALTA
-        elif calidad == ManejadorDeArchivos_pb2.Calidad.MEDIA:
-            return Calidad.MEDIA
-        elif calidad == ManejadorDeArchivos_pb2.Calidad.BAJA:
-            return Calidad.BAJA
-
-    @staticmethod
     def obtener_archivo_audio_cancion(id_cancion, calidad):
         """
         Recupera el archivo de audio de la cancion con la calidad indicada
@@ -440,7 +406,7 @@ class ManejadorCanciones:
         :param calidad: La calidad de la cancion a recuperar
         :return: Un ArchivoAudio
         """
-        calidad = ManejadorCanciones._convertir_calidad_proto_a_calidad_enum(calidad)
+        calidad = ManejadorDeArchivos.convertir_calidad_proto_a_calidad_enum(calidad)
         archivo_audio = ArchivoAudio.obtener_archivo_audio_cancion(id_cancion, calidad)
         return archivo_audio
 
@@ -452,6 +418,6 @@ class ManejadorCanciones:
         :param calidad: La calidad de la cancionPersonal a recuperar
         :return: Un ArchivoAudio
         """
-        calidad = ManejadorCanciones._convertir_calidad_proto_a_calidad_enum(calidad)
+        calidad = ManejadorDeArchivos.convertir_calidad_proto_a_calidad_enum(calidad)
         archivo_audio = ArchivoAudio.obtener_archivo_audio_cancion_personal(id_cancion_personal, calidad)
         return archivo_audio
