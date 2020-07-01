@@ -14,18 +14,25 @@ enum ErrorAutenticacion {
 enum ErrorOperacionNoPermitida {
   USUARIO_NO_ES_DUENO_DEL_RECURSO = 0;
   OPERACION_NO_PERMITIDA = 1;
+  USUARIO_NO_TIENE_REGISTRADO_CREADOR_DE_CONTENIDO = 2;
 }
 
 enum ErrorRecursoInexistente {
   CANCION_INEXISTENTE = 0;
   CANCION_PERSONAL_INEXISTENTE = 1;
-
+  PORTADA_USUARIO_INEXISTENTE = 2;
+  PORTADA_CREADOR_DE_CONTENIDO_INEXISTENTE = 3;
+  PORTADA_ALBUM_INEXISTENTE = 4;
+  ALBUM_INEXISTENTE = 5;
 }
 
 enum ErrorInterno {
   CANCION_NO_DISPONIBLE = 0;
   CANCION_PERSONAL_NO_DISPONIBLE = 1;
-  DESCONOCIDO = 2;
+  PORTADA_USUARIO_NO_DISPONIBLE = 2;
+  PORTADA_CREADOR_DE_CONTENIDO_NO_DISPONIBLE = 3;
+  PORTADA_ALBUM_NO_DISPONIBLE = 4;
+  DESCONOCIDO = 5;
 }
 
 message Error {
@@ -77,7 +84,7 @@ message InformacionPortada {
 
 message SolicitudSubirPortada{
   string token_autenticacion = 1;
-  InformacionCancion informacionPortada = 2;
+  InformacionPortada informacionPortada = 2;
   bytes data = 3;
 }
 
