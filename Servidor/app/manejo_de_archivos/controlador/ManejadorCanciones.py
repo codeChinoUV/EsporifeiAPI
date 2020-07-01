@@ -47,8 +47,7 @@ class ManejadorCanciones:
         else:
             archivo_de_audio.editar_archivo_audio(es_original=True, formato=formato, ruta=ruta, hash256=hash256,
                                                   tamano=tamano)
-        threading.Thread(target=ManejadorCanciones.convertir_cancion_mp3_todas_calidades,
-                                                      args=id_cancion).start()
+        threading.Thread(target=ManejadorCanciones.convertir_cancion_mp3_todas_calidades, args=id_cancion).start()
 
     @staticmethod
     def _obtener_duracion_cancion(ruta):

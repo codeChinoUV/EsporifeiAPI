@@ -228,7 +228,7 @@ class Portada:
         }
         return diccionario
 
-    def editar_archivo_audio(self, es_original, formato, ruta, hash256, alto, ancho):
+    def editar_portada(self, es_original, formato, ruta, hash256, alto, ancho):
         """
         Edita los atributos del objeto y lo guarda en la base de datos
         :param es_original: Indica si el archivo audio pertence a la cancion original
