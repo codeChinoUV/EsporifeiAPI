@@ -1,4 +1,6 @@
+import hashlib
 import pathlib
+from os import remove
 
 from PIL import Image
 
@@ -11,6 +13,7 @@ class ConvertidorDeImagenes:
     CALIDAD_BAJA_ALTO = 150
     CALIDAD_BAJA_ANCHO = 150
     FORMATO_PNG = "png"
+    TAMANO_CHUNK = 1000 * 64
 
     def __init__(self, logger):
         self.logger = logger
@@ -74,16 +77,50 @@ class ConvertidorDeImagenes:
         :return: La ubicacion en donde se guardo el achivo
         """
         self.id_portada = int(id_portada)
-        self.ubicacion_fichero = '/tmp/' + str(id_portada) + 'p.' + extension
-        archivo = pathlib.Path(self.ubicacion_fichero)
+        self.ubicacion_archivo = '/tmp/' + str(id_portada) + 'p.' + extension
+        archivo = pathlib.Path(self.ubicacion_archivo)
         try:
             if not archivo.is_file():
-                with open(self.ubicacion_fichero, 'wb') as f:
+                with open(self.ubicacion_archivo, 'wb') as f:
                     f.write(arreglo_de_bytes)
                     f.close()
             else:
-                with open(self.ubicacion_fichero, 'ab') as f:
+                with open(self.ubicacion_archivo, 'ab') as f:
                     f.write(arreglo_de_bytes)
                     f.close()
         except Exception as ex:
             print(ex)
+
+    @staticmethod
+    def eliminar_archivo(ruta_archivo):
+        """
+        Elimina el archivo que este en la ruta seleccionada
+        :param ruta_archivo: La ruta del archivo a eliminar
+        :return: None
+        """
+        remove(ruta_archivo)
+
+    def limpiar_archivos(self):
+        """
+        Elimina todos los archivos generados al momento de transformar la portada
+        :return: None
+        """
+        try:
+            if self.ubicacion_archivo is not None:
+                ConvertidorDeImagenes.eliminar_archivo(self.ubicacion_archivo)
+                ConvertidorDeImagenes.eliminar_archivo(self.ubicacion_fichero_calidad_alta)
+                ConvertidorDeImagenes.eliminar_archivo(self.ubicacion_fichero_calidad_media)
+                ConvertidorDeImagenes.eliminar_archivo(self.ubicacion_fichero_calidad_baja)
+        except FileNotFoundError:
+            print("No se encontraron los archivos a limpiar")
+
+    def obtener_sha256_de_portada_original(self):
+        """
+        Obtiene el hash256 del archivo original
+        :return: El hash256 del archivo original
+        """
+        hash256 = hashlib.sha3_256()
+        with open(self.ubicacion_archivo, 'rb') as archivo:
+            for bloque in iter(lambda: archivo.read(ConvertidorDeImagenes.TAMANO_CHUNK), b""):
+                hash256.update(bloque)
+        return hash256.hexdigest()
