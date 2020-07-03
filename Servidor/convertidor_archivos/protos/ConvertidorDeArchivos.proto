@@ -7,14 +7,14 @@ message ErrorGeneral {
   string mensaje = 2;
 }
 
-enum CalidadCancion{
-  ALTA = 0;
-  MEDIA = 1;
-  BAJA = 2;
-}
-
 message InformacionArchivo {
   int64 idCancion = 1;
+  string extension = 2;
+  string hash256 = 3;
+}
+
+message InformacionImagen {
+  int64 idPortada = 1;
   string extension = 2;
   string hash256 = 3;
 }
@@ -26,6 +26,16 @@ message Chunk {
 message SolicitudConvertirCancionMp3 {
   InformacionArchivo informacionArchivo = 1;
   Chunk paquete = 2;
+}
+
+message SolicitudConvertirPortada {
+  InformacionImagen informacionImagen = 1;
+  bytes data = 2;
+}
+
+message RespuestaImagenConvertida {
+  InformacionImagen informacionImagen = 1;
+  bytes data = 2;
 }
 
 message RespuestaCancionConvertida {
@@ -40,7 +50,18 @@ message RespuestaCancionesConvertidas {
   ErrorGeneral error = 4;
 }
 
+message RespuestaImagenesConvertidas {
+  RespuestaImagenConvertida imagenCalidadAlta = 1;
+  RespuestaImagenConvertida imagenCalidadMedia = 2;
+  RespuestaImagenConvertida imagenCalidadBaja = 3;
+  ErrorGeneral error = 4;
+}
+
 service ConvertidorDeCanciones{
   rpc ConvertirCancionAMp3(stream SolicitudConvertirCancionMp3) returns (stream RespuestaCancionesConvertidas) {};
+}
+
+service ConvertidorDeImagenes{
+  rpc ConvertirImagenAPng(stream SolicitudConvertirPortada) returns (stream RespuestaImagenesConvertidas) {};
 }
 
