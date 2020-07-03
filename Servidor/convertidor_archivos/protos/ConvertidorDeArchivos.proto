@@ -8,39 +8,29 @@ message ErrorGeneral {
 }
 
 message InformacionArchivo {
-  int64 idCancion = 1;
+  int64 idElemento = 1;
   string extension = 2;
   string hash256 = 3;
-}
-
-message InformacionImagen {
-  int64 idPortada = 1;
-  string extension = 2;
-  string hash256 = 3;
-}
-
-message Chunk {
-  bytes data = 1;
 }
 
 message SolicitudConvertirCancionMp3 {
   InformacionArchivo informacionArchivo = 1;
-  Chunk paquete = 2;
+  bytes data = 2;
 }
 
 message SolicitudConvertirPortada {
-  InformacionImagen informacionImagen = 1;
+  InformacionArchivo informacionImagen = 1;
   bytes data = 2;
 }
 
 message RespuestaImagenConvertida {
-  InformacionImagen informacionImagen = 1;
+  InformacionArchivo informacionImagen = 1;
   bytes data = 2;
 }
 
 message RespuestaCancionConvertida {
   InformacionArchivo informacionArchivo = 1;
-  Chunk paquete = 2;
+  bytes data = 2;
 }
 
 message RespuestaCancionesConvertidas {
