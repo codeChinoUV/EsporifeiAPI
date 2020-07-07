@@ -129,3 +129,5 @@ dmypy.json
 .pyre/
 
 Servidor/app/manejo_de_archivos/protos/ManejadorDeArchivos_pb2.py
+
+migrations/versions/
