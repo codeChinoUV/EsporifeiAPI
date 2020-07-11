@@ -1,17 +1,16 @@
 import logging
 import pathlib
-import threading
 import time
 
 import app.manejo_de_archivos.protos.ManejadorDeArchivos_pb2 as ManejadorDeArchivos_pb2
 import eyed3
 
+from app.administracion_de_contenido.controlador.v1.BibliotecaPersonalControlador import BibliotecaPersonalCanciones
+from app.administracion_de_contenido.controlador.v1.CancionesControlador import CreadorDeContenidoAlbumCancion
 from app.manejo_de_archivos.manejador_de_archivos.ManejadorDeArchivos import ManejadorDeArchivos
 from app.manejo_de_archivos.modelo.enums.enums import Calidad
 from app.manejo_de_archivos.modelo.modelos import ArchivoAudio
-
 from app.administracion_de_contenido.modelo.modelos import Cancion, CancionPersonal
-
 from app.manejo_de_archivos.modelo.enums.enums import FormatoAudio
 from pydub import AudioSegment
 from app.manejo_de_archivos.clientes_convertidor_archivos.ClienteConvertidorCanciones import \
@@ -38,10 +37,9 @@ class ManejadorCanciones:
         elif formato == ManejadorDeArchivos_pb2.M4A:
             formato = FormatoAudio.M4A
         tamano = len(bytes_de_la_cancion)
-        cancion = Cancion.obtener_cancion_por_id(id_cancion)
         ruta = ManejadorDeArchivos.guardar_cancion(id_cancion, Calidad.ORIGINAL, formato, bytes_de_la_cancion)
-        ManejadorCanciones._colocar_metadata_cancion(cancion, ruta)
-        cancion.modificar_duracion(ManejadorCanciones._obtener_duracion_cancion(ruta))
+        CreadorDeContenidoAlbumCancion.modificar_duracion(id_cancion,
+                                                          ManejadorCanciones._obtener_duracion_cancion(ruta))
         archivo_de_audio = ArchivoAudio.obtener_archivo_audio_cancion(id_cancion, Calidad.ORIGINAL)
         if archivo_de_audio is None:
             archivo_audio = ArchivoAudio(Calidad.ORIGINAL, formato, ruta, hash256, tamano, id_cancion=id_cancion,
@@ -51,7 +49,9 @@ class ManejadorCanciones:
             archivo_de_audio.editar_archivo_audio(es_original=True, formato=formato, ruta=ruta, hash256=hash256,
                                                   tamano=tamano)
         ManejadorCanciones.logger.info("Se ha gurdado la cancion original con el id " + str(id_cancion))
-        threading.Thread(target=ManejadorCanciones.convertir_cancion_mp3_todas_calidades, args=id_cancion).start()
+        from app.manejo_de_archivos.clientes_convertidor_archivos.ConvertidorDeArchivos import ConvertidorDeArchivos
+        convertidor_de_archivos = ConvertidorDeArchivos()
+        convertidor_de_archivos.agregar_cancion_a_cola(id_cancion)
 
     @staticmethod
     def _obtener_duracion_cancion(ruta):
@@ -60,7 +60,7 @@ class ManejadorCanciones:
         :param ruta: La ruta en donde se encuentra el archivo
         :return: Un flotante con la duracion en segundos
         """
-        cancion = AudioSegment.from_file(ruta, channels=2)
+        cancion = AudioSegment.from_file("./" + ruta, channels=2)
         return cancion.duration_seconds
 
     @staticmethod
@@ -134,38 +134,20 @@ class ManejadorCanciones:
         cliente_convertidor = ConvertidorDeCancionesCliente(id_cancion=archivo_cancion_original.id_cancion,
                                                             ubicacion_archivo=archivo_cancion_original.ruta,
                                                             extension=archivo_cancion_original.formato.value)
-        cantidad_intentos = 0
-        while cantidad_intentos < 3:
+        cantidad_intentos = 1
+        while cantidad_intentos <= 3:
             try:
                 ManejadorCanciones.logger.info("Se ha mandado a convertir la cancion con el id " +
                                                str(id_cancion) + " a todas sus calidades. Intento: "
                                                + str(cantidad_intentos))
-                cliente_convertidor.enviar_cancion()
+                cliente_convertidor.enviar_archivo()
                 ManejadorCanciones._crear_archivo_audio_canciones_convertidas(id_cancion, cliente_convertidor)
                 break
             except Exception as ex:
-                ManejadorCanciones.logger.error("Error convertir cancion con el id " + str(id) + ": "
+                ManejadorCanciones.logger.error("Error convertir cancion con el id " + str(id_cancion) + ": "
                                                 + str(ex))
                 time.sleep(10)
                 cantidad_intentos += 1
-
-    @staticmethod
-    def _colocar_metadata_cancion(cancion, ruta):
-        """
-        Coloca la informacion de la cancion al archivo
-        :param ruta: La ruta en donde se encuentra el archivo de la cancion
-        :param cancion: La cancion con la informacion de la cancion
-        :return: None
-        """
-        creadores_de_cotenido = ""
-        for creador_de_cotenido in cancion.creadores_de_contenido:
-            creadores_de_cotenido += creador_de_cotenido.nombre + ", "
-        creadores_de_cotenido = creadores_de_cotenido[:-2]
-        archivo_de_audio = eyed3.load(ruta)
-        archivo_de_audio.tag.artist = creadores_de_cotenido
-        archivo_de_audio.tag.album = cancion.album.nombre
-        archivo_de_audio.tag.title = cancion.nombre
-        archivo_de_audio.tag.save()
 
     @staticmethod
     def _crear_archivo_audio_canciones_convertidas(id_cancion, cliente_convertidor):
@@ -196,23 +178,25 @@ class ManejadorCanciones:
         hash256 = ""
         tamano_cancion = 0
         ruta = ""
+        calidad_str = ""
         if calidad == Calidad.BAJA:
             hash256 = cliente_convertidor.informacion_archivo_calidad_baja.hash256
             tamano_cancion = len(cliente_convertidor.cancion_calidad_baja)
             ruta = ManejadorDeArchivos.guardar_cancion(id_cancion, Calidad.BAJA, formato,
                                                        cliente_convertidor.cancion_calidad_baja)
+            calidad_str = "baja"
         elif calidad == Calidad.MEDIA:
             hash256 = cliente_convertidor.informacion_archivo_calidad_media.hash256
             tamano_cancion = len(cliente_convertidor.cancion_calidad_media)
             ruta = ManejadorDeArchivos.guardar_cancion(id_cancion, Calidad.MEDIA, formato,
                                                        cliente_convertidor.cancion_calidad_media)
+            calidad_str = "media"
         elif calidad == Calidad.ALTA:
             hash256 = cliente_convertidor.informacion_archivo_calidad_alta.hash256
             tamano_cancion = len(cliente_convertidor.cancion_calidad_alta)
             ruta = ManejadorDeArchivos.guardar_cancion(id_cancion, Calidad.ALTA, formato,
                                                        cliente_convertidor.cancion_calidad_alta)
-        cancion = Cancion.obtener_cancion_por_id(id_cancion)
-        ManejadorCanciones._colocar_metadata_cancion(cancion, ruta)
+            calidad_str = "alta"
         cancion_calidad = ArchivoAudio.obtener_archivo_audio_cancion(id_cancion, calidad)
         if cancion_calidad is not None:
             cancion_calidad.editar_archivo_audio(False, FormatoAudio.MP3, ruta, hash256, tamano_cancion)
@@ -220,6 +204,8 @@ class ManejadorCanciones:
             cancion_calidad = ArchivoAudio(calidad, FormatoAudio.MP3, ruta, hash256, tamano_cancion,
                                            id_cancion=id_cancion)
             cancion_calidad.guardar()
+        ManejadorCanciones.logger.info("Se ha gurdado la cancion personal en calidad " + calidad_str + " con el id " +
+                                       str(id_cancion))
 
     @staticmethod
     def guardar_cancion_personal(bytes_de_la_cancion, id_cancion, formato, hash256):
@@ -238,10 +224,8 @@ class ManejadorCanciones:
         elif formato == ManejadorDeArchivos_pb2.M4A:
             formato = FormatoAudio.M4A
         tamano = len(bytes_de_la_cancion)
-        cancion_personal = CancionPersonal.obtener_cancion_por_id(id_cancion)
-        ruta = ManejadorDeArchivos.guardar_cancion_personal(id_cancion, Calidad.ORIGINAL, formato, bytes_de_la_cancion)
-        ManejadorCanciones._colocar_metadata_cancion_personal(cancion_personal, ruta)
-        cancion_personal.modificar_duracion(ManejadorCanciones._obtener_duracion_cancion(ruta))
+        ruta = ManejadorDeArchivos.guardar_cancion_personal(id_cancion, formato, Calidad.ORIGINAL, bytes_de_la_cancion)
+        BibliotecaPersonalCanciones.modificar_duracion(id_cancion, ManejadorCanciones._obtener_duracion_cancion(ruta))
         archivo_de_audio = ArchivoAudio.obtener_archivo_audio_cancion_personal(id_cancion, Calidad.ORIGINAL)
         if archivo_de_audio is None:
             archivo_audio = ArchivoAudio(Calidad.ORIGINAL, formato, ruta, hash256, tamano,
@@ -251,8 +235,9 @@ class ManejadorCanciones:
             archivo_de_audio.editar_archivo_audio(es_original=True, formato=formato, ruta=ruta, hash256=hash256,
                                                   tamano=tamano)
         ManejadorCanciones.logger.info("Se ha gurdado la cancion personal original con el id " + str(id_cancion))
-        threading.Thread(
-            target=ManejadorCanciones.convertir_cancion_personal_mp3_todas_calidades, args=id_cancion).start()
+        from app.manejo_de_archivos.clientes_convertidor_archivos.ConvertidorDeArchivos import ConvertidorDeArchivos
+        convertidor_de_archivos = ConvertidorDeArchivos()
+        convertidor_de_archivos.agregar_cancion_personal_a_cola(id_cancion)
 
     @staticmethod
     def validar_existe_cancion_personal_original(id_cancion):
@@ -312,7 +297,7 @@ class ManejadorCanciones:
         :return: None
         """
         archivo_cancion_original = ArchivoAudio.obtener_archivo_audio_cancion_personal(id_cancion, Calidad.ORIGINAL)
-        cliente_convertidor = ConvertidorDeCancionesCliente(id_cancion=archivo_cancion_original.id_cancion,
+        cliente_convertidor = ConvertidorDeCancionesCliente(id_cancion=archivo_cancion_original.id_cancion_personal,
                                                             ubicacion_archivo=archivo_cancion_original.ruta,
                                                             extension=archivo_cancion_original.formato.value)
         cantidad_intentos = 0
@@ -321,12 +306,12 @@ class ManejadorCanciones:
                 ManejadorCanciones.logger.info("Se ha mandado a convertir la cancion personal con el id " +
                                                str(id_cancion) + " a todas sus calidades. Intento: "
                                                + str(cantidad_intentos))
-                cliente_convertidor.enviar_cancion()
+                cliente_convertidor.enviar_archivo()
                 ManejadorCanciones._crear_archivo_audio_canciones_personales_convertidas(id_cancion,
                                                                                          cliente_convertidor)
                 break
             except Exception as ex:
-                ManejadorCanciones.logger.error("Error convertir cancion personal con el id " + str(id) + ": "
+                ManejadorCanciones.logger.error("Error convertir cancion personal con el id " + str(id_cancion) + ": "
                                                 + str(ex))
                 time.sleep(10)
                 cantidad_intentos += 1
@@ -375,23 +360,25 @@ class ManejadorCanciones:
         hash256 = ""
         tamano_cancion = 0
         ruta = ""
+        calidad_str = ""
         if calidad == Calidad.BAJA:
             hash256 = cliente_convertidor.informacion_archivo_calidad_baja.hash256
             tamano_cancion = len(cliente_convertidor.cancion_calidad_baja)
-            ruta = ManejadorDeArchivos.guardar_cancion_personal(id_cancion, Calidad.BAJA, formato,
+            ruta = ManejadorDeArchivos.guardar_cancion_personal(id_cancion, formato, Calidad.BAJA,
                                                                 cliente_convertidor.cancion_calidad_baja)
+            calidad_str = "baja"
         elif calidad == Calidad.MEDIA:
             hash256 = cliente_convertidor.informacion_archivo_calidad_media.hash256
             tamano_cancion = len(cliente_convertidor.cancion_calidad_media)
-            ruta = ManejadorDeArchivos.guardar_cancion_personal(id_cancion, Calidad.MEDIA, formato,
+            ruta = ManejadorDeArchivos.guardar_cancion_personal(id_cancion, formato, Calidad.MEDIA,
                                                                 cliente_convertidor.cancion_calidad_media)
+            calidad_str = "meadia"
         elif calidad == Calidad.ALTA:
             hash256 = cliente_convertidor.informacion_archivo_calidad_alta.hash256
             tamano_cancion = len(cliente_convertidor.cancion_calidad_alta)
-            ruta = ManejadorDeArchivos.guardar_cancion_personal(id_cancion, Calidad.ALTA, formato,
+            ruta = ManejadorDeArchivos.guardar_cancion_personal(id_cancion, formato, Calidad.ALTA,
                                                                 cliente_convertidor.cancion_calidad_alta)
-        cancion_personal = CancionPersonal.obtener_cancion_por_id(id_cancion)
-        ManejadorCanciones._colocar_metadata_cancion(cancion_personal, ruta)
+            calidad_str = "alta"
         cancion_calidad = ArchivoAudio.obtener_archivo_audio_cancion_personal(id_cancion, calidad)
         if cancion_calidad is not None:
             cancion_calidad.editar_archivo_audio(False, FormatoAudio.MP3, ruta, hash256, tamano_cancion)
@@ -399,7 +386,7 @@ class ManejadorCanciones:
             cancion_calidad = ArchivoAudio(calidad, FormatoAudio.MP3, ruta, hash256, tamano_cancion,
                                            id_cancion_personal=id_cancion)
             cancion_calidad.guardar()
-        ManejadorCanciones.logger.info("Se ha gurdado la cancion en calidad " + calidad + "con el id " +
+        ManejadorCanciones.logger.info("Se ha gurdado la cancion personal en calidad " + calidad_str + " con el id " +
                                        str(id_cancion))
 
     @staticmethod

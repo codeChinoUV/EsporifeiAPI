@@ -30,7 +30,7 @@ class ManejadorDeArchivos:
         :param calidad: La calida de la cancion a guardar
         :return: La ruta generada
         """
-        carpeta = "/canciones/" + str(id_cancion) + "/" + ManejadorDeArchivos._calcular_ruta_calidad(calidad)
+        carpeta = "canciones/" + str(id_cancion) + "/" + ManejadorDeArchivos._calcular_ruta_calidad(calidad)
         os.makedirs(carpeta, exist_ok=True)
         return carpeta
 
@@ -58,9 +58,8 @@ class ManejadorDeArchivos:
         :param calidad: La calida de la cancion a guardar
         :return: La ruta generada
         """
-        carpeta = "/canciones_personales/" + str(id_cancion) + "/" + \
+        carpeta = "canciones_personales/" + str(id_cancion) + "/" + \
                   ManejadorDeArchivos._calcular_ruta_calidad(calidad)
-
         os.makedirs(carpeta, exist_ok=True)
         return carpeta
 
@@ -117,7 +116,7 @@ class ManejadorDeArchivos:
         :param calidad: La calidad de la portada a guardar
         :return: La ruta del directorio creado
         """
-        carpeta = "/portadas/usuarios/" + str(id_usuario) + "/" + ManejadorDeArchivos._calcular_ruta_calidad(calidad)
+        carpeta = "portadas/usuarios/" + str(id_usuario) + "/" + ManejadorDeArchivos._calcular_ruta_calidad(calidad)
         os.makedirs(carpeta, exist_ok=True)
         return carpeta
 
@@ -129,7 +128,7 @@ class ManejadorDeArchivos:
         :param calidad: La calidad de la portada a guardar
         :return: La ruta del directorio creado
         """
-        carpeta = "/portadas/creadores-de-contenido/" + str(id_creador_de_contenido) + "/" +\
+        carpeta = "portadas/creadores-de-contenido/" + str(id_creador_de_contenido) + "/" +\
                   ManejadorDeArchivos._calcular_ruta_calidad(calidad)
         os.makedirs(carpeta, exist_ok=True)
         return carpeta
@@ -142,7 +141,7 @@ class ManejadorDeArchivos:
         :param calidad: La calidad de la portada a guardar
         :return: La ruta del directorio creado
         """
-        carpeta = "/portadas/creadores-de-contenido/" + str(id_album) + "/" + \
+        carpeta = "portadas/creadores-de-contenido/" + str(id_album) + "/" + \
                   ManejadorDeArchivos._calcular_ruta_calidad(calidad)
         os.makedirs(carpeta, exist_ok=True)
         return carpeta
