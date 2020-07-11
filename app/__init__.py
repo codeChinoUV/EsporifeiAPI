@@ -21,8 +21,11 @@ def create_app(settings_module="config.dev"):
     from app.administracion_de_contenido import administracion_de_contenido
     app.register_blueprint(administracion_de_contenido)
     # Custom error handlers
+    with app.app_context():
+        base_de_datos.create_all()
     register_error_handlers(app)
     return app
+
 
 def register_error_handlers(app):
     @app.errorhandler(500)
@@ -32,6 +35,7 @@ def register_error_handlers(app):
     @app.errorhandler(404)
     def error_404_handler(e):
         return {}, 404
+
 
 def configure_logging(app):
     del app.logger.handlers[:]
@@ -55,8 +59,12 @@ def configure_logging(app):
 class ServidorManejadorDeArchivos:
 
     TIEMPO_ESPERA_CERRAR = 1000
+    puerto_convertidor_archivos = 5002
+    direccion_ip_convertidor_archivos = "127.0.0.1"
 
-    def __init__(self, puerto=5001):
+    def __init__(self, puerto=5001, direccion_convertidor="127.0.0.1", puerto_convertidor=5002):
+        direccion_ip_convertidor_archivos = direccion_convertidor
+        puerto_convertidor_archivos = puerto_convertidor
         from app.manejo_de_archivos.controlador.CancionesService import CancionesServicer
         from app.manejo_de_archivos.protos import ManejadorDeArchivos_pb2_grpc
         self.logger = logging.getLogger(__name__)
