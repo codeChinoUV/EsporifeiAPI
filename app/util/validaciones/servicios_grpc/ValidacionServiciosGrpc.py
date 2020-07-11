@@ -1,6 +1,6 @@
 import logging
 
-from app.manejo_de_archivos.controlador.ManejadorDeArchivos import ManejadorDeArchivos
+from app.manejo_de_archivos.manejador_de_archivos.ManejadorDeArchivos import ManejadorDeArchivos
 from app.manejo_de_usuarios.controlador.v1.LoginControlador import LoginControlador
 import app.manejo_de_archivos.protos.ManejadorDeArchivos_pb2 as ManejadorDeArchivos_pb2
 from app.manejo_de_usuarios.modelo.enum.enums import TipoUsuario
@@ -14,7 +14,7 @@ class ValidacionServiciosGrpc:
         usuario_actual = LoginControlador.token_requerido_grpc(token)
         if usuario_actual is None:
             error = ManejadorDeArchivos_pb2.Error()
-            error.errorAutenticacion = ManejadorDeArchivos_pb2.ErrorAutenticacion.TOKEN_INVALIDO
+            error.errorAunteticacion = ManejadorDeArchivos_pb2.ErrorAutenticacion.TOKEN_INVALIDO
             ValidacionServiciosGrpc.logger.info("Error autenticacion: TOKEN_INVALIDO")
             return error
 
@@ -22,7 +22,7 @@ class ValidacionServiciosGrpc:
     def validar_token_vacio(token):
         if token is None or token == "":
             error = ManejadorDeArchivos_pb2.Error()
-            error.errorAutenticacion = ManejadorDeArchivos_pb2.ErrorAutenticacion.TOKEN_FALTANTE
+            error.errorAunteticacion = ManejadorDeArchivos_pb2.ErrorAutenticacion.TOKEN_FALTANTE
             ValidacionServiciosGrpc.logger.info("Error autenticacion: TOKEN_FALTANTE")
             return error
 

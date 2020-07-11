@@ -70,9 +70,9 @@ class ValidacionCancion:
         :param id_creador_de_contenido: El id del creador de contenido
         :return: None si es dueño de la cancion o un diccionario indicando el error
         """
-        cancion = Cancion.obtener_cancion_por_id(id_cancion)
         es_dueno = False
-        for album in cancion.albumes:
+        albumes_de_cancion = Cancion.obtener_albumes_de_cancion(id_cancion)
+        for album in albumes_de_cancion:
             if album.creador_de_contenido_id == id_creador_de_contenido:
                 es_dueno = True
                 break

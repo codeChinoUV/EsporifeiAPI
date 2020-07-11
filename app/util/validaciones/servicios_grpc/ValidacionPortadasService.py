@@ -1,11 +1,12 @@
 import logging
 
+from app.manejo_de_archivos.clientes_convertidor_archivos.ConvertidorDeArchivos import ConvertidorDeArchivos
+from app.manejo_de_archivos.manejador_de_archivos.MenejadorDePortadas import ManejadorDePortadas
 from app.manejo_de_archivos.protos import ManejadorDeArchivos_pb2
 from app.manejo_de_usuarios.controlador.v1.LoginControlador import LoginControlador
 from app.util.validaciones.modelos.ValidacionAlbum import ValidacionAlbum
 from app.util.validaciones.modelos.ValidacionCreadorDeContenido import ValidacionCreadorDeContenido
 from app.util.validaciones.servicios_grpc.ValidacionServiciosGrpc import ValidacionServiciosGrpc
-from app.manejo_de_archivos.controlador.MenejadorDePortadas import ManejadorDePortadas
 
 
 class ValidacionPortadasService:
@@ -42,6 +43,8 @@ class ValidacionPortadasService:
             return error
         existe_portada = ManejadorDePortadas.validar_existe_portada_usuario(id_usuario, calidad)
         if not existe_portada:
+            convertidor_de_archivos = ConvertidorDeArchivos()
+            convertidor_de_archivos.agregar_porada_usuario_a_cola(id_usuario)
             error = ManejadorDeArchivos_pb2.Error()
             error.errorInterno = ManejadorDeArchivos_pb2.ErrorInterno.PORTADA_USUARIO_NO_DISPONIBLE
             ValidacionPortadasService.logger.info("Recurso inexistente " + str(id_usuario) +
@@ -68,6 +71,8 @@ class ValidacionPortadasService:
         existe_portada = ManejadorDePortadas.validar_existe_portada_creador_de_contenido(id_creador_de_contenido,
                                                                                          calidad)
         if not existe_portada:
+            convertidor_de_archivos = ConvertidorDeArchivos()
+            convertidor_de_archivos.agregar_portada_creador_de_contenido_a_cola(id_creador_de_contenido)
             error = ManejadorDeArchivos_pb2.Error()
             error.errorInterno = ManejadorDeArchivos_pb2.ErrorInterno.PORTADA_CREADOR_DE_CONTENIDO_NO_DISPONIBLE
             ValidacionPortadasService.logger.info("Recurso inexistente " + str(id_creador_de_contenido) +
@@ -92,6 +97,8 @@ class ValidacionPortadasService:
             return error
         existe_portada = ManejadorDePortadas.validar_existe_portada_album(id_album, calidad)
         if not existe_portada:
+            convertidor_archivos = ConvertidorDeArchivos()
+            convertidor_archivos.agregar_portada_album_a_cola(id_album)
             error = ManejadorDeArchivos_pb2.Error()
             error.errorInterno = ManejadorDeArchivos_pb2.ErrorInterno.PORTADA_ALBUM_NO_DISPONIBLE
             ValidacionPortadasService.logger.info("Recurso inexistente " + str(id_album) +

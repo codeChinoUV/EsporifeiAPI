@@ -1,6 +1,7 @@
 import logging
-import threading
 
+from app.manejo_de_archivos.clientes_convertidor_archivos.ConvertidorDeArchivos import ConvertidorDeArchivos
+from app.manejo_de_archivos.manejador_de_archivos.ManejadorCanciones import ManejadorCanciones
 from app.util.validaciones.modelos.ValidacionCancion import ValidacionCancion
 from app.util.validaciones.modelos.ValidacionCancionPersonal import ValidacionCancionPersonal
 import app.manejo_de_archivos.protos.ManejadorDeArchivos_pb2 as ManejadorDeArchivos_pb2
@@ -8,9 +9,6 @@ from app.manejo_de_usuarios.controlador.v1.LoginControlador import LoginControla
 from app.administracion_de_contenido.modelo.modelos import CreadorDeContenido
 
 from app.util.validaciones.servicios_grpc.ValidacionServiciosGrpc import ValidacionServiciosGrpc
-
-from app.manejo_de_archivos.controlador.ManejadorCanciones import ManejadorCanciones
-
 
 class ValidacionCancionesService:
     logger = logging.getLogger(__name__)
@@ -54,7 +52,8 @@ class ValidacionCancionesService:
          no es el dueño de la cancion
         """
         usuario_actual = LoginControlador.token_requerido_grpc(token)
-        creador_de_contenido = CreadorDeContenido.obtener_creador_de_contenido_por_id_usuario(usuario_actual.id_usuario)
+        creador_de_contenido = CreadorDeContenido.\
+            obtener_creador_de_contenido_por_id_usuario_app(usuario_actual.id_usuario)
         es_dueno = ValidacionCancion.\
             validar_creador_de_contenido_es_dueno_de_cancion(id_cancion, creador_de_contenido.id_creador_de_contenido)
         if es_dueno is not None:
@@ -108,9 +107,8 @@ class ValidacionCancionesService:
         existe_cancion_calidad = ManejadorCanciones.validar_existe_cancion(id_cancion, calidad)
         existe_archivo_cancion_calidad = ManejadorCanciones.validar_existe_archivo_cancion(id_cancion, calidad)
         if not existe_cancion_calidad or not existe_archivo_cancion_calidad:
-            hilo_reconvertidor = threading.Thread(target=ManejadorCanciones.convertir_cancion_mp3_todas_calidades,
-                                                  args=id_cancion)
-            hilo_reconvertidor.start()
+            convertidor_de_archivos = ConvertidorDeArchivos()
+            convertidor_de_archivos.agregar_cancion_a_cola(id_cancion)
             error_no_disponible = ManejadorDeArchivos_pb2.Error()
             error_no_disponible.errorInterno = ManejadorDeArchivos_pb2.ErrorInterno.CANCION_NO_DISPONIBLE
             ValidacionCancionesService.logger.error("Recurso inexistente " + str(id_cancion) +
@@ -145,9 +143,8 @@ class ValidacionCancionesService:
         existe_archivo_cancion_personal_calidad = ManejadorCanciones.validar_existe_archivo_cancion_personal(id_cancion,
                                                                                                              calidad)
         if not existe_cancion_personal_calidad or not existe_archivo_cancion_personal_calidad:
-            hilo_reconvertidor = threading.Thread(target=ManejadorCanciones.
-                                                  convertir_cancion_personal_mp3_todas_calidades, args=id_cancion)
-            hilo_reconvertidor.start()
+            convertidor_de_archivos = ConvertidorDeArchivos()
+            convertidor_de_archivos.agregar_cancion_personal_a_cola(id_cancion)
             error_no_disponible = ManejadorDeArchivos_pb2.Error()
             error_no_disponible.errorInterno = ManejadorDeArchivos_pb2.ErrorInterno.CANCION_PERSONAL_NO_DISPONIBLE
             ValidacionCancionesService.logger.error("Recurso inexistente " + str(id_cancion) +
