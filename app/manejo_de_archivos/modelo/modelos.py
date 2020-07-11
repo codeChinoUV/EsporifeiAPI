@@ -22,9 +22,9 @@ class ArchivoAudio(BaseDeDatosMongo):
         :return: None
         """
         if self.id_cancion is not None:
-            BaseDeDatosMongo.archivos_de_audio_db.insert_one(self._obtener_diccionario_de_atributos_cancion())
+            BaseDeDatosMongo.archivos_de_audio_db.insert(self._obtener_diccionario_de_atributos_cancion())
         elif self.id_cancion_personal is not None:
-            BaseDeDatosMongo.archivos_de_audio_db.insert_one(self._obtener_diccionario_de_atributos_cancion_personal())
+            BaseDeDatosMongo.archivos_de_audio_db.insert(self._obtener_diccionario_de_atributos_cancion_personal())
 
     def _obtener_diccionario_de_atributos_cancion(self):
         """
@@ -67,13 +67,13 @@ class ArchivoAudio(BaseDeDatosMongo):
         self.hash256 = hash256
         self.tamano = tamano
         if self.id_cancion is not None:
-            BaseDeDatosMongo.archivos_de_audio_db.update_one(
+            BaseDeDatosMongo.archivos_de_audio_db.update(
                 {'id_cancion': self.id_cancion, 'calidad_audio': self.calidad_audio.value},
                 {"$set": {'es_original': self.es_original,
                           'formato': self.formato.value, 'ruta': self.ruta, 'hash256': self.hash256,
                           'tamano': self.tamano}})
         elif self.id_cancion_personal is not None:
-            BaseDeDatosMongo.archivos_de_audio_db.update_one(
+            BaseDeDatosMongo.archivos_de_audio_db.update(
                 {'id_cancion_personal': self.id_cancion, 'calidad_audio': self.calidad_audio.value},
                 {"$set": {'es_original': self.es_original,
                           'formato': self.formato.value, 'ruta': self.ruta, 'hash256': self.hash256,
@@ -86,11 +86,11 @@ class ArchivoAudio(BaseDeDatosMongo):
         """
         self.eliminado = True
         if self.id_cancion is not None:
-            BaseDeDatosMongo.archivos_de_audio_db.update_one(
+            BaseDeDatosMongo.archivos_de_audio_db.update(
                 {'id_cancion': self.id_cancion, 'calidad_audio': self.calidad_audio.value},
                 {"$set": {'eliminado': self.eliminado}})
         elif self.id_cancion_personal is not None:
-            BaseDeDatosMongo.archivos_de_audio_db.update_one(
+            BaseDeDatosMongo.archivos_de_audio_db.update(
                 {'id_cancion_personal': self.id_cancion_personal, 'calidad_audio': self.calidad_audio.value},
                 {"$set": {'eliminado': self.eliminado}})
 
@@ -170,13 +170,13 @@ class Portada:
         :return: None
         """
         if self.id_album is not None:
-            BaseDeDatosMongo.portadas_db.insert_one(self._obtener_diccionario_de_atributos_album())
+            BaseDeDatosMongo.portadas_db.insert(self._obtener_diccionario_de_atributos_album())
         elif self.id_creador_de_contenido is not None:
-            BaseDeDatosMongo.portadas_db.insert_one(self._obtener_diccionario_de_atributos_creador_de_contenido())
+            BaseDeDatosMongo.portadas_db.insert(self._obtener_diccionario_de_atributos_creador_de_contenido())
         elif self.id_usuario is not None:
-            BaseDeDatosMongo.portadas_db.insert_one(self._obtener_diccionario_de_atributos_usuario())
+            BaseDeDatosMongo.portadas_db.insert(self._obtener_diccionario_de_atributos_usuario())
         elif self.id_lista_de_reproduccion:
-            BaseDeDatosMongo.portadas_db.insert_one(self._obtener_diccionario_de_atributos_lista_de_reproduccion())
+            BaseDeDatosMongo.portadas_db.insert(self._obtener_diccionario_de_atributos_lista_de_reproduccion())
 
     def _obtener_diccionario_de_atributos_album(self):
         """
@@ -246,22 +246,22 @@ class Portada:
         self.alto = alto
         self.ancho = ancho
         if self.id_album is not None:
-            BaseDeDatosMongo.portadas_db.update_one(
+            BaseDeDatosMongo.portadas_db.update(
                 {'id_album': self.id_album, 'calidad_imagen': self.calidad_imagen.value},
                 {"$set": {'es_original': self.es_original, 'formato': self.formato.value, 'ruta': self.ruta,
                           'hash256': self.hash256, 'alto': self.alto, 'ancho': self.ancho}})
         elif self.id_creador_de_contenido is not None:
-            BaseDeDatosMongo.portadas_db.update_one(
+            BaseDeDatosMongo.portadas_db.update(
                 {'id_creador_de_contenido': self.id_creador_de_contenido, 'calidad_imagen': self.calidad_imagen.value},
                 {"$set": {'es_original': self.es_original, 'formato': self.formato.value, 'ruta': self.ruta,
                           'hash256': self.hash256, 'alto': self.alto, 'ancho': self.ancho}})
         elif self.id_usuario is not None:
-            BaseDeDatosMongo.portadas_db.update_one(
+            BaseDeDatosMongo.portadas_db.update(
                 {'id_usuario': self.id_usuario, 'calidad_imagen': self.calidad_imagen.value},
                 {"$set": {'es_original': self.es_original, 'formato': self.formato.value, 'ruta': self.ruta,
                           'hash256': self.hash256, 'alto': self.alto, 'ancho': self.ancho}})
         elif self.id_lista_de_reproduccion is not None:
-            BaseDeDatosMongo.portadas_db.update_one(
+            BaseDeDatosMongo.portadas_db.update(
                 {'id_lista_de_reproduccion': self.id_lista_de_reproduccion,
                  'calidad_imagen': self.calidad_imagen.value},
                 {"$set": {'es_original': self.es_original, 'formato': self.formato.value, 'ruta': self.ruta,
