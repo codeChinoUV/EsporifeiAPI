@@ -3,7 +3,9 @@ import pathlib
 import grpc
 import hashlib
 
-from app.manejo_de_archivos.protos_convertidor_de_archivos import ConvertidorDeArchivos_pb2
+from app import ServidorManejadorDeArchivos
+from app.manejo_de_archivos.protos_convertidor_de_archivos import ConvertidorDeArchivos_pb2, \
+    ConvertidorDeArchivos_pb2_grpc
 
 
 class ConvertidorDeCancionesCliente:
@@ -49,31 +51,32 @@ class ConvertidorDeCancionesCliente:
     def enviar_cancion(self):
         with open(self.ubicacion_archivo, 'rb') as archivo:
             solicitud = ConvertidorDeArchivos_pb2.SolicitudConvertirCancionMp3()
-            solicitud.informacionArchivo.idCancion = int(self.id_cancion)
+            solicitud.informacionArchivo.idElemento = int(self.id_cancion)
             solicitud.informacionArchivo.extension = self.extension
             solicitud.informacionArchivo.hash256 = self.informacion_archivo.hash256
             for bloque in iter(lambda: archivo.read(self.tamano_chunk), b""):
-                solicitud.paquete.data = bloque
+                solicitud.data = bloque
                 yield solicitud
 
     def recibir_cancion(self, respuesta):
         if respuesta.error.error != "":
             self.error = respuesta.error
-        if len(respuesta.cancionCalidadAlta.paquete.data) > 0:
-            self.cancion_calidad_alta += bytearray(respuesta.cancionCalidadAlta.paquete.data)
+        if len(respuesta.cancionCalidadAlta.data) > 0:
+            self.cancion_calidad_alta += bytearray(respuesta.cancionCalidadAlta.data)
             if respuesta.cancionCalidadAlta.informacionArchivo is not None:
                 self.informacion_archivo_calidad_alta = respuesta.cancionCalidadAlta.informacionArchivo
-        if len(respuesta.cancionCalidadMedia.paquete.data) > 0:
-            self.cancion_calidad_media += bytearray(respuesta.cancionCalidadMedia.paquete.data)
+        if len(respuesta.cancionCalidadMedia.data) > 0:
+            self.cancion_calidad_media += bytearray(respuesta.cancionCalidadMedia.data)
             if respuesta.cancionCalidadAlta.informacionArchivo is not None:
                 self.informacion_archivo_calidad_media = respuesta.cancionCalidadMedia.informacionArchivo
-        if len(respuesta.cancionCalidadBaja.paquete.data) > 0:
-            self.cancion_calidad_baja += bytearray(respuesta.cancionCalidadBaja.paquete.data)
+        if len(respuesta.cancionCalidadBaja.data) > 0:
+            self.cancion_calidad_baja += bytearray(respuesta.cancionCalidadBaja.data)
             if respuesta.cancionCalidadBaja.informacionArchivo is not None:
                 self.informacion_archivo_calidad_baja = respuesta.cancionCalidadBaja.informacionArchivo
 
     def enviar_archivo(self):
-        canal = grpc.insecure_channel('192.168.0.15:5002')
+        canal = grpc.insecure_channel(ServidorManejadorDeArchivos.direccion_ip_convertidor_archivos + ':' +
+                                      str(ServidorManejadorDeArchivos.puerto_convertidor_archivos))
         cliente = ConvertidorDeArchivos_pb2_grpc.ConvertidorDeCancionesStub(canal)
         existe_el_archivo = self._validar_existe_archivo()
         if existe_el_archivo is not None:
@@ -92,7 +95,6 @@ class ConvertidorDeCancionesCliente:
                 if len(self.cancion_calidad_baja) > 0 and len(self.cancion_calidad_media) > 0 \
                         and len(self.cancion_calidad_alta) > 0:
                     if self._validar_sha256_de_canciones_recibidas():
-                        print("Sha 256 valido")
                         break
                     else:
                         cantidad_intentos += 1
