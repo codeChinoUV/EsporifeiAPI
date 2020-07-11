@@ -1,6 +1,7 @@
 from flask import request
 from flask_restful import reqparse, Resource
 
+from app import create_app
 from app.administracion_de_contenido.modelo.modelos import Album, Cancion, CreadorDeContenido, Genero, HistorialCancion
 from app.manejo_de_usuarios.controlador.v1.LoginControlador import token_requerido, solo_creador_de_contenido
 from app.util.validaciones.modelos.ValidacionAlbum import ValidacionAlbum
@@ -166,6 +167,12 @@ class CreadorDeContenidoAlbumCancion(Resource):
         cancion = Cancion.obtener_cancion_por_id(id_cancion)
         cancion.eliminar()
         return cancion.obtener_json_con_creadores(), 202
+
+    @staticmethod
+    def modificar_duracion(id_cancion, duracion_total):
+        app = create_app()
+        with app.app_context():
+            Cancion.modificar_duracion(id_cancion, duracion_total)
 
 
 class CreadorDeContenidoAlbumCancionGeneros(Resource):

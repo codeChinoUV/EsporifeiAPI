@@ -2,7 +2,10 @@
     Se encarga de representar a un CreadorDeContenido y manejar el acceso del objeto a la base de datos
 """
 import datetime
-from app import base_de_datos
+
+from flask_sqlalchemy import SQLAlchemy
+
+from app import base_de_datos, create_app
 from app.util.JsonBool import JsonBool
 from sqlalchemy import desc
 
@@ -118,6 +121,18 @@ class CreadorDeContenido(base_de_datos.Model):
         """
         creador_de_contenido = CreadorDeContenido.query.filter_by(usuario_id_usuario=id_usuario).first()
         return creador_de_contenido
+
+    @staticmethod
+    def obtener_creador_de_contenido_por_id_usuario_app(id_usuario):
+        """
+        Recupera el creador de contenido que sea del nombre de usuario con un contexto de app nueva
+        :param id_usuario: El id del usuario al cual pertence el creador de contenido
+        :return: El creador de contenido que pertenezca al usuario
+        """
+        app = create_app()
+        with app.app_context():
+            creador_de_contenido = CreadorDeContenido.query.filter_by(usuario_id_usuario=id_usuario).first()
+            return creador_de_contenido
 
     @staticmethod
     def obtener_creador_de_contenido_por_busqueda(cadena_busqueda, cantidad=10, pagina=1):
@@ -330,7 +345,7 @@ class Album(base_de_datos.Model):
     id_album = base_de_datos.Column(base_de_datos.Integer, primary_key=True)
     nombre = base_de_datos.Column(base_de_datos.String(70), nullable=False)
     anio_lanzamiento = base_de_datos.Column(base_de_datos.String(4), nullable=False)
-    duracion_total_segundos = base_de_datos.Column(base_de_datos.Float)
+    duracion_total_segundos = base_de_datos.Column(base_de_datos.Float, default=0)
     eliminado = base_de_datos.Column(base_de_datos.Boolean, nullable=False, default=False)
     creador_de_contenido_id = base_de_datos.Column(base_de_datos.Integer,
                                                    base_de_datos.
@@ -542,8 +557,10 @@ class Cancion(base_de_datos.Model):
         :param id_cancion: El id de la cancion a recuperar
         :return: La cancion que tiene el id_cancion o None si no existe la cancion con ese id
         """
-        cancion = Cancion.query.filter_by(id_cancion=id_cancion, eliminada=False).first()
-        return cancion
+        app = create_app()
+        with app.app_context():
+            cancion = Cancion.query.filter_by(id_cancion=id_cancion, eliminada=False).first()
+            return cancion
 
     @staticmethod
     def validar_existe_cancion_en_album(id_album, id_cancion):
@@ -609,14 +626,21 @@ class Cancion(base_de_datos.Model):
                 break
         return tiene_genero
 
-    def modificar_duracion(self, duracion_total):
+    @staticmethod
+    def modificar_duracion(id_cancion, duracion_total):
         """
         Modifica la duracion de la cancion y actualiza la duracion total del album
         :param duracion_total: La duracion en segundos de la cancion
+        :param id_cancion: El id de la cancion a modificar su duracion
         :return: None
         """
-        self.duracion_en_segundos = duracion_total
-        self.album.duracion_total_segundos += duracion_total
+        cancion = Cancion.query.filter_by(id_cancion=id_cancion).first()
+        cancion.duracion_en_segundos = duracion_total
+        for album in cancion.albumes:
+            if album.duracion_total_segundos is None:
+                album.duracion_total_segundos = duracion_total
+            else:
+                album.duracion_total_segundos += duracion_total
         base_de_datos.session.commit()
 
     @staticmethod
@@ -794,6 +818,18 @@ class Cancion(base_de_datos.Model):
             cancion = Cancion.obtener_cancion_por_id(historial_reproduccion_usuario.id_cancion)
             canciones_reproducidas_de_usuario.append(cancion)
         return canciones_reproducidas_de_usuario
+
+    @staticmethod
+    def obtener_albumes_de_cancion(id_cancion):
+        """
+        Recupera los albumes de una cancion
+        :param id_cancion: El id de la cancion a recuperar sus albumes
+        :return: Una lista de albumes
+        """
+        app = create_app()
+        with app.app_context():
+            cancion = Cancion.query.filter_by(id_cancion=id_cancion).first()
+            return cancion.albumes
 
 
 class Calificacion(base_de_datos.Model):
@@ -1166,13 +1202,16 @@ class CancionPersonal(base_de_datos.Model):
                        'album': self.album}
         return diccionario
 
-    def modificar_duracion(self, duracion):
+    @staticmethod
+    def modificar_duracion(id_cancion_personal, duracion):
         """
         Modifica la duracion en segundos de la cancion
         :param duracion: La duracion en segundos de la cancion
+        :param id_cancion_personal: El id de la cancion personal a modificar su duracion
         :return: None
         """
-        self.duracion_en_segundos = duracion
+        cancion_personal = CancionPersonal.query.filter_by(id_cancion_personal=id_cancion_personal).first()
+        cancion_personal.duracion_en_segundos = duracion
         base_de_datos.session.commit()
 
     @staticmethod
@@ -1213,8 +1252,10 @@ class CancionPersonal(base_de_datos.Model):
         :param id_cancion: El id de la cancion personal a recuperar
         :return: La cancionPersonal con el id_cancion
         """
-        cancion = CancionPersonal.query.filter_by(id_cancion_personal=id_cancion).first()
-        return cancion
+        app = create_app()
+        with app.app_context():
+            cancion = CancionPersonal.query.filter_by(id_cancion_personal=id_cancion).first()
+            return cancion
 
     @staticmethod
     def validar_cancion_personal_es_de_usuario(id_usuario, id_cancion_personal):
@@ -1224,6 +1265,8 @@ class CancionPersonal(base_de_datos.Model):
         :param id_cancion_personal: El id de la cancion personal a validar si el del usuario
         :return: Verdadero si la cancion personal es del usuario o falso si no
         """
-        cancion_personal = CancionPersonal.query.filter_by(id_usuario=id_usuario,
-                                                           id_cancion_personal=id_cancion_personal).count()
-        return cancion_personal > 0
+        app = create_app()
+        with app.app_context():
+            cancion_personal = CancionPersonal.query.filter_by(id_usuario=id_usuario,
+                                                               id_cancion_personal=id_cancion_personal).count()
+            return cancion_personal > 0
