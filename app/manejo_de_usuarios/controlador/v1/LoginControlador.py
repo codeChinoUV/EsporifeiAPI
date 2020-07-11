@@ -1,4 +1,5 @@
 import datetime
+import logging
 import os
 from functools import wraps
 
@@ -7,6 +8,7 @@ from flask import request, jsonify
 from flask_restful import Resource
 from werkzeug.utils import import_string
 
+from app import create_app
 from app.manejo_de_usuarios.modelo.enum.enums import TipoUsuario
 from app.manejo_de_usuarios.modelo.modelos import Usuario
 
@@ -92,11 +94,14 @@ class LoginControlador(Resource):
 
     @staticmethod
     def token_requerido_grpc(token):
+        settings_module = os.getenv('APP_SETTINGS_MODULE')
+        app = create_app(settings_module)
         if token is not None:
             try:
-                secret_key = obtener_secret_key()
-                datos = jwt.decode(token, secret_key)
-                usuario_actual = Usuario.obtener_usuario_por_id(datos['id_usuario'])
-                return usuario_actual
-            except:
+                with app.app_context():
+                    secret_key = obtener_secret_key()
+                    datos = jwt.decode(token, secret_key)
+                    usuario_actual = Usuario.obtener_usuario_por_id(datos['id_usuario'])
+                    return usuario_actual
+            except Exception:
                 return None
