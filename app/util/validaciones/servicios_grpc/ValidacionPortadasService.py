@@ -21,8 +21,7 @@ class ValidacionPortadasService:
         """
         existe_album = ValidacionAlbum.validar_album_existe(id_album)
         if existe_album is not None:
-            error = ManejadorDeArchivos_pb2.Error()
-            error.errorRecursoInexistente = ManejadorDeArchivos_pb2.ErrorRecursoInexistente.ALBUM_INEXISTENTE
+            error = ManejadorDeArchivos_pb2.Error.ALBUM_INEXISTENTE
             ValidacionPortadasService.logger.error("Recurso inexistente " + str(id_album) + " :ALBUM_INEXISTENTE")
             return error
 
@@ -36,8 +35,7 @@ class ValidacionPortadasService:
         """
         existe_portada_original = ManejadorDePortadas.validar_existe_portada_usuario_original(id_usuario)
         if not existe_portada_original:
-            error = ManejadorDeArchivos_pb2.Error()
-            error.errorRecursoInexistente = ManejadorDeArchivos_pb2.ErrorRecursoInexistente.PORTADA_USUARIO_INEXISTENTE
+            error = ManejadorDeArchivos_pb2.Error.PORTADA_USUARIO_INEXISTENTE
             ValidacionPortadasService.logger.info("Recurso inexistente " + str(id_usuario) +
                                                   " :PORTADA_USUARIO_INEXISTENTE")
             return error
@@ -45,8 +43,7 @@ class ValidacionPortadasService:
         if not existe_portada:
             convertidor_de_archivos = ConvertidorDeArchivos()
             convertidor_de_archivos.agregar_porada_usuario_a_cola(id_usuario)
-            error = ManejadorDeArchivos_pb2.Error()
-            error.errorInterno = ManejadorDeArchivos_pb2.ErrorInterno.PORTADA_USUARIO_NO_DISPONIBLE
+            error = ManejadorDeArchivos_pb2.Error.PORTADA_USUARIO_NO_DISPONIBLE
             ValidacionPortadasService.logger.info("Recurso inexistente " + str(id_usuario) +
                                                   " calidad " + calidad + " :PORTADA_USUARIO_NO_DISPONIBLE")
             return error
@@ -62,9 +59,7 @@ class ValidacionPortadasService:
         existe_portada_original = ManejadorDePortadas. \
             validar_existe_portada_creador_de_contenido_original(id_creador_de_contenido)
         if not existe_portada_original:
-            error = ManejadorDeArchivos_pb2.Error()
-            error.errorRecursoInexistente = ManejadorDeArchivos_pb2.ErrorRecursoInexistente. \
-                PORTADA_CREADOR_DE_CONTENIDO_INEXISTENTE
+            error = ManejadorDeArchivos_pb2.Error.PORTADA_CREADOR_DE_CONTENIDO_INEXISTENTE
             ValidacionPortadasService.logger.info("Recurso inexistente " + str(id_creador_de_contenido) +
                                                   " :PORTADA_CREADOR_DE_CONTENIDO_INEXISTENTE")
             return error
@@ -73,8 +68,7 @@ class ValidacionPortadasService:
         if not existe_portada:
             convertidor_de_archivos = ConvertidorDeArchivos()
             convertidor_de_archivos.agregar_portada_creador_de_contenido_a_cola(id_creador_de_contenido)
-            error = ManejadorDeArchivos_pb2.Error()
-            error.errorInterno = ManejadorDeArchivos_pb2.ErrorInterno.PORTADA_CREADOR_DE_CONTENIDO_NO_DISPONIBLE
+            error = ManejadorDeArchivos_pb2.Error.PORTADA_CREADOR_DE_CONTENIDO_NO_DISPONIBLE
             ValidacionPortadasService.logger.info("Recurso inexistente " + str(id_creador_de_contenido) +
                                                   " calidad " + calidad +
                                                   " :PORTADA_CREADOR_DE_CONTENIDO_NO_DISPONIBLE")
@@ -90,8 +84,7 @@ class ValidacionPortadasService:
         """
         existe_portada_original = ManejadorDePortadas.validar_existe_portada_album_original(id_album)
         if not existe_portada_original:
-            error = ManejadorDeArchivos_pb2.Error()
-            error.errorRecursoInexistente = ManejadorDeArchivos_pb2.ErrorRecursoInexistente.PORTADA_ALBUM_INEXISTENTE
+            error = ManejadorDeArchivos_pb2.Error.PORTADA_ALBUM_INEXISTENTE
             ValidacionPortadasService.logger.info("Recurso inexistente " + str(id_album) +
                                                   " :PORTADA_ALBUM_INEXISTENTE")
             return error
@@ -99,8 +92,7 @@ class ValidacionPortadasService:
         if not existe_portada:
             convertidor_archivos = ConvertidorDeArchivos()
             convertidor_archivos.agregar_portada_album_a_cola(id_album)
-            error = ManejadorDeArchivos_pb2.Error()
-            error.errorInterno = ManejadorDeArchivos_pb2.ErrorInterno.PORTADA_ALBUM_NO_DISPONIBLE
+            error = ManejadorDeArchivos_pb2.Error.PORTADA_ALBUM_NO_DISPONIBLE
             ValidacionPortadasService.logger.info("Recurso inexistente " + str(id_album) +
                                                   " calidad " + calidad + " :PORTADA_ALBUM_NO_DISPONIBLE")
             return error
@@ -116,12 +108,10 @@ class ValidacionPortadasService:
         error_no_tiene_creador = ValidacionCreadorDeContenido. \
             validar_usuario_no_tiene_creador_de_contenido_asociado(usuario)
         if error_no_tiene_creador is not None:
-            error = ManejadorDeArchivos_pb2.Error()
-            error.errorOperacionNoPermitida = ManejadorDeArchivos_pb2.ErrorOperacionNoPermitida. \
-                USUARIO_NO_TIENE_REGISTRADO_CREADOR_DE_CONTENIDO
+            error = ManejadorDeArchivos_pb2.Error.USUARIO_NO_TIENE_REGISTRADO_CREADOR_DE_CONTENIDO
             ValidacionPortadasService.logger.info("Operacion no permitida " + str(usuario.id_usuario) +
                                                   " :USUARIO_NO_TIENE_REGISTRADO_CREADOR_DE_CONTENIDO")
-            return error_no_tiene_creador
+            return error
 
     @staticmethod
     def _validar_es_dueno_de_album(token, id_album):
@@ -134,9 +124,7 @@ class ValidacionPortadasService:
         usuario_actual = LoginControlador.token_requerido_grpc(token)
         es_dueno = ValidacionAlbum.validar_creador_de_contenido_es_dueno_de_album(usuario_actual.id_usuario, id_album)
         if es_dueno is not None:
-            error = ManejadorDeArchivos_pb2.Error()
-            error.errorOperacionNoPermitida = ManejadorDeArchivos_pb2.ErrorOperacionNoPermitida. \
-                USUARIO_NO_ES_DUENO_DEL_RECURSO
+            error = ManejadorDeArchivos_pb2.Error.USUARIO_NO_ES_DUENO_DEL_RECURSO
             ValidacionPortadasService.logger.info("Operacion no permitida " + str(usuario_actual.id_usuario) +
                                                   " :USUARIO_NO_ES_DUENO_DEL_RECURSO " + str(id_album))
             return error

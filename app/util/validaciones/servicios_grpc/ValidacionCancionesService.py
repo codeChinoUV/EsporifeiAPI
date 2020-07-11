@@ -22,8 +22,7 @@ class ValidacionCancionesService:
         """
         existe_cancion = ValidacionCancion.validar_existe_cancion(id_cancion)
         if existe_cancion is not None:
-            error = ManejadorDeArchivos_pb2.Error()
-            error.errorRecursoInexistente = ManejadorDeArchivos_pb2.ErrorRecursoInexistente.CANCION_INEXISTENTE
+            error = ManejadorDeArchivos_pb2.Error.CANCION_INEXISTENTE
             ValidacionCancionesService.logger.error("Recurso inexistente " + str(id_cancion) + " :CANCION_INEXISTENTE")
             return error
 
@@ -36,8 +35,7 @@ class ValidacionCancionesService:
         """
         existe_cancion = ValidacionCancionPersonal.validar_existe_cancion_personal(id_cancion)
         if existe_cancion is not None:
-            error = ManejadorDeArchivos_pb2.Error()
-            error.errorRecursoInexistente = ManejadorDeArchivos_pb2.ErrorRecursoInexistente.CANCION_PERSONAL_INEXISTENTE
+            error = ManejadorDeArchivos_pb2.Error.CANCION_PERSONAL_INEXISTENTE
             ValidacionCancionesService.logger.error("Recurso inexistente " + str(id_cancion) +
                                                     " :CANCION_PERSONAL_INEXISTENTE")
             return error
@@ -57,9 +55,7 @@ class ValidacionCancionesService:
         es_dueno = ValidacionCancion.\
             validar_creador_de_contenido_es_dueno_de_cancion(id_cancion, creador_de_contenido.id_creador_de_contenido)
         if es_dueno is not None:
-            error = ManejadorDeArchivos_pb2.Error()
-            error.errorOperacionNoPermitida = ManejadorDeArchivos_pb2.ErrorOperacionNoPermitida.\
-                USUARIO_NO_ES_DUENO_DEL_RECURSO
+            error = ManejadorDeArchivos_pb2.Error.USUARIO_NO_ES_DUENO_DEL_RECURSO
             ValidacionCancionesService.logger.error("Operacion no permitida " + str(usuario_actual.id_usuario) +
                                                     " :USUARIO_NO_ES_DUENO_DEL_RECURSO " + str(id_cancion))
             return error
@@ -76,9 +72,7 @@ class ValidacionCancionesService:
         usuario_actual = LoginControlador.token_requerido_grpc(token)
         es_dueno = ValidacionCancionPersonal.validar_es_dueno_cancion_personal(usuario_actual.id_usuario, id_cancion)
         if es_dueno is not None:
-            error = ManejadorDeArchivos_pb2.Error()
-            error.errorOperacionNoPermitida = ManejadorDeArchivos_pb2.ErrorOperacionNoPermitida. \
-                USUARIO_NO_ES_DUENO_DEL_RECURSO
+            error = ManejadorDeArchivos_pb2.Error.USUARIO_NO_ES_DUENO_DEL_RECURSO
             ValidacionCancionesService.logger.error("Operacion no permitida " + str(usuario_actual.id_usuario) +
                                                     " :USUARIO_NO_ES_DUENO_DEL_RECURSO " + str(id_cancion))
             return error
@@ -94,14 +88,12 @@ class ValidacionCancionesService:
         """
         existe_cancion = ManejadorCanciones.validar_existe_cancion_original(id_cancion)
         if not existe_cancion:
-            error = ManejadorDeArchivos_pb2.Error()
-            error.errorRecursoInexistente = ManejadorDeArchivos_pb2.ErrorRecursoInexistente.CANCION_INEXISTENTE
+            error = ManejadorDeArchivos_pb2.Error.CANCION_INEXISTENTE
             ValidacionCancionesService.logger.error("Recurso inexistente " + str(id_cancion) + " :CANCION_INEXISTENTE")
             return error
         existe_archivo_cancion = ManejadorCanciones.validar_existe_archivo_cancion_original(id_cancion)
         if not existe_archivo_cancion:
-            error = ManejadorDeArchivos_pb2.Error()
-            error.errorRecursoInexistente = ManejadorDeArchivos_pb2.ErrorRecursoInexistente.CANCION_INEXISTENTE
+            error = ManejadorDeArchivos_pb2.Error.CANCION_INEXISTENTE
             ValidacionCancionesService.logger.error("Recurso inexistente " + str(id_cancion) + " :CANCION_INEXISTENTE")
             return error
         existe_cancion_calidad = ManejadorCanciones.validar_existe_cancion(id_cancion, calidad)
@@ -109,8 +101,7 @@ class ValidacionCancionesService:
         if not existe_cancion_calidad or not existe_archivo_cancion_calidad:
             convertidor_de_archivos = ConvertidorDeArchivos()
             convertidor_de_archivos.agregar_cancion_a_cola(id_cancion)
-            error_no_disponible = ManejadorDeArchivos_pb2.Error()
-            error_no_disponible.errorInterno = ManejadorDeArchivos_pb2.ErrorInterno.CANCION_NO_DISPONIBLE
+            error_no_disponible = ManejadorDeArchivos_pb2.Error.CANCION_NO_DISPONIBLE
             ValidacionCancionesService.logger.error("Recurso inexistente " + str(id_cancion) +
                                                     " :CANCION_NO_DISPONIBLE")
             return error_no_disponible
@@ -126,16 +117,14 @@ class ValidacionCancionesService:
         """
         existe_cancion_personal = ManejadorCanciones.validar_existe_cancion_personal_original(id_cancion)
         if not existe_cancion_personal:
-            error = ManejadorDeArchivos_pb2.Error()
-            error.errorRecursoInexistente = ManejadorDeArchivos_pb2.ErrorRecursoInexistente.CANCION_PERSONAL_INEXISTENTE
+            error = ManejadorDeArchivos_pb2.Error.CANCION_PERSONAL_INEXISTENTE
             ValidacionCancionesService.logger.error("Recurso inexistente " + str(id_cancion) +
                                                     " :CANCION_PERSONAL_INEXISTENTE")
             return error
         existe_archivo_cancion_personal = \
             ManejadorCanciones.validar_existe_archivo_cancion_personal_original(id_cancion)
         if not existe_archivo_cancion_personal:
-            error = ManejadorDeArchivos_pb2.Error()
-            error.errorRecursoInexistente = ManejadorDeArchivos_pb2.ErrorRecursoInexistente.CANCION_PERSONAL_INEXISTENTE
+            error = ManejadorDeArchivos_pb2.Error.CANCION_PERSONAL_INEXISTENTE
             ValidacionCancionesService.logger.error("Recurso inexistente " + str(id_cancion) +
                                                     " :CANCION_PERSONAL_INEXISTENTE")
             return error
@@ -145,8 +134,7 @@ class ValidacionCancionesService:
         if not existe_cancion_personal_calidad or not existe_archivo_cancion_personal_calidad:
             convertidor_de_archivos = ConvertidorDeArchivos()
             convertidor_de_archivos.agregar_cancion_personal_a_cola(id_cancion)
-            error_no_disponible = ManejadorDeArchivos_pb2.Error()
-            error_no_disponible.errorInterno = ManejadorDeArchivos_pb2.ErrorInterno.CANCION_PERSONAL_NO_DISPONIBLE
+            error_no_disponible = ManejadorDeArchivos_pb2.Error.CANCION_PERSONAL_NO_DISPONIBLE
             ValidacionCancionesService.logger.error("Recurso inexistente " + str(id_cancion) +
                                                     " :CANCION_PERSONAL_NO_DISPONIBLE")
             return error_no_disponible
