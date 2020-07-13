@@ -82,7 +82,7 @@ class ValidacionCancionTest(BaseTestClass):
 
     def test_nombre_demasido_corto(self):
         with self.app.app_context():
-            cancion = Cancion(nombre="hola")
+            cancion = Cancion(nombre="h")
             error_validacion = ValidacionCancion.validar_registro_cancion(cancion)
             codigo_error = "nombre_demasiado_corto"
             self.assertEqual(codigo_error, error_validacion['error'])
