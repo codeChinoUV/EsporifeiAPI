@@ -98,9 +98,16 @@ class CreadorDeContenido(base_de_datos.Model):
         :param id_usuario: El id del usuario a verificar
         :return: Verdadero si el nombre de usuario ya tiene un creador de contenido registrado, falso si no
         """
-        perfiles_con_el_mismo_usuario = CreadorDeContenido.query. \
-            filter_by(usuario_id_usuario=id_usuario).count()
-        return perfiles_con_el_mismo_usuario > 0
+        try:
+            perfiles_con_el_mismo_usuario = CreadorDeContenido.query. \
+                filter_by(usuario_id_usuario=id_usuario).count()
+            return perfiles_con_el_mismo_usuario > 0
+        except RuntimeError:
+            app = create_app()
+            with app.app_context():
+                perfiles_con_el_mismo_usuario = CreadorDeContenido.query. \
+                    filter_by(usuario_id_usuario=id_usuario).count()
+                return perfiles_con_el_mismo_usuario > 0
 
     @staticmethod
     def obtener_creador_de_contenido_por_id(id_creador_contenido):
@@ -119,8 +126,14 @@ class CreadorDeContenido(base_de_datos.Model):
         :param id_usuario: El id del usuario al cual pertence el creador de contenido
         :return: El creador de contenido que pertenezca al usuario
         """
-        creador_de_contenido = CreadorDeContenido.query.filter_by(usuario_id_usuario=id_usuario).first()
-        return creador_de_contenido
+        try:
+            creador_de_contenido = CreadorDeContenido.query.filter_by(usuario_id_usuario=id_usuario).first()
+            return creador_de_contenido
+        except RuntimeError:
+            app = create_app()
+            with app.app_context():
+                creador_de_contenido = CreadorDeContenido.query.filter_by(usuario_id_usuario=id_usuario).first()
+                return creador_de_contenido
 
     @staticmethod
     def obtener_creador_de_contenido_por_id_usuario_app(id_usuario):
@@ -258,7 +271,7 @@ class Genero(base_de_datos.Model):
         :return: Una lista de canciones
         """
         cantidad_total = cantidad * pagina
-        canciones_del_genero = Cancion.query.join(Cancion.generos).filter_by(id_genero=id_genero)\
+        canciones_del_genero = Cancion.query.join(Cancion.generos).filter_by(id_genero=id_genero) \
             .order_by(desc(Cancion.cantidad_de_reproducciones)).limit(cantidad_total).all()
         if len(canciones_del_genero) > (cantidad * (pagina - 1)):
             canciones_de_la_pagina = []
@@ -283,7 +296,7 @@ class Genero(base_de_datos.Model):
         :return: Una lista de creadores de contenido
         """
         cantidad_total = cantidad * pagina
-        creadores_de_cotenido_del_genero = CreadorDeContenido.query.join(CreadorDeContenido.generos)\
+        creadores_de_cotenido_del_genero = CreadorDeContenido.query.join(CreadorDeContenido.generos) \
             .filter_by(id_genero=id_genero).order_by(desc(CreadorDeContenido.nombre)).limit(cantidad_total).all()
         if len(creadores_de_cotenido_del_genero) > (cantidad * (pagina - 1)):
             creadores_de_contenido = []
@@ -409,8 +422,14 @@ class Album(base_de_datos.Model):
         :param id_album: El id del álbum a verificar si existe
         :return: Verdadero si el álbum existe, falso si no
         """
-        cantidad_de_albumes_con_el_id = Album.query.filter_by(id_album=id_album).count()
-        return cantidad_de_albumes_con_el_id > 0
+        try:
+            cantidad_de_albumes_con_el_id = Album.query.filter_by(id_album=id_album).count()
+            return cantidad_de_albumes_con_el_id > 0
+        except RuntimeError:
+            app = create_app()
+            with app.app_context():
+                cantidad_de_albumes_con_el_id = Album.query.filter_by(id_album=id_album).count()
+                return cantidad_de_albumes_con_el_id > 0
 
     @staticmethod
     def obtener_album_por_busqueda(cadena_busqueda):
@@ -432,9 +451,16 @@ class Album(base_de_datos.Model):
         :param id_creador_de_contenido: El creador de contenido a validar si es dueño
         :return: Verdadero si el creador de contenido es dueño o falso si no
         """
-        cantidad_de_albumes = Album.query \
-            .filter_by(id_album=id_album, creador_de_contenido_id=id_creador_de_contenido).count()
-        return cantidad_de_albumes > 0
+        try:
+            cantidad_de_albumes = Album.query \
+                .filter_by(id_album=id_album, creador_de_contenido_id=id_creador_de_contenido).count()
+            return cantidad_de_albumes > 0
+        except RuntimeError:
+            app = create_app()
+            with app.app_context():
+                cantidad_de_albumes = Album.query \
+                    .filter_by(id_album=id_album, creador_de_contenido_id=id_creador_de_contenido).count()
+                return cantidad_de_albumes > 0
 
     def obtener_json(self):
         """
@@ -557,10 +583,14 @@ class Cancion(base_de_datos.Model):
         :param id_cancion: El id de la cancion a recuperar
         :return: La cancion que tiene el id_cancion o None si no existe la cancion con ese id
         """
-        app = create_app()
-        with app.app_context():
+        try:
             cancion = Cancion.query.filter_by(id_cancion=id_cancion, eliminada=False).first()
             return cancion
+        except RuntimeError:
+            app = create_app()
+            with app.app_context():
+                cancion = Cancion.query.filter_by(id_cancion=id_cancion, eliminada=False).first()
+                return cancion
 
     @staticmethod
     def validar_existe_cancion_en_album(id_album, id_cancion):
@@ -1252,10 +1282,14 @@ class CancionPersonal(base_de_datos.Model):
         :param id_cancion: El id de la cancion personal a recuperar
         :return: La cancionPersonal con el id_cancion
         """
-        app = create_app()
-        with app.app_context():
+        try:
             cancion = CancionPersonal.query.filter_by(id_cancion_personal=id_cancion).first()
             return cancion
+        except RuntimeError:
+            app = create_app()
+            with app.app_context():
+                cancion = CancionPersonal.query.filter_by(id_cancion_personal=id_cancion).first()
+                return cancion
 
     @staticmethod
     def validar_cancion_personal_es_de_usuario(id_usuario, id_cancion_personal):
@@ -1265,8 +1299,13 @@ class CancionPersonal(base_de_datos.Model):
         :param id_cancion_personal: El id de la cancion personal a validar si el del usuario
         :return: Verdadero si la cancion personal es del usuario o falso si no
         """
-        app = create_app()
-        with app.app_context():
+        try:
             cancion_personal = CancionPersonal.query.filter_by(id_usuario=id_usuario,
                                                                id_cancion_personal=id_cancion_personal).count()
             return cancion_personal > 0
+        except RuntimeError:
+            app = create_app()
+            with app.app_context():
+                cancion_personal = CancionPersonal.query.filter_by(id_usuario=id_usuario,
+                                                                   id_cancion_personal=id_cancion_personal).count()
+                return cancion_personal > 0
