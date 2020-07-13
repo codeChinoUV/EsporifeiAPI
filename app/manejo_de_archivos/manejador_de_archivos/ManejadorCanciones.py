@@ -10,7 +10,6 @@ from app.administracion_de_contenido.controlador.v1.CancionesControlador import 
 from app.manejo_de_archivos.manejador_de_archivos.ManejadorDeArchivos import ManejadorDeArchivos
 from app.manejo_de_archivos.modelo.enums.enums import Calidad
 from app.manejo_de_archivos.modelo.modelos import ArchivoAudio
-from app.administracion_de_contenido.modelo.modelos import Cancion, CancionPersonal
 from app.manejo_de_archivos.modelo.enums.enums import FormatoAudio
 from pydub import AudioSegment
 from app.manejo_de_archivos.clientes_convertidor_archivos.ClienteConvertidorCanciones import \
@@ -18,16 +17,15 @@ from app.manejo_de_archivos.clientes_convertidor_archivos.ClienteConvertidorCanc
 
 
 class ManejadorCanciones:
-    logger = logging.getLogger(__name__)
+    logger = logging.getLogger()
 
     @staticmethod
-    def guardar_cancion(bytes_de_la_cancion, id_cancion, formato, hash256):
+    def guardar_cancion(bytes_de_la_cancion, id_cancion, formato):
         """
         Crea el archivo de la cancion y un ArchivoAudio con la informacion de la canciion
         :param bytes_de_la_cancion: Los bytes de la cancion a guardar
         :param id_cancion: El id de la cancion a la cual pertenecera la cancion
         :param formato: El formato de la cancion
-        :param hash256: El hash256 de la cancion
         :return: None
         """
         if formato == ManejadorDeArchivos_pb2.FormatoAudio.MP3:
@@ -41,6 +39,7 @@ class ManejadorCanciones:
         CreadorDeContenidoAlbumCancion.modificar_duracion(id_cancion,
                                                           ManejadorCanciones._obtener_duracion_cancion(ruta))
         archivo_de_audio = ArchivoAudio.obtener_archivo_audio_cancion(id_cancion, Calidad.ORIGINAL)
+        hash256 = ManejadorDeArchivos.obtener_sha256_de_byte_array(bytes_de_la_cancion)
         if archivo_de_audio is None:
             archivo_audio = ArchivoAudio(Calidad.ORIGINAL, formato, ruta, hash256, tamano, id_cancion=id_cancion,
                                          es_original=True)
@@ -98,7 +97,7 @@ class ManejadorCanciones:
         :return: True si existe o False si no
         """
         archivo_audio = ArchivoAudio.obtener_archivo_audio_cancion(id_cancion, Calidad.ORIGINAL)
-        return archivo_audio is None
+        return archivo_audio is not None
 
     @staticmethod
     def validar_existe_archivo_cancion_original(id_cancion):
@@ -204,17 +203,16 @@ class ManejadorCanciones:
             cancion_calidad = ArchivoAudio(calidad, FormatoAudio.MP3, ruta, hash256, tamano_cancion,
                                            id_cancion=id_cancion)
             cancion_calidad.guardar()
-        ManejadorCanciones.logger.info("Se ha gurdado la cancion personal en calidad " + calidad_str + " con el id " +
+        ManejadorCanciones.logger.info("Se ha gurdado la cancion en calidad " + calidad_str + " con el id " +
                                        str(id_cancion))
 
     @staticmethod
-    def guardar_cancion_personal(bytes_de_la_cancion, id_cancion, formato, hash256):
+    def guardar_cancion_personal(bytes_de_la_cancion, id_cancion, formato):
         """
         Crea el archivo de la cancion personal y un ArchivoAudio con la informacion de la cancion personal
         :param bytes_de_la_cancion: Los bytes de la cancion a guardar
         :param id_cancion: El id de la cancion a la cual pertenecera la cancion
         :param formato: El formato de la cancion
-        :param hash256: El hash256 de la cancion
         :return: None
         """
         if formato == ManejadorDeArchivos_pb2.FormatoAudio.MP3:
@@ -227,6 +225,7 @@ class ManejadorCanciones:
         ruta = ManejadorDeArchivos.guardar_cancion_personal(id_cancion, formato, Calidad.ORIGINAL, bytes_de_la_cancion)
         BibliotecaPersonalCanciones.modificar_duracion(id_cancion, ManejadorCanciones._obtener_duracion_cancion(ruta))
         archivo_de_audio = ArchivoAudio.obtener_archivo_audio_cancion_personal(id_cancion, Calidad.ORIGINAL)
+        hash256 = ManejadorDeArchivos.obtener_sha256_de_byte_array(bytes_de_la_cancion)
         if archivo_de_audio is None:
             archivo_audio = ArchivoAudio(Calidad.ORIGINAL, formato, ruta, hash256, tamano,
                                          id_cancion_personal=id_cancion, es_original=True)
@@ -247,7 +246,7 @@ class ManejadorCanciones:
         :return: True si el ArchivoAudio de la cancion personal con la calidad ORIGINAL o False si no
         """
         archivo_audio = ArchivoAudio.obtener_archivo_audio_cancion_personal(id_cancion, Calidad.ORIGINAL)
-        return archivo_audio is None
+        return archivo_audio is not None
 
     @staticmethod
     def validar_existe_archivo_cancion_personal_original(id_cancion):
