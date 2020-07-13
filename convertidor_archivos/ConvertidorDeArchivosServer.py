@@ -98,12 +98,12 @@ class ConvertidorDeImagenesServicer(ConvertidorDeArchivos_pb2_grpc.ConvertidorDe
         convertidor_imagenes = ConvertidorDeImagenes(logger)
         try:
             for solicitud in request_iterator:
-                convertidor_imagenes.escribir_fichero(solicitud.informacionArchivo.idElemento,
-                                                      solicitud.informacionArchivo.extension,
+                convertidor_imagenes.escribir_fichero(solicitud.informacionImagen.idElemento,
+                                                      solicitud.informacionImagen.extension,
                                                       solicitud.data)
-                hash256 = solicitud.informacionArchivo.hash256
+                hash256 = solicitud.informacionImagen.hash256
 
-            logger.info("Se recibio la portada " + str(convertidor_imagenes.id_cancion))
+            logger.info("Se recibio la portada " + str(convertidor_imagenes.id_portada))
             respuesta = ConvertidorDeArchivos_pb2.RespuestaImagenesConvertidas()
             if convertidor_imagenes.obtener_sha256_de_portada_original() != hash256:
                 logger.error("integridad_archivo_no_definida_" + str(convertidor_imagenes.id_portada))
@@ -127,8 +127,8 @@ class ConvertidorDeImagenesServicer(ConvertidorDeArchivos_pb2_grpc.ConvertidorDe
             while True:
                 try:
                     respuesta.imagenCalidadBaja.data = next(bytes_del_chunk_baja)
-                    respuesta.imagenCalidadBaja.informacionArchivo.hash256 = str(hash256_cancion_calidad_baja)
-                    respuesta.imagenCalidadBaja.informacionArchivo.extension = convertidor_imagenes.FORMATO_PNG
+                    respuesta.imagenCalidadBaja.informacionImagen.hash256 = str(hash256_cancion_calidad_baja)
+                    respuesta.imagenCalidadBaja.informacionImagen.extension = convertidor_imagenes.FORMATO_PNG
                 except StopIteration:
                     respuesta.imagenCalidadBaja.data = bytes()
                     if not log_baja_enviada:
@@ -137,8 +137,8 @@ class ConvertidorDeImagenesServicer(ConvertidorDeArchivos_pb2_grpc.ConvertidorDe
                         log_baja_enviada = True
                 try:
                     respuesta.imagenCalidadMedia.data = next(bytes_del_chunk_media)
-                    respuesta.imagenCalidadMedia.informacionArchivo.hash256 = hash256_cancion_calidad_media
-                    respuesta.imagenCalidadMedia.informacionArchivo.extension = convertidor_imagenes.FORMATO_PNG
+                    respuesta.imagenCalidadMedia.informacionImagen.hash256 = hash256_cancion_calidad_media
+                    respuesta.imagenCalidadMedia.informacionImagen.extension = convertidor_imagenes.FORMATO_PNG
                 except StopIteration:
                     respuesta.imagenCalidadMedia.data = bytes()
                     if not log_media_enviada:
@@ -147,11 +147,11 @@ class ConvertidorDeImagenesServicer(ConvertidorDeArchivos_pb2_grpc.ConvertidorDe
                         log_media_enviada = True
                 try:
                     respuesta.imagenCalidadAlta.data = next(bytes_del_chunk_alta)
-                    respuesta.imagenCalidadAlta.informacionArchivo.hash256 = hash256_cancion_calidad_alta
-                    respuesta.imagenCalidadAlta.informacionArchivo.extension = convertidor_imagenes.FORMATO_PNG
+                    respuesta.imagenCalidadAlta.informacionImagen.hash256 = hash256_cancion_calidad_alta
+                    respuesta.imagenCalidadAlta.informacionImagen.extension = convertidor_imagenes.FORMATO_PNG
                 except StopIteration:
                     logger.info("Se envio la portada " + str(convertidor_imagenes.id_portada) + "."
-                                + convertidor_imagenes.FORMATO_MP3 + " en calidad alta")
+                                + convertidor_imagenes.FORMATO_PNG + " en calidad alta")
                     break
                 yield respuesta
             convertidor_imagenes.limpiar_archivos()
