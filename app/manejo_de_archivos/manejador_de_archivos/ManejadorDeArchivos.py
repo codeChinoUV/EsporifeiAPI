@@ -1,5 +1,8 @@
 import hashlib
+import io
 import os
+
+from PIL import Image, ImageFile
 
 from app.manejo_de_archivos.modelo.enums.enums import Calidad
 from app.manejo_de_archivos.protos import ManejadorDeArchivos_pb2
@@ -75,7 +78,7 @@ class ManejadorDeArchivos:
         """
         ruta = ManejadorDeArchivos.crear_ruta_portada_usuario(id_usuario, calidad)
         ruta_portada = ruta + "/" + str(id_usuario) + "." + formato.value
-        ManejadorDeArchivos._escribir_archivo(ruta_portada, portada)
+        ManejadorDeArchivos._guardar_imagen(ruta_portada, portada)
         return ruta_portada
 
     @staticmethod
@@ -90,7 +93,7 @@ class ManejadorDeArchivos:
         """
         ruta = ManejadorDeArchivos.crear_ruta_portada_creador_de_contenido(id_creador_de_contenido, calidad)
         ruta_portada = ruta + "/" + str(id_creador_de_contenido) + "." + formato.value
-        ManejadorDeArchivos._escribir_archivo(ruta_portada, portada)
+        ManejadorDeArchivos._guardar_imagen(ruta_portada, portada)
         return ruta_portada
 
     @staticmethod
@@ -105,7 +108,7 @@ class ManejadorDeArchivos:
         """
         ruta = ManejadorDeArchivos.crear_ruta_portada_album(id_album, calidad)
         ruta_portada = ruta + "/" + str(id_album) + "." + formato.value
-        ManejadorDeArchivos._escribir_archivo(ruta_portada, portada)
+        ManejadorDeArchivos._guardar_imagen(ruta_portada, portada)
         return ruta_portada
 
     @staticmethod
@@ -141,7 +144,7 @@ class ManejadorDeArchivos:
         :param calidad: La calidad de la portada a guardar
         :return: La ruta del directorio creado
         """
-        carpeta = "portadas/creadores-de-contenido/" + str(id_album) + "/" + \
+        carpeta = "portadas/album/" + str(id_album) + "/" + \
                   ManejadorDeArchivos._calcular_ruta_calidad(calidad)
         os.makedirs(carpeta, exist_ok=True)
         return carpeta
@@ -161,6 +164,18 @@ class ManejadorDeArchivos:
         except Exception as ex:
             print(ex)
         # Mostrar log de error
+
+    @staticmethod
+    def _guardar_imagen(ruta_archivo, bytes_imagen):
+        """
+        Guarda los byte_imagen en la ruta_archivo
+        :param ruta_archivo: La ruta en donde se guardara la imagen
+        :param bytes_imagen: Los bytes de la imagen a guardar
+        :return: None
+        """
+        ImageFile.LOAD_TRUNCATED_IMAGES = True
+        imagen = Image.open(io.BytesIO(bytes_imagen))
+        imagen.save(ruta_archivo)
 
     @staticmethod
     def guardar_cancion_personal(id_cancion, formato, calidad, cancion):
