@@ -1,5 +1,4 @@
 import datetime
-import logging
 import os
 from functools import wraps
 
@@ -12,7 +11,6 @@ from app import create_app
 from app.manejo_de_usuarios.modelo.enum.enums import TipoUsuario
 from app.manejo_de_usuarios.modelo.modelos import Usuario
 
-
 def obtener_secret_key():
     settings_module = os.getenv('APP_SETTINGS_MODULE')
     objeto_configuracion = import_string(settings_module)
@@ -21,7 +19,6 @@ def obtener_secret_key():
         return key
     except AttributeError:
         return None
-
 
 def token_requerido(f):
     @wraps(f)
