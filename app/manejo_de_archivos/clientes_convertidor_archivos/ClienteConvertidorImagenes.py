@@ -2,6 +2,7 @@ import hashlib
 import pathlib
 
 import grpc
+from app import ServidorManejadorDeArchivos
 from app.manejo_de_archivos.protos_convertidor_de_archivos import ConvertidorDeArchivos_pb2
 from app.manejo_de_archivos.protos_convertidor_de_archivos import ConvertidorDeArchivos_pb2_grpc
 
@@ -47,12 +48,12 @@ class ConvertidorDeImagenesCliente:
 
     def enviar_imagen(self):
         with open(self.ubicacion_archivo, 'rb') as archivo:
-            solicitud = ConvertidorDeArchivos_pb2.ConvertirImagenAPng()
-            solicitud.informacionArchivo.idElemento = int(self.id_portada)
-            solicitud.informacionArchivo.extension = self.extension
-            solicitud.informacionArchivo.hash256 = self.informacion_archivo.hash256
+            solicitud = ConvertidorDeArchivos_pb2.SolicitudConvertirPortada()
+            solicitud.informacionImagen.idElemento = int(self.id_portada)
+            solicitud.informacionImagen.extension = self.extension
+            solicitud.informacionImagen.hash256 = self.informacion_archivo.hash256
             for bloque in iter(lambda: archivo.read(self.tamano_chunk), b""):
-                solicitud.paquete.data = bloque
+                solicitud.data = bloque
                 yield solicitud
 
     def recibir_imagen(self, respuesta):
@@ -60,19 +61,20 @@ class ConvertidorDeImagenesCliente:
             self.error = respuesta.error
         if len(respuesta.imagenCalidadAlta.data) > 0:
             self.imagen_calidad_alta += bytearray(respuesta.imagenCalidadAlta.data)
-            if respuesta.imagenCalidadAlta.informacionArchivo is not None:
-                self.informacion_archivo_calidad_alta = respuesta.imagenCalidadAlta.informacionArchivo
+            if respuesta.imagenCalidadAlta.informacionImagen is not None:
+                self.informacion_archivo_calidad_alta = respuesta.imagenCalidadAlta.informacionImagen
         if len(respuesta.imagenCalidadMedia.data) > 0:
             self.imagen_calidad_media += bytearray(respuesta.imagenCalidadMedia.data)
-            if respuesta.imagenCalidadMedia.informacionArchivo is not None:
-                self.informacion_archivo_calidad_media = respuesta.imagenCalidadMedia.informacionArchivo
+            if respuesta.imagenCalidadMedia.informacionImagen is not None:
+                self.informacion_archivo_calidad_media = respuesta.imagenCalidadMedia.informacionImagen
         if len(respuesta.imagenCalidadBaja.data) > 0:
             self.imagen_calidad_baja += bytearray(respuesta.imagenCalidadBaja.data)
-            if respuesta.imagenCalidadBaja.informacionArchivo is not None:
-                self.informacion_archivo_calidad_baja = respuesta.imagenCalidadBaja.informacionArchivo
+            if respuesta.imagenCalidadBaja.informacionImagen is not None:
+                self.informacion_archivo_calidad_baja = respuesta.imagenCalidadBaja.informacionImagen
 
     def enviar_archivo(self):
-        canal = grpc.insecure_channel('192.168.0.15:5002')
+        canal = grpc.insecure_channel(ServidorManejadorDeArchivos.direccion_ip_convertidor_archivos + ':' +
+                                      str(ServidorManejadorDeArchivos.puerto_convertidor_archivos))
         cliente = ConvertidorDeArchivos_pb2_grpc.ConvertidorDeImagenesStub(canal)
         existe_el_archivo = self._validar_existe_archivo()
         if existe_el_archivo is not None:
