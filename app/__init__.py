@@ -49,7 +49,7 @@ def configure_logging(app):
         handlers.append(console_handler)
     elif app.config['APP_ENV'] == app.config['APP_ENV_PRODUCTION']:
         console_handler.setLevel(logging.INFO)
-        logging.basicConfig(filename='EspotifeiRESTAPI.log', level=logging.DEBUG)
+        logging.basicConfig(filename='EspotifeiRESTAPI.log', level=logging.INFO)
     for log in loggers:
         for handler in handlers:
             log.addHandler(handler)
@@ -66,11 +66,13 @@ class ServidorManejadorDeArchivos:
         direccion_ip_convertidor_archivos = direccion_convertidor
         puerto_convertidor_archivos = puerto_convertidor
         from app.manejo_de_archivos.controlador.CancionesService import CancionesServicer
+        from app.manejo_de_archivos.controlador.PortadasService import PortadasServicer
         from app.manejo_de_archivos.protos import ManejadorDeArchivos_pb2_grpc
-        self.logger = logging.getLogger(__name__)
+        self.logger = logging.getLogger()
         self.puerto = puerto
         self.server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
         ManejadorDeArchivos_pb2_grpc.add_CancionesServicer_to_server(CancionesServicer(), self.server)
+        ManejadorDeArchivos_pb2_grpc.add_PortadasServicer_to_server(PortadasServicer(), self.server)
         self.server.add_insecure_port('[::]:' + str(self.puerto))
         self.server.add_insecure_port('0.0.0.0:' + str(self.puerto))
 
@@ -81,7 +83,7 @@ class ServidorManejadorDeArchivos:
         """
         try:
             self.server.start()
-            self.logger.info("Se ha iniciado el servidor GRPC en el puerto: " + str(self.puerto))
+            self.logger.info("Se ha iniciado el servidor GRPC en http://0.0.0.0:" + str(self.puerto))
             self.server.wait_for_termination()
         except KeyboardInterrupt:
             self.logger.info("Se ha cerrado el servidor GRCP")
@@ -91,3 +93,4 @@ class ServidorManejadorDeArchivos:
         Se encarga de detener el servidor
         """
         self.server.stop(ServidorManejadorDeArchivos.TIEMPO_ESPERA_CERRAR)
+        self.logger.info("Se ha cerrado el servidor GRCP")
