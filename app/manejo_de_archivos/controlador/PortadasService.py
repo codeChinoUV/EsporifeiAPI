@@ -1,8 +1,9 @@
 import logging
 
+from app.manejo_de_archivos.manejador_de_archivos.ManejadorDeArchivos import ManejadorDeArchivos
 from app.manejo_de_archivos.manejador_de_archivos.MenejadorDePortadas import ManejadorDePortadas
 from app.manejo_de_archivos.modelo.modelos import Portada
-from app.manejo_de_archivos.protos import ManejadorDeArchivos_pb2_grpc, ManejadorDeArchivos_pb2
+from app.manejo_de_archivos.protos import ManejadorDeArchivos_pb2_grpc
 from app.manejo_de_archivos.protos.ManejadorDeArchivos_pb2 import RespuestaSolicitudSubirArchivo, FormatoImagen, \
     RespuestaObtenerPortada, Error
 from app.manejo_de_usuarios.controlador.v1.LoginControlador import LoginControlador
@@ -15,6 +16,12 @@ class PortadasServicer(ManejadorDeArchivos_pb2_grpc.PortadasServicer):
         self.logger = logging.getLogger()
 
     def SubirPortadaAlbum(self, request_iterator, context):
+        """
+        Se ecnarga de subir la portada de un album
+        :param request_iterator: El iterador de la solicitud
+        :param context: El contexto de la solicitud
+        :return: Una RespuestaSubirArchivo con el tipo de error ocurrido
+        """
         id_elemento = 0
         formato = None
         se_reviso = False
@@ -43,6 +50,12 @@ class PortadasServicer(ManejadorDeArchivos_pb2_grpc.PortadasServicer):
         return respuesta
 
     def SubirPortadaCreadorDeContenido(self, request_iterator, context):
+        """
+        Se ecnarga de subir la portada de un creador de contenido
+        :param request_iterator: El iterador de la solicitud
+        :param context: El contexto de la solicitud
+        :return: Una RespuestaSubirArchivo con el tipo de error ocurrido
+        """
         id_elemento = 0
         formato = None
         se_reviso = False
@@ -72,7 +85,12 @@ class PortadasServicer(ManejadorDeArchivos_pb2_grpc.PortadasServicer):
         return respuesta
 
     def SubirPortadaUsuario(self, request_iterator, context):
-        id_elemento = 0
+        """
+        Se ecnarga de subir la portada de un usuario
+        :param request_iterator: El iterador de la solicitud
+        :param context: El contexto de la solicitud
+        :return: Una RespuestaSubirArchivo con el tipo de error ocurrido
+        """
         formato = None
         se_reviso = False
         respuesta = RespuestaSolicitudSubirArchivo()
@@ -101,6 +119,12 @@ class PortadasServicer(ManejadorDeArchivos_pb2_grpc.PortadasServicer):
         return respuesta
 
     def ObtenerPortadaAlbum(self, request, context):
+        """
+        Se encarga de recuperar la portada de un Album
+        :param request: La solicitud
+        :param context: El contexto de la solicitud
+        :return: Un stream de RespuestaObtenerPortada
+        """
         validacion = ValidacionPortadasService.obtener_portada_album(request.token_autenticacion,
                                                                      request.idElementoDePortada,
                                                                      request.calidadPortadaARecuperar, context.peer())
@@ -108,8 +132,8 @@ class PortadasServicer(ManejadorDeArchivos_pb2_grpc.PortadasServicer):
         if validacion is not None:
             respuesta.error = validacion
             return respuesta
-
-        portada = Portada.obtener_portada_album(request.idElementoDePortada, request.calidadPortadaARecuperar)
+        calidad = ManejadorDeArchivos.convertir_calidad_proto_a_calidad_enum(request.calidadPortadaARecuperar)
+        portada = Portada.obtener_portada_album(request.idElementoDePortada, calidad)
         respuesta.formatoPortada = FormatoImagen.PNG
         self.logger.info(context.peer() + ": Solicitud obtener portada del album " + str(request.idElementoDePortada))
         for respuesta_portada in PortadasServicer.enviar_portada(portada.ruta, respuesta):
@@ -117,6 +141,12 @@ class PortadasServicer(ManejadorDeArchivos_pb2_grpc.PortadasServicer):
         self.logger.info(context.peer() + ": Portada enviada del album " + str(request.idElementoDePortada))
 
     def ObtenerPortadaCreadorDeContenido(self, request, context):
+        """
+        Se encarga de recuperar la portada de un CreadorDeContenido
+        :param request: La solicitud
+        :param context: El contexto de la solicitud
+        :return: Un stream de RespuestaObtenerPortada
+        """
         validacion = ValidacionPortadasService.obtener_portada_creador_de_contenido(request.token_autenticacion,
                                                                                     request.idElementoDePortada,
                                                                                     request.calidadPortadaARecuperar,
@@ -125,9 +155,8 @@ class PortadasServicer(ManejadorDeArchivos_pb2_grpc.PortadasServicer):
         if validacion is not None:
             respuesta.error = validacion
             return respuesta
-
-        portada = Portada.obtener_portada_creador_de_contenido(request.idElementoDePortada,
-                                                               request.calidadPortadaARecuperar)
+        calidad = ManejadorDeArchivos.convertir_calidad_proto_a_calidad_enum(request.calidadPortadaARecuperar)
+        portada = Portada.obtener_portada_creador_de_contenido(request.idElementoDePortada, calidad)
         respuesta.formatoPortada = FormatoImagen.PNG
         self.logger.info(context.peer() + ": Obtener portada del creador de contenido " +
                          str(request.idElementoDePortada))
@@ -137,6 +166,12 @@ class PortadasServicer(ManejadorDeArchivos_pb2_grpc.PortadasServicer):
                          str(request.idElementoDePortada))
 
     def ObtenerPortadaUsuario(self, request, context):
+        """
+        Se encarga de recuperar la portada de un Usuario
+        :param request: La solicitud
+        :param context: El contexto de la solicitud
+        :return: Un stream de RespuestaObtenerPortada
+        """
         validacion = ValidacionPortadasService.obtener_portada_usuario(request.token_autenticacion,
                                                                        request.idElementoDePortada,
                                                                        request.calidadPortadaARecuperar, context.peer())
@@ -144,8 +179,8 @@ class PortadasServicer(ManejadorDeArchivos_pb2_grpc.PortadasServicer):
         if validacion is not None:
             respuesta.error = validacion
             return respuesta
-
-        portada = Portada.obtener_portada_usuario(request.idElementoDePortada, request.calidadPortadaARecuperar)
+        calidad = ManejadorDeArchivos.convertir_calidad_proto_a_calidad_enum(request.calidadPortadaARecuperar)
+        portada = Portada.obtener_portada_usuario(request.idElementoDePortada, calidad)
         respuesta.formatoPortada = FormatoImagen.PNG
         self.logger.info(context.peer() + ": Obtener portada del usuario " + str(request.idElementoDePortada))
         for respuesta_portada in PortadasServicer.enviar_portada(portada.ruta, respuesta):
@@ -154,6 +189,12 @@ class PortadasServicer(ManejadorDeArchivos_pb2_grpc.PortadasServicer):
 
     @staticmethod
     def enviar_portada(ruta_portada, respuesta):
+        """
+        Se encarga de agregar los bytes de la portada a la respuesta
+        :param ruta_portada: La ruta de la portada a regresar
+        :param respuesta: La respuesta en donde se agregaran los bytes de la portada
+        :return: La respuesta con los bytes de la portada
+        """
         tamano_chunk = 1000 * 64
         with open(ruta_portada, 'rb') as archivo:
             for bloque in iter(lambda: archivo.read(tamano_chunk), b""):
