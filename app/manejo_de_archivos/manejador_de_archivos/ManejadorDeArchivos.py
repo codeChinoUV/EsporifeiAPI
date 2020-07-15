@@ -215,3 +215,12 @@ class ManejadorDeArchivos:
         """
         hash256 = hashlib.sha3_256(array_de_bytes).hexdigest()
         return hash256
+
+    @classmethod
+    def validar_existe_archivo(cls, ruta):
+        """
+        Valiad si un archivo existe en la ruta indicada
+        :param ruta: La ruta del archivo a validar si existe
+        :return: Veradero si existe o falso si no
+        """
+        return os.path.exists(ruta)

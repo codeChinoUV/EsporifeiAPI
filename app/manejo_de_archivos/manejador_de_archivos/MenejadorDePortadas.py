@@ -23,7 +23,10 @@ class ManejadorDePortadas:
         :return: Verdadero si existe la portada original del usario o falso si no
         """
         portada = Portada.obtener_portada_usuario(id_usuario, Calidad.ORIGINAL)
-        return portada is not None
+        existe = False
+        if portada is not None:
+            existe = ManejadorDeArchivos.validar_existe_archivo(portada.ruta)
+        return portada is not None and existe
 
     @staticmethod
     def validar_existe_portada_usuario(id_usuario, calidad):
@@ -35,7 +38,10 @@ class ManejadorDePortadas:
         """
         calidad = ManejadorDeArchivos.convertir_calidad_proto_a_calidad_enum(calidad)
         portada = Portada.obtener_portada_usuario(id_usuario, calidad)
-        return portada is not None
+        existe = False
+        if portada is not None:
+            existe = ManejadorDeArchivos.validar_existe_archivo(portada.ruta)
+        return portada is not None and existe
 
     @staticmethod
     def validar_existe_portada_creador_de_contenido_original(id_creador_de_contenido):
@@ -45,7 +51,10 @@ class ManejadorDePortadas:
         :return: Verdadero si existe la portada original del creador de contenido o falso si no
         """
         portada = Portada.obtener_portada_creador_de_contenido(id_creador_de_contenido, Calidad.ORIGINAL)
-        return portada is not None
+        existe = False
+        if portada is not None:
+            existe = ManejadorDeArchivos.validar_existe_archivo(portada.ruta)
+        return portada is not None and existe
 
     @staticmethod
     def validar_existe_portada_creador_de_contenido(id_creador_de_contenido, calidad):
@@ -57,7 +66,10 @@ class ManejadorDePortadas:
         """
         calidad = ManejadorDeArchivos.convertir_calidad_proto_a_calidad_enum(calidad)
         portada = Portada.obtener_portada_creador_de_contenido(id_creador_de_contenido, calidad)
-        return portada is not None
+        existe = False
+        if portada is not None:
+            existe = ManejadorDeArchivos.validar_existe_archivo(portada.ruta)
+        return portada is not None and existe
 
     @staticmethod
     def validar_existe_portada_album_original(id_album):
@@ -67,7 +79,10 @@ class ManejadorDePortadas:
         :return: Verdadero si existe la portada original del album o falso si no
         """
         portada = Portada.obtener_portada_album(id_album, Calidad.ORIGINAL)
-        return portada is not None
+        existe = False
+        if portada is not None:
+            existe = ManejadorDeArchivos.validar_existe_archivo(portada.ruta)
+        return portada is not None and existe
 
     @staticmethod
     def validar_existe_portada_album(id_album, calidad):
@@ -79,7 +94,10 @@ class ManejadorDePortadas:
         """
         calidad = ManejadorDeArchivos.convertir_calidad_proto_a_calidad_enum(calidad)
         portada = Portada.obtener_portada_album(id_album, calidad)
-        return portada is not None
+        existe = False
+        if portada is not None:
+            existe = ManejadorDeArchivos.validar_existe_archivo(portada.ruta)
+        return portada is not None and existe
 
     @staticmethod
     def convertir_formato_manejador_de_archivos_a_enum_formato(formato):
