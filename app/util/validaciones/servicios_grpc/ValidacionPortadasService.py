@@ -48,7 +48,9 @@ class ValidacionPortadasService:
             convertidor_de_archivos.agregar_porada_usuario_a_cola(id_usuario)
             error = ManejadorDeArchivos_pb2.Error.PORTADA_USUARIO_NO_DISPONIBLE
             ValidacionPortadasService.logger.info(ip + " -- Recurso inexistente " + str(id_usuario) +
-                                                  " calidad " + calidad + " :PORTADA_USUARIO_NO_DISPONIBLE")
+                                                  " calidad " +
+                                                  ValidacionServiciosGrpc.convertir_enum_calidad_grpc_a_str(calidad) +
+                                                  " :PORTADA_USUARIO_NO_DISPONIBLE")
             return error
 
     @staticmethod
@@ -74,7 +76,8 @@ class ValidacionPortadasService:
             convertidor_de_archivos.agregar_portada_creador_de_contenido_a_cola(id_creador_de_contenido)
             error = ManejadorDeArchivos_pb2.Error.PORTADA_CREADOR_DE_CONTENIDO_NO_DISPONIBLE
             ValidacionPortadasService.logger.info(ip + " -- Recurso inexistente " + str(id_creador_de_contenido) +
-                                                  " calidad " + calidad +
+                                                  " calidad " +
+                                                  ValidacionServiciosGrpc.convertir_enum_calidad_grpc_a_str(calidad) +
                                                   " :PORTADA_CREADOR_DE_CONTENIDO_NO_DISPONIBLE")
             return error
 
@@ -99,7 +102,9 @@ class ValidacionPortadasService:
             convertidor_archivos.agregar_portada_album_a_cola(id_album)
             error = ManejadorDeArchivos_pb2.Error.PORTADA_ALBUM_NO_DISPONIBLE
             ValidacionPortadasService.logger.info(ip + " -- Recurso inexistente " + str(id_album) +
-                                                  " calidad " + calidad + " :PORTADA_ALBUM_NO_DISPONIBLE")
+                                                  " calidad " +
+                                                  ValidacionServiciosGrpc.convertir_enum_calidad_grpc_a_str(calidad) +
+                                                  " :PORTADA_ALBUM_NO_DISPONIBLE")
             return error
 
     @staticmethod

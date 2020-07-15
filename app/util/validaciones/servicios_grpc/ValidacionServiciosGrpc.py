@@ -50,3 +50,19 @@ class ValidacionServiciosGrpc:
             ValidacionServiciosGrpc.logger.info(ip + " -- Operacion no permitida " + str(usuario_actual.id_usuario)
                                                 + ": OPERACION_NO_PERMITIDA")
             return error
+
+    @staticmethod
+    def convertir_enum_calidad_grpc_a_str(calidad):
+        """
+        Convierte un enum Calidad a su equivalente a texto
+        :param calidad: El enum Calidad a convertir
+        :return: La representacion del enum a string
+        """
+        calidad_str = ""
+        if calidad == ManejadorDeArchivos_pb2.Calidad.ALTA:
+            calidad_str = "alta"
+        elif calidad == ManejadorDeArchivos_pb2.Calidad.MEDIA:
+            calidad_str = "media"
+        elif calidad == ManejadorDeArchivos_pb2.Calidad.BAJA:
+            calidad_str = "baja"
+        return calidad_str
