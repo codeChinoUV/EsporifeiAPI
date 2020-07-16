@@ -13,7 +13,7 @@ COPY app/manejo_de_archivos app/manejo_de_archivos
 COPY app/manejo_de_usuarios app/manejo_de_usuarios
 COPY app/util app/util
 COPY app/__init__.py app/
-COPY app/entry-docker.sh .
+COPY app/entry-docker.sh app/
 COPY config config/
 COPY migrations migrations/
 COPY entrypoint.py .
@@ -22,10 +22,7 @@ COPY requerimientos.txt .
 RUN echo "Instalando software"
 RUN apt-get update
 RUN apt-get -y upgrade
-RUN apt-get install -y python3-pip postgresql-contrib libpq-dev ffmpeg
-
-RUN apt-get update && apt-get -y install sudo
-RUN useradd -m docker && echo "docker:docker" | chpasswd && adduser docker sudo
+RUN apt-get install -y python3-pip libpq-dev ffmpeg
 
 RUN pip3 install -r ./requerimientos.txt
 RUN python3 -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. app/manejo_de_archivos/protos/ManejadorDeArchivos.proto
