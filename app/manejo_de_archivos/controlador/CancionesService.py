@@ -1,5 +1,7 @@
+from app.administracion_de_contenido.controlador.v1.HistorialControlador import HistorialCancionControlador
 from app.manejo_de_archivos.manejador_de_archivos.ManejadorCanciones import ManejadorCanciones
 from app.manejo_de_archivos.protos import ManejadorDeArchivos_pb2_grpc, ManejadorDeArchivos_pb2
+from app.manejo_de_usuarios.controlador.v1.LoginControlador import LoginControlador
 from app.util.validaciones.servicios_grpc.ValidacionCancionesService import ValidacionCancionesService
 import logging as log
 
@@ -97,6 +99,8 @@ class CancionesServicer(ManejadorDeArchivos_pb2_grpc.CancionesServicer):
                 yield respuesta
         else:
             cancion = ManejadorCanciones.obtener_archivo_audio_cancion(id_cancion, calidad)
+            usuario_actual = LoginControlador.token_requerido_grpc(token)
+            HistorialCancionControlador.agregar_cancion_a_historial_usuario(usuario_actual.id_usuario, id_cancion)
             respuesta.formatoCancion = ManejadorDeArchivos_pb2.FormatoAudio.MP3
             for respuesta_cancion in CancionesServicer.enviar_cancion(cancion.ruta, respuesta):
                 yield respuesta_cancion
