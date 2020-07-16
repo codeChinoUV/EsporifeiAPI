@@ -1,0 +1,46 @@
+version: '3'
+
+services:
+  psql_db:
+    environment:
+      POSTGRES_USER: espotifeiapi
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: espotifei
+    image: postgres:latest
+    ports:
+      - 5432:5432
+    restart: always
+
+  mongo_db:
+    image: mongo:4.0.8
+    container_name: mongo_db
+    restart: unless-stopped
+    command: mongod
+    environment:
+      MONGODB_DATA_DIR: /data/db
+      MONDODB_LOG_DIR: /dev/null
+    ports:
+      - 27017:27017
+
+  convertidor_archivos:
+    build: ./convertidor_archivos
+    volumes:
+      - ./convertidor_archivos:/usr/src/app
+    ports:
+      - 5002:5002
+
+  api:
+    build: .
+    depends_on:
+      - psql_db
+      - convertidor_archivos
+      - mongo_db
+    ports:
+    - 5000:5000
+    - 5001:5001
+    volumes:
+    - ./app:/usr/src/app/app
+    - ./migrations:/usr/src/app/migrations
+    restart: always
+
+
