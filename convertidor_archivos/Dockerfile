@@ -2,11 +2,11 @@ FROM python:3
 WORKDIR /usr/src/app
 COPY ConvertidorDeArchivosServer.py .
 ADD requerimientos.txt .
-RUN mkdir protos convertidor_de_canciones
+RUN mkdir protos convertidor
 RUN mkdir canciones
 COPY protos/ConvertidorDeArchivos.proto ./protos
-COPY convertidor ./convertidor_de_canciones
-COPY convertidor ./convertidor_de_canciones
+COPY convertidor ./convertidor
+COPY convertidor ./convertidor
 
 RUN pip3 install -r ./requerimientos.txt
 RUN ls -l
