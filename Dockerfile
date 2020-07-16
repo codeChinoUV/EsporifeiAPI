@@ -1,4 +1,4 @@
-FROM python:3
+FROM python:3.8.3-slim
 WORKDIR WORKDIR /usr/src/app
 RUN echo "Copiando aplicacion"
 RUN mkdir app
