@@ -110,7 +110,8 @@ class ValidacionCancionesService:
             convertidor_de_archivos = ConvertidorDeArchivos()
             convertidor_de_archivos.agregar_cancion_a_cola(id_cancion)
             error_no_disponible = ManejadorDeArchivos_pb2.Error.CANCION_NO_DISPONIBLE
-            ValidacionCancionesService.logger.error(ip + " -- Recurso inexistente " + str(id_cancion) +
+            ValidacionCancionesService.logger.error(ip + " -- Recurso inexistente " + str(id_cancion) + " en calidad " +
+                                                    ValidacionServiciosGrpc.convertir_enum_calidad_grpc_a_str(calidad) +
                                                     " :CANCION_NO_DISPONIBLE")
             return error_no_disponible
 
@@ -144,7 +145,8 @@ class ValidacionCancionesService:
             convertidor_de_archivos = ConvertidorDeArchivos()
             convertidor_de_archivos.agregar_cancion_personal_a_cola(id_cancion)
             error_no_disponible = ManejadorDeArchivos_pb2.Error.CANCION_PERSONAL_NO_DISPONIBLE
-            ValidacionCancionesService.logger.error(ip + " -- Recurso inexistente " + str(id_cancion) +
+            ValidacionCancionesService.logger.error(ip + " -- Recurso inexistente " + str(id_cancion) + " en calidad " +
+                                                    ValidacionServiciosGrpc.convertir_enum_calidad_grpc_a_str(calidad) +
                                                     " :CANCION_PERSONAL_NO_DISPONIBLE")
             return error_no_disponible
 
