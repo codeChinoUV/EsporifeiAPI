@@ -216,6 +216,8 @@ class Genero(base_de_datos.Model):
     """
     id_genero = base_de_datos.Column(base_de_datos.Integer, primary_key=True, autoincrement=True)
     genero = base_de_datos.Column(base_de_datos.String(30), nullable=False)
+    lista_generos = ['Electronic Dance', 'Rock', 'Jazz', 'Dubstep', 'R&B', 'Techno', 'Musica country',
+                     'Electro', 'Indie Rock', 'Pop', 'Hip-Hop', 'Heavy Metal', 'Musica clásica']
 
     @staticmethod
     def recuperar_todos_los_generos():
@@ -223,8 +225,21 @@ class Genero(base_de_datos.Model):
         Recupera de la base de datos todos los generos registrados
         :return: Una lista con los generos registrados
         """
+        cantidad_generos = Genero.query.count()
+        if cantidad_generos == 0:
+            Genero._guardar_generos()
         generos = Genero.query.all()
         return generos
+
+    @staticmethod
+    def _guardar_generos():
+        """
+        Agrega a la base de datos los generos que tendra
+        """
+        for genero in Genero.lista_generos:
+            genero_objeto = Genero(genero=genero)
+            base_de_datos.session.add(genero_objeto)
+        base_de_datos.session.commit()
 
     @staticmethod
     def obtener_genero_por_id(id_genero):
