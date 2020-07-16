@@ -1,8 +1,11 @@
 from pymongo import MongoClient
 from pymongo import ASCENDING
 
+from app import ServidorManejadorDeArchivos
+
+
 class BaseDeDatosMongo:
-    cliente_mongo = MongoClient('localhost')
+    cliente_mongo = MongoClient(ServidorManejadorDeArchivos.direccion_ip_servidor_mongo)
     manejo_de_archivos_db = cliente_mongo['manejo_archivos']
     portadas_db = manejo_de_archivos_db['portadas']
     archivos_de_audio_db = manejo_de_archivos_db['archivos_de_audio']
