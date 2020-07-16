@@ -125,20 +125,25 @@ class PortadasServicer(ManejadorDeArchivos_pb2_grpc.PortadasServicer):
         :param context: El contexto de la solicitud
         :return: Un stream de RespuestaObtenerPortada
         """
+        ya_se_reviso = False
         validacion = ValidacionPortadasService.obtener_portada_album(request.token_autenticacion,
                                                                      request.idElementoDePortada,
                                                                      request.calidadPortadaARecuperar, context.peer())
         respuesta = RespuestaObtenerPortada()
         if validacion is not None:
             respuesta.error = validacion
-            return respuesta
-        calidad = ManejadorDeArchivos.convertir_calidad_proto_a_calidad_enum(request.calidadPortadaARecuperar)
-        portada = Portada.obtener_portada_album(request.idElementoDePortada, calidad)
-        respuesta.formatoPortada = FormatoImagen.PNG
-        self.logger.info(context.peer() + ": Solicitud obtener portada del album " + str(request.idElementoDePortada))
-        for respuesta_portada in PortadasServicer.enviar_portada(portada.ruta, respuesta):
-            yield respuesta_portada
-        self.logger.info(context.peer() + ": Portada enviada del album " + str(request.idElementoDePortada))
+            while not ya_se_reviso:
+                ya_se_reviso = True
+                yield respuesta
+        else:
+            calidad = ManejadorDeArchivos.convertir_calidad_proto_a_calidad_enum(request.calidadPortadaARecuperar)
+            portada = Portada.obtener_portada_album(request.idElementoDePortada, calidad)
+            respuesta.formatoPortada = FormatoImagen.PNG
+            self.logger.info(context.peer() + ": Solicitud obtener portada del album " +
+                             str(request.idElementoDePortada))
+            for respuesta_portada in PortadasServicer.enviar_portada(portada.ruta, respuesta):
+                yield respuesta_portada
+            self.logger.info(context.peer() + ": Portada enviada del album " + str(request.idElementoDePortada))
 
     def ObtenerPortadaCreadorDeContenido(self, request, context):
         """
@@ -147,6 +152,7 @@ class PortadasServicer(ManejadorDeArchivos_pb2_grpc.PortadasServicer):
         :param context: El contexto de la solicitud
         :return: Un stream de RespuestaObtenerPortada
         """
+        ya_se_reviso = False
         validacion = ValidacionPortadasService.obtener_portada_creador_de_contenido(request.token_autenticacion,
                                                                                     request.idElementoDePortada,
                                                                                     request.calidadPortadaARecuperar,
@@ -154,16 +160,19 @@ class PortadasServicer(ManejadorDeArchivos_pb2_grpc.PortadasServicer):
         respuesta = RespuestaObtenerPortada()
         if validacion is not None:
             respuesta.error = validacion
-            return respuesta
-        calidad = ManejadorDeArchivos.convertir_calidad_proto_a_calidad_enum(request.calidadPortadaARecuperar)
-        portada = Portada.obtener_portada_creador_de_contenido(request.idElementoDePortada, calidad)
-        respuesta.formatoPortada = FormatoImagen.PNG
-        self.logger.info(context.peer() + ": Obtener portada del creador de contenido " +
-                         str(request.idElementoDePortada))
-        for respuesta_portada in PortadasServicer.enviar_portada(portada.ruta, respuesta):
-            yield respuesta_portada
-        self.logger.info(context.peer() + ": Portada enviada del creador de contenido " +
-                         str(request.idElementoDePortada))
+            while not ya_se_reviso:
+                ya_se_reviso = True
+                yield respuesta
+        else:
+            calidad = ManejadorDeArchivos.convertir_calidad_proto_a_calidad_enum(request.calidadPortadaARecuperar)
+            portada = Portada.obtener_portada_creador_de_contenido(request.idElementoDePortada, calidad)
+            respuesta.formatoPortada = FormatoImagen.PNG
+            self.logger.info(context.peer() + ": Obtener portada del creador de contenido " +
+                             str(request.idElementoDePortada))
+            for respuesta_portada in PortadasServicer.enviar_portada(portada.ruta, respuesta):
+                yield respuesta_portada
+            self.logger.info(context.peer() + ": Portada enviada del creador de contenido " +
+                             str(request.idElementoDePortada))
 
     def ObtenerPortadaUsuario(self, request, context):
         """
@@ -172,20 +181,24 @@ class PortadasServicer(ManejadorDeArchivos_pb2_grpc.PortadasServicer):
         :param context: El contexto de la solicitud
         :return: Un stream de RespuestaObtenerPortada
         """
+        ya_se_reviso = False
         validacion = ValidacionPortadasService.obtener_portada_usuario(request.token_autenticacion,
                                                                        request.idElementoDePortada,
                                                                        request.calidadPortadaARecuperar, context.peer())
         respuesta = RespuestaObtenerPortada()
         if validacion is not None:
             respuesta.error = validacion
-            return respuesta
-        calidad = ManejadorDeArchivos.convertir_calidad_proto_a_calidad_enum(request.calidadPortadaARecuperar)
-        portada = Portada.obtener_portada_usuario(request.idElementoDePortada, calidad)
-        respuesta.formatoPortada = FormatoImagen.PNG
-        self.logger.info(context.peer() + ": Obtener portada del usuario " + str(request.idElementoDePortada))
-        for respuesta_portada in PortadasServicer.enviar_portada(portada.ruta, respuesta):
-            yield respuesta_portada
-        self.logger.info(context.peer() + ": Portada enviada del usaurio " + str(request.idElementoDePortada))
+            while not ya_se_reviso:
+                ya_se_reviso = True
+                yield respuesta
+        else:
+            calidad = ManejadorDeArchivos.convertir_calidad_proto_a_calidad_enum(request.calidadPortadaARecuperar)
+            portada = Portada.obtener_portada_usuario(request.idElementoDePortada, calidad)
+            respuesta.formatoPortada = FormatoImagen.PNG
+            self.logger.info(context.peer() + ": Obtener portada del usuario " + str(request.idElementoDePortada))
+            for respuesta_portada in PortadasServicer.enviar_portada(portada.ruta, respuesta):
+                yield respuesta_portada
+            self.logger.info(context.peer() + ": Portada enviada del usaurio " + str(request.idElementoDePortada))
 
     @staticmethod
     def enviar_portada(ruta_portada, respuesta):
