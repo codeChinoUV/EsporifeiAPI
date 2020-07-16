@@ -1,3 +1,5 @@
+import os
+
 from flask import request
 from flask_restful import Resource, reqparse
 
@@ -6,6 +8,7 @@ from app.administracion_de_contenido.modelo.modelos import CancionPersonal
 from app.manejo_de_usuarios.controlador.v1.LoginControlador import token_requerido
 from app.util.validaciones.modelos.ValidacionCancionPersonal import ValidacionCancionPersonal
 
+settings_module = os.getenv('APP_SETTINGS_MODULE')
 
 class BibliotecaPersonalCanciones(Resource):
 
@@ -57,7 +60,7 @@ class BibliotecaPersonalCanciones(Resource):
 
     @staticmethod
     def modificar_duracion(id_cancion, duracion):
-        app = create_app()
+        app = create_app(settings_module)
         with app.app_context():
             CancionPersonal.modificar_duracion(id_cancion, duracion)
 

@@ -1,23 +1,15 @@
+import os
+
 from flask import request
 from flask_restful import Resource
 
+from app import create_app
 from app.administracion_de_contenido.modelo.modelos import HistorialCancion, Cancion
 from app.manejo_de_usuarios.controlador.v1.LoginControlador import token_requerido
 
+settings_module = os.getenv('APP_SETTINGS_MODULE')
 
 class HistorialCancionControlador(Resource):
-
-    #def __init__(self):
-    #    historialCancion1 = HistorialCancion(id_usuario=3, id_cancion=1)
-    #    historialCancion1.guardar_con_fecha(1)
-    #    historialCancion2 = HistorialCancion(id_usuario=3, id_cancion=2)
-    #    historialCancion2.guardar_con_fecha(8)
-    #    historialCancion3 = HistorialCancion(id_usuario=3, id_cancion=3)
-    #    historialCancion3.guardar_con_fecha(16)
-    #    historialCancion4 = HistorialCancion(id_usuario=3, id_cancion=4)
-    #    historialCancion4.guardar_con_fecha(24)
-    #    historialCancion5 = HistorialCancion(id_usuario=3, id_cancion=5)
-    #    historialCancion5.guardar_con_fecha(32)
 
     @token_requerido
     def get(self, usuario_actual):
@@ -49,4 +41,15 @@ class HistorialCancionControlador(Resource):
                 canciones_dicionario.append(cancion_recuperada.obtener_json_con_album())
         return canciones_dicionario, 200
 
-
+    @staticmethod
+    def agregar_cancion_a_historial_usuario(id_usuario, id_cancion):
+        """
+        Agrega al historial del usuario con el id_usuario la cancion con el id_cancion
+        :param id_usuario: El id del usuario al que se le agregara la cancion a su historial
+        :param id_cancion: La cancion a agregar al historial
+        :return: None
+        """
+        app = create_app(settings_module)
+        with app.app_context():
+            historial = HistorialCancion(id_usuario=id_usuario, id_cancion=id_cancion)
+            historial.guardar()

@@ -2,13 +2,14 @@
     Se encarga de representar a un CreadorDeContenido y manejar el acceso del objeto a la base de datos
 """
 import datetime
+import os
 
-from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import desc
 
 from app import base_de_datos, create_app
 from app.util.JsonBool import JsonBool
-from sqlalchemy import desc
 
+settings_module = os.getenv('APP_SETTINGS_MODULE')
 artistas_generos = base_de_datos.Table('artistas_generos',
                                        base_de_datos.Column('id_creador_de_contenido', base_de_datos.Integer,
                                                             base_de_datos.ForeignKey(
@@ -103,7 +104,7 @@ class CreadorDeContenido(base_de_datos.Model):
                 filter_by(usuario_id_usuario=id_usuario).count()
             return perfiles_con_el_mismo_usuario > 0
         except RuntimeError:
-            app = create_app()
+            app = create_app(settings_module)
             with app.app_context():
                 perfiles_con_el_mismo_usuario = CreadorDeContenido.query. \
                     filter_by(usuario_id_usuario=id_usuario).count()
@@ -130,7 +131,7 @@ class CreadorDeContenido(base_de_datos.Model):
             creador_de_contenido = CreadorDeContenido.query.filter_by(usuario_id_usuario=id_usuario).first()
             return creador_de_contenido
         except RuntimeError:
-            app = create_app()
+            app = create_app(settings_module)
             with app.app_context():
                 creador_de_contenido = CreadorDeContenido.query.filter_by(usuario_id_usuario=id_usuario).first()
                 return creador_de_contenido
@@ -142,7 +143,7 @@ class CreadorDeContenido(base_de_datos.Model):
         :param id_usuario: El id del usuario al cual pertence el creador de contenido
         :return: El creador de contenido que pertenezca al usuario
         """
-        app = create_app()
+        app = create_app(settings_module)
         with app.app_context():
             creador_de_contenido = CreadorDeContenido.query.filter_by(usuario_id_usuario=id_usuario).first()
             return creador_de_contenido
@@ -312,37 +313,6 @@ class Genero(base_de_datos.Model):
             return creadores_de_contenido
 
 
-class Disquera(base_de_datos.Model):
-    """
-    Se encarga de representar una Disquera a la que pertenece un artista
-    """
-    id_disquera = base_de_datos.Column(base_de_datos.Integer, primary_key=True, autoincrement=True)
-    nombre = base_de_datos.Column(base_de_datos.String(70), nullable=False)
-    direccion = base_de_datos.Column(base_de_datos.String(200), nullable=False)
-    email = base_de_datos.Column(base_de_datos.String(100), nullable=False)
-    telefono = base_de_datos.Column(base_de_datos.String(30), nullable=True)
-    es_empresa = base_de_datos.Column(base_de_datos.Boolean, nullable=False)
-    nombre_usuario_creador = base_de_datos.Column(base_de_datos.String(20), nullable=False)
-
-    def guardar(self):
-        """
-        Se encarga de guardar el objeto actual en la base de datos
-        """
-        if self.es_empresa is None:
-            self.es_empresa = False
-        base_de_datos.session.add(self)
-        base_de_datos.session.commit()
-
-    def obtner_json(self):
-        """
-        Crea un diccionario con los atributos del objeto
-        :return: Un diccionario con los atributos del objeto
-        """
-        diccionario_de_los_atributos = {'id': self.id_disquera, 'nombre': self.nombre, 'direccion': self.direccion,
-                                        'email': self.email, 'telefono': self.telefono, 'es_empresa': self.es_empresa}
-        return diccionario_de_los_atributos
-
-
 albumes_de_la_cancion = base_de_datos.Table('albumes_de_la_cancion',
                                             base_de_datos.Column('id_album', base_de_datos.Integer,
                                                                  base_de_datos.ForeignKey(
@@ -426,7 +396,7 @@ class Album(base_de_datos.Model):
             cantidad_de_albumes_con_el_id = Album.query.filter_by(id_album=id_album).count()
             return cantidad_de_albumes_con_el_id > 0
         except RuntimeError:
-            app = create_app()
+            app = create_app(settings_module)
             with app.app_context():
                 cantidad_de_albumes_con_el_id = Album.query.filter_by(id_album=id_album).count()
                 return cantidad_de_albumes_con_el_id > 0
@@ -456,7 +426,7 @@ class Album(base_de_datos.Model):
                 .filter_by(id_album=id_album, creador_de_contenido_id=id_creador_de_contenido).count()
             return cantidad_de_albumes > 0
         except RuntimeError:
-            app = create_app()
+            app = create_app(settings_module)
             with app.app_context():
                 cantidad_de_albumes = Album.query \
                     .filter_by(id_album=id_album, creador_de_contenido_id=id_creador_de_contenido).count()
@@ -587,7 +557,7 @@ class Cancion(base_de_datos.Model):
             cancion = Cancion.query.filter_by(id_cancion=id_cancion, eliminada=False).first()
             return cancion
         except RuntimeError:
-            app = create_app()
+            app = create_app(settings_module)
             with app.app_context():
                 cancion = Cancion.query.filter_by(id_cancion=id_cancion, eliminada=False).first()
                 return cancion
@@ -856,7 +826,7 @@ class Cancion(base_de_datos.Model):
         :param id_cancion: El id de la cancion a recuperar sus albumes
         :return: Una lista de albumes
         """
-        app = create_app()
+        app = create_app(settings_module)
         with app.app_context():
             cancion = Cancion.query.filter_by(id_cancion=id_cancion).first()
             return cancion.albumes
@@ -1120,7 +1090,13 @@ class HistorialCancion(base_de_datos.Model):
         Guarda el objeto actual en la base de datos
         :return: None
         """
-        base_de_datos.session.add(self)
+        historial = HistorialCancion.query.filter_by(id_cancion=self.id_cancion, id_usuario=self.id_usuario).first()
+        if historial is not None:
+            historial.fecha_de_reproduccion = datetime.datetime.now()
+        else:
+            base_de_datos.session.add(self)
+        cancion = Cancion.obtener_cancion_por_id(self.id_cancion)
+        cancion.cantidad_de_reproducciones += 1
         base_de_datos.session.commit()
 
     def guardar_con_fecha(self, hace_dias):
@@ -1286,7 +1262,7 @@ class CancionPersonal(base_de_datos.Model):
             cancion = CancionPersonal.query.filter_by(id_cancion_personal=id_cancion).first()
             return cancion
         except RuntimeError:
-            app = create_app()
+            app = create_app(settings_module)
             with app.app_context():
                 cancion = CancionPersonal.query.filter_by(id_cancion_personal=id_cancion).first()
                 return cancion
@@ -1304,7 +1280,7 @@ class CancionPersonal(base_de_datos.Model):
                                                                id_cancion_personal=id_cancion_personal).count()
             return cancion_personal > 0
         except RuntimeError:
-            app = create_app()
+            app = create_app(settings_module)
             with app.app_context():
                 cancion_personal = CancionPersonal.query.filter_by(id_usuario=id_usuario,
                                                                    id_cancion_personal=id_cancion_personal).count()

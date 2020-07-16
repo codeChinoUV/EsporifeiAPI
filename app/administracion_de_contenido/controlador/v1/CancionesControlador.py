@@ -1,3 +1,5 @@
+import os
+
 from flask import request
 from flask_restful import reqparse, Resource
 
@@ -9,6 +11,7 @@ from app.util.validaciones.modelos.ValidacionCancion import ValidacionCancion
 from app.util.validaciones.modelos.ValidacionCreadorDeContenido import ValidacionCreadorDeContenido
 from app.util.validaciones.modelos.ValidacionGenero import ValidacionGenero
 
+settings_module = os.getenv('APP_SETTINGS_MODULE')
 
 class CreadorDeContenidoAlbumCanciones(Resource):
 
@@ -170,7 +173,7 @@ class CreadorDeContenidoAlbumCancion(Resource):
 
     @staticmethod
     def modificar_duracion(id_cancion, duracion_total):
-        app = create_app()
+        app = create_app(settings_module)
         with app.app_context():
             Cancion.modificar_duracion(id_cancion, duracion_total)
 
