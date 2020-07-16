@@ -97,7 +97,10 @@ class ManejadorCanciones:
         :return: True si existe o False si no
         """
         archivo_audio = ArchivoAudio.obtener_archivo_audio_cancion(id_cancion, Calidad.ORIGINAL)
-        return archivo_audio is not None
+        existe = False
+        if archivo_audio is not None:
+            existe = ManejadorDeArchivos.validar_existe_archivo(archivo_audio.ruta)
+        return archivo_audio is not None and existe
 
     @staticmethod
     def validar_existe_archivo_cancion_original(id_cancion):
@@ -246,7 +249,10 @@ class ManejadorCanciones:
         :return: True si el ArchivoAudio de la cancion personal con la calidad ORIGINAL o False si no
         """
         archivo_audio = ArchivoAudio.obtener_archivo_audio_cancion_personal(id_cancion, Calidad.ORIGINAL)
-        return archivo_audio is not None
+        existe = False
+        if archivo_audio is not None:
+            existe = ManejadorDeArchivos.validar_existe_archivo(archivo_audio.ruta)
+        return archivo_audio is not None and existe
 
     @staticmethod
     def validar_existe_archivo_cancion_personal_original(id_cancion):
