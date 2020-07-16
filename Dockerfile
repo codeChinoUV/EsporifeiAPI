@@ -19,6 +19,7 @@ COPY migrations migrations/
 COPY entrypoint.py .
 COPY requerimientos.txt .
 
+RUN chmod 777 app/entry-docker.sh
 RUN echo "Instalando software"
 RUN apt-get update
 RUN apt-get -y upgrade
