@@ -11,7 +11,7 @@ from app.administracion_de_contenido.modelo.modelos import CreadorDeContenido
 from app.util.validaciones.servicios_grpc.ValidacionServiciosGrpc import ValidacionServiciosGrpc
 
 class ValidacionCancionesService:
-    logger = logging.getLogger(__name__)
+    logger = logging.getLogger()
 
     @staticmethod
     def _validar_existe_cancion(id_cancion, ip):
