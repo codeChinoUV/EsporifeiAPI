@@ -1,5 +1,6 @@
+import threading
 from concurrent import futures
-
+import signal
 import grpc
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
@@ -10,7 +11,8 @@ base_de_datos = SQLAlchemy()
 migrate = Migrate()
 
 
-def create_app(settings_module="config.dev"):
+def create_app(settings_module="config.dev", puerto=5001, direccion_convertidor="127.0.0.1", puerto_convertidor=5002,
+               ip_servidor_mongo="127.0.0.1", iniciar_grcp_server=False):
     app = Flask(__name__)
     app.config.from_object(settings_module)
     configure_logging(app)
@@ -20,12 +22,19 @@ def create_app(settings_module="config.dev"):
     app.register_blueprint(manejo_de_usuarios)
     from app.administracion_de_contenido import administracion_de_contenido
     app.register_blueprint(administracion_de_contenido)
-    # Custom error handlers
+    if iniciar_grcp_server:
+        servidor = crear_servidor_archivos(puerto, direccion_convertidor, puerto_convertidor, ip_servidor_mongo)
+        signal.signal(signal.SIGINT, servidor.stop)
+    register_error_handlers(app)
     with app.app_context():
         base_de_datos.create_all()
-    register_error_handlers(app)
     return app
 
+def crear_servidor_archivos(puerto, direccion_convertidor, puerto_convertidor, ip_servidor_mongo):
+    servidor = ServidorManejadorDeArchivos(puerto, direccion_convertidor, puerto_convertidor, ip_servidor_mongo)
+    hilo_manejador_canciones = threading.Thread(target=servidor.iniciar)
+    hilo_manejador_canciones.start()
+    return servidor
 
 def register_error_handlers(app):
     @app.errorhandler(500)
@@ -35,7 +44,6 @@ def register_error_handlers(app):
     @app.errorhandler(404)
     def error_404_handler(e):
         return {}, 404
-
 
 def configure_logging(app):
     del app.logger.handlers[:]
@@ -57,14 +65,36 @@ def configure_logging(app):
         log.setLevel(logging.DEBUG)
 
 class ServidorManejadorDeArchivos:
-
-    TIEMPO_ESPERA_CERRAR = 1000
+    puerto = 5001
+    TIEMPO_ESPERA_CERRAR = 10
     puerto_convertidor_archivos = 5002
     direccion_ip_convertidor_archivos = "127.0.0.1"
+    direccion_ip_servidor_mongo = "127.0.0.1"
 
-    def __init__(self, puerto=5001, direccion_convertidor="127.0.0.1", puerto_convertidor=5002):
-        direccion_ip_convertidor_archivos = direccion_convertidor
-        puerto_convertidor_archivos = puerto_convertidor
+    @staticmethod
+    def _establecer_direcciones_servicios(puerto, direccion_convertidor, puerto_convertidor, ip_servidor_mongo):
+        if puerto is not None:
+            try:
+                ServidorManejadorDeArchivos.puerto = int(puerto)
+            except ValueError:
+                ServidorManejadorDeArchivos.puerto = 5001
+                print('GRPC_PORT invalido se ha asignado automaticamente el puerto 5001')
+        else:
+            ServidorManejadorDeArchivos.puerto = 5001
+        if puerto_convertidor is not None:
+            try:
+                ServidorManejadorDeArchivos.puerto_convertidor_archivos = int(puerto_convertidor)
+            except ValueError:
+                ServidorManejadorDeArchivos.puerto_convertidor_archivos = 5002
+                print('CONVERTIDOR_ARCHIVOS_PORT invalido se ha asignado automaticamente el puerto 5002')
+            else:
+                ServidorManejadorDeArchivos.puerto_convertidor_archivos = 5002
+        ServidorManejadorDeArchivos.direccion_ip_convertidor_archivos = direccion_convertidor
+        ServidorManejadorDeArchivos.direccion_ip_servidor_mongo = ip_servidor_mongo
+
+    def __init__(self, puerto, direccion_convertidor, puerto_convertidor, ip_servidor_mongo):
+        ServidorManejadorDeArchivos._establecer_direcciones_servicios(puerto, direccion_convertidor, puerto_convertidor,
+                                                                      ip_servidor_mongo)
         from app.manejo_de_archivos.controlador.CancionesService import CancionesServicer
         from app.manejo_de_archivos.controlador.PortadasService import PortadasServicer
         from app.manejo_de_archivos.protos import ManejadorDeArchivos_pb2_grpc
@@ -87,8 +117,10 @@ class ServidorManejadorDeArchivos:
             self.server.wait_for_termination()
         except KeyboardInterrupt:
             self.logger.info("Se ha cerrado el servidor GRCP")
+        except Exception as ex:
+            self.logger.info(str(ex))
 
-    def stop(self):
+    def stop(self, *args):
         """
         Se encarga de detener el servidor
         """
