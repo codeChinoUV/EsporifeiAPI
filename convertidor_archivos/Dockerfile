@@ -1,4 +1,5 @@
 FROM python:3
+WORKDIR /usr/src/app
 COPY ConvertidorDeArchivosServer.py .
 ADD requerimientos.txt .
 RUN mkdir protos convertidor_de_canciones
@@ -16,4 +17,3 @@ RUN apt-get install -y ffmpeg
 RUN touch EspotifeiConvertidorDeArchivos.log
 EXPOSE 5002
 CMD ["python3", "ConvertidorDeArchivosServer.py"]
-# RUN ["tail", "-f", "EspotifeiConvertidorDeArchivos.log"]
