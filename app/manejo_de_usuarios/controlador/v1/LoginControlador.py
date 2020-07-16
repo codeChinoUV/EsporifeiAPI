@@ -11,8 +11,9 @@ from app import create_app
 from app.manejo_de_usuarios.modelo.enum.enums import TipoUsuario
 from app.manejo_de_usuarios.modelo.modelos import Usuario
 
+settings_module = os.getenv('APP_SETTINGS_MODULE')
+
 def obtener_secret_key():
-    settings_module = os.getenv('APP_SETTINGS_MODULE')
     objeto_configuracion = import_string(settings_module)
     try:
         key = objeto_configuracion.SECRET_KEY
@@ -91,7 +92,6 @@ class LoginControlador(Resource):
 
     @staticmethod
     def token_requerido_grpc(token):
-        settings_module = os.getenv('APP_SETTINGS_MODULE')
         app = create_app(settings_module)
         if token is not None:
             try:
