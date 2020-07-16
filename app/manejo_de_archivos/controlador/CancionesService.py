@@ -100,7 +100,7 @@ class CancionesServicer(ManejadorDeArchivos_pb2_grpc.CancionesServicer):
             respuesta.formatoCancion = ManejadorDeArchivos_pb2.FormatoAudio.MP3
             for respuesta_cancion in CancionesServicer.enviar_cancion(cancion.ruta, respuesta):
                 yield respuesta_cancion
-        CancionesServicer.logger.info(context.peer() + " : Cancion devuelta con id " + str(id_cancion))
+            CancionesServicer.logger.info(context.peer() + " : Cancion devuelta con id " + str(id_cancion))
 
     def ObtenerCancionPersonal(self, request, context):
         ya_se_reviso = False
@@ -124,8 +124,8 @@ class CancionesServicer(ManejadorDeArchivos_pb2_grpc.CancionesServicer):
             respuesta.formatoCancion = ManejadorDeArchivos_pb2.FormatoAudio.MP3
             for respuesta_cancion in CancionesServicer.enviar_cancion(cancion.ruta, respuesta):
                 yield respuesta_cancion
-        CancionesServicer.logger.info(context.peer() + " : Cancion personal devuelta con id "
-                                      + str(id_cancion_personal))
+            CancionesServicer.logger.info(context.peer() + " : Cancion personal devuelta con id "
+                                          + str(id_cancion_personal))
 
     @staticmethod
     def enviar_cancion(ruta_cancion, respuesta):
