@@ -4,11 +4,10 @@ import logging
 from concurrent import futures
 
 import grpc
-import protos.ConvertidorDeArchivos_pb2_grpc as ConvertidorDeArchivos_pb2_grpc
-import protos.ConvertidorDeArchivos_pb2 as ConvertidorDeArchivos_pb2
-from convertidor.ConvertidorDeCanciones import ConvertidorDeCanciones
 
-from convertidor.ConvertidorDeImagenes import ConvertidorDeImagenes
+from convertidor_archivos.convertidor.ConvertidorDeCanciones import ConvertidorDeCanciones
+from convertidor_archivos.convertidor.ConvertidorDeImagenes import ConvertidorDeImagenes
+from convertidor_archivos.protos import ConvertidorDeArchivos_pb2_grpc, ConvertidorDeArchivos_pb2
 
 global logger
 
