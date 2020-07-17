@@ -51,7 +51,7 @@ class ConvertidorDeCancionesCliente:
     def enviar_cancion(self):
         with open(self.ubicacion_archivo, 'rb') as archivo:
             solicitud = ConvertidorDeArchivos_pb2.SolicitudConvertirCancionMp3()
-            solicitud.informacionArchivo.idElemento = int(self.id_cancion)
+            solicitud.informacionArchivo.idElemento = self.id_cancion
             solicitud.informacionArchivo.extension = self.extension
             solicitud.informacionArchivo.hash256 = self.informacion_archivo.hash256
             for bloque in iter(lambda: archivo.read(self.tamano_chunk), b""):
@@ -85,10 +85,9 @@ class ConvertidorDeCancionesCliente:
         cantidad_intentos = 0
         # Valida si no ocurrio un error al convertir la cancion, si ocurrio lo reintenta tres veces
         while cantidad_intentos < 3:
-            for respuesta in cliente.ConvertirCancionAMp3(self.enviar_cancion()):
+            for respuesta in cliente.ConvertirCancionWAV(self.enviar_cancion()):
                 self.recibir_cancion(respuesta)
                 if self.error is not None:
-                    print("Error ocurrido:" + self.error.error)
                     cantidad_intentos += 1
                     break
             if self.error is None:

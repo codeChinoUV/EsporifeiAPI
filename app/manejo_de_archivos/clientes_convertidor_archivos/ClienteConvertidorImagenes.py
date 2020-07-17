@@ -49,7 +49,7 @@ class ConvertidorDeImagenesCliente:
     def enviar_imagen(self):
         with open(self.ubicacion_archivo, 'rb') as archivo:
             solicitud = ConvertidorDeArchivos_pb2.SolicitudConvertirPortada()
-            solicitud.informacionImagen.idElemento = int(self.id_portada)
+            solicitud.informacionImagen.idElemento = self.id_portada
             solicitud.informacionImagen.extension = self.extension
             solicitud.informacionImagen.hash256 = self.informacion_archivo.hash256
             for bloque in iter(lambda: archivo.read(self.tamano_chunk), b""):
@@ -86,7 +86,6 @@ class ConvertidorDeImagenesCliente:
             for respuesta in cliente.ConvertirImagenAPng(self.enviar_imagen()):
                 self.recibir_imagen(respuesta)
                 if self.error is not None:
-                    print("Error ocurrido:" + self.error.error)
                     cantidad_intentos += 1
                     break
             if self.error is None:

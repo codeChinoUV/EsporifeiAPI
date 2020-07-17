@@ -93,7 +93,7 @@ class ConvertidorDeArchivos:
         :param id_cancion: El id de la cancion a convertir
         :return: None
         """
-        ManejadorCanciones.convertir_cancion_mp3_todas_calidades(id_cancion)
+        ManejadorCanciones.convertir_cancion_wav_todas_calidades(id_cancion)
         self._quitar_de_cola_canciones()
 
     def _convertir_cancion_personal(self, id_cancion_personal):
@@ -102,7 +102,7 @@ class ConvertidorDeArchivos:
         :param id_cancion_personal: El id de la cancion personal a convertir
         :return: None
         """
-        ManejadorCanciones.convertir_cancion_personal_mp3_todas_calidades(id_cancion_personal)
+        ManejadorCanciones.convertir_cancion_personal_wav_todas_calidades(id_cancion_personal)
         self._quitar_de_cola_canciones_personales()
 
     def _convertir_portada_album(self, id_album):
