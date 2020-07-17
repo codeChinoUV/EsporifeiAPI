@@ -8,7 +8,7 @@ RUN mkdir convertidor_archivos/canciones
 COPY protos/ConvertidorDeArchivos.proto ./convertidor_archivos/protos
 COPY convertidor ./convertidor_archivos/convertidor
 
-RUN pip3 install -r ./requerimientos.txt
+RUN pip3 install -r ./convertidor_archivos/requerimientos.txt
 RUN ls -l
 RUN python3 -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. protos/ConvertidorDeArchivos.proto
 COPY protos/ ./convertidor_archivos/protos
