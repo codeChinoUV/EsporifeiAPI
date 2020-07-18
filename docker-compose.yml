@@ -24,8 +24,6 @@ services:
 
   convertidor_archivos:
     build: ./convertidor_archivos
-    volumes:
-      - ./convertidor_archivos:/usr/src/app
     ports:
       - 5002:5002
 
