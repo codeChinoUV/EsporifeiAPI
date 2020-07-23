@@ -505,7 +505,7 @@ class Cancion(base_de_datos.Model):
         creadores_de_contenido = []
         for creador_de_contenido in self.creadores_de_contenido:
             creadores_de_contenido.append(creador_de_contenido.obtener_json_sin_genero())
-        diccionario = {'id: ': self.id_cancion, 'nombre': self.nombre,
+        diccionario = {'id': self.id_cancion, 'nombre': self.nombre,
                        'duracion': self.duracion_en_segundos,
                        'cantidad_de_reproducciones': self.cantidad_de_reproducciones,
                        'creadores_de_contenido': creadores_de_contenido,
