@@ -133,7 +133,7 @@ class CreadorDeContenidoAlbumCancion(Resource):
 
     @token_requerido
     @solo_creador_de_contenido
-    def patch(self, usuario_actual, id_album, id_cancion):
+    def put(self, usuario_actual, id_album, id_cancion):
         """
         Se encarga de procesar una solictud PATCH al editar la informacion de la cancion
         :param usuario_actual: El usuario logeado

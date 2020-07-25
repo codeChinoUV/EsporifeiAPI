@@ -87,7 +87,7 @@ class CreadorDeContenidoAlbum(Resource):
 
     @token_requerido
     @solo_creador_de_contenido
-    def patch(self, usuario_actual, id_album):
+    def put(self, usuario_actual, id_album):
         """
         Se encarga de procesar a una solicitud PATCH al modificar la información de un Álbum
         """

@@ -50,7 +50,7 @@ class CancionCalificacionControlador(Resource):
         return calificacion.obtener_json(), 202
 
     @token_requerido
-    def patch(self, usuario_actual, id_cancion):
+    def put(self, usuario_actual, id_cancion):
         """
         Se encarga de procesar una solicitud de tipo PATCH al editar la calificación de la cancion
         :param usuario_actual: El usuario logeado
