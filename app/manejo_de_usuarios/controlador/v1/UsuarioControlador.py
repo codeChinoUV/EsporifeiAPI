@@ -44,7 +44,7 @@ class UsuarioControlador(Resource):
         return usuario_a_registrar.obtener_json()
 
     @token_requerido
-    def patch(self, usuario_actual):
+    def put(self, usuario_actual):
         """
         Procesa una solicitud de tipo PATCH al modificar la informacion del usuario logeado
         :param usuario_actual: El usuario logeado
