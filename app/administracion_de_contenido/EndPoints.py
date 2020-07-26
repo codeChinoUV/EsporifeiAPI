@@ -43,7 +43,7 @@ api.add_resource(CreadorDeContenidoAlbumCanciones, '/v1/creador-de-contenido/alb
 api.add_resource(CreadorDeContenidoAlbumCancion, '/v1/creador-de-contenido/albumes/<int:id_album>/canciones/<int'
                                                  ':id_cancion>')
 api.add_resource(CreadoresDeContenidoAlbumesCanciones, '/v1/creadores-de-contenido/<int:id_creador_de_contenido'
-                                                       '>/albumes/<int:id_album>/canciones/')
+                                                       '>/albumes/<int:id_album>/canciones')
 api.add_resource(CancionesBucarControlador, '/v1/canciones/buscar/<string:cadena_busqueda>')
 
 # Canciones - generos
