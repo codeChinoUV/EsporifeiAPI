@@ -1,4 +1,3 @@
-import hashlib
 import pathlib
 
 import grpc
@@ -31,27 +30,11 @@ class ConvertidorDeImagenesCliente:
             error.mensaje = "El archivo no existe en la ruta indicada"
             return error
 
-    def _obtener_sha256(self, ubicacion_archivo):
-        hash256 = hashlib.sha3_256()
-        with open(ubicacion_archivo, 'rb') as archivo:
-            for bloque in iter(lambda: archivo.read(self.tamano_chunk), b""):
-                hash256.update(bloque)
-        return hash256.hexdigest()
-
-    def _validar_sha256_de_imagenes_recibidas(self):
-        hash256_imagen_calidad_alta = hashlib.sha3_256(self.imagen_calidad_alta).hexdigest()
-        hash256_imagen_calidad_media = hashlib.sha3_256(self.imagen_calidad_media).hexdigest()
-        hash256_imagen_calidad_baja = hashlib.sha3_256(self.imagen_calidad_baja).hexdigest()
-        return hash256_imagen_calidad_alta == self.informacion_archivo_calidad_alta.hash256 and \
-               hash256_imagen_calidad_media == self.informacion_archivo_calidad_media.hash256 and \
-               hash256_imagen_calidad_baja == self.informacion_archivo_calidad_baja.hash256
-
     def enviar_imagen(self):
         with open(self.ubicacion_archivo, 'rb') as archivo:
             solicitud = ConvertidorDeArchivos_pb2.SolicitudConvertirPortada()
-            solicitud.informacionImagen.idElemento = int(self.id_portada)
+            solicitud.informacionImagen.idElemento = self.id_portada
             solicitud.informacionImagen.extension = self.extension
-            solicitud.informacionImagen.hash256 = self.informacion_archivo.hash256
             for bloque in iter(lambda: archivo.read(self.tamano_chunk), b""):
                 solicitud.data = bloque
                 yield solicitud
@@ -79,23 +62,18 @@ class ConvertidorDeImagenesCliente:
         existe_el_archivo = self._validar_existe_archivo()
         if existe_el_archivo is not None:
             return existe_el_archivo
-        self.informacion_archivo.hash256 = self._obtener_sha256(self.ubicacion_archivo)
         cantidad_intentos = 0
         # Valida si no ocurrio un error al convertir la imagen, si ocurrio lo reintenta tres veces
         while cantidad_intentos < 3:
             for respuesta in cliente.ConvertirImagenAPng(self.enviar_imagen()):
                 self.recibir_imagen(respuesta)
                 if self.error is not None:
-                    print("Error ocurrido:" + self.error.error)
                     cantidad_intentos += 1
                     break
             if self.error is None:
                 if len(self.imagen_calidad_baja) > 0 and len(self.imagen_calidad_media) > 0 \
                         and len(self.imagen_calidad_alta) > 0:
-                    if self._validar_sha256_de_imagenes_recibidas():
-                        break
-                    else:
-                        cantidad_intentos += 1
+                    break
                 else:
                     cantidad_intentos += 1
             self.error = None

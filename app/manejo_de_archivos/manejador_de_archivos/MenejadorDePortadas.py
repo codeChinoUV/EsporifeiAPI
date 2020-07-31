@@ -231,21 +231,24 @@ class ManejadorDePortadas:
         mensaje_logger = ""
         if tipo_portada == TipoPortada.USUARIO:
             portada = Portada.obtener_portada_usuario(id_elemento, Calidad.ORIGINAL)
-            cliente_convertidor = ConvertidorDeImagenesCliente(id_portada=portada.id_usuario,
+            id_portada_usuario = str(portada.id_usuario) + "U"
+            cliente_convertidor = ConvertidorDeImagenesCliente(id_portada=id_portada_usuario,
                                                                ubicacion_archivo=portada.ruta,
                                                                extension=portada.formato.value)
             mensaje_logger = "Se ha mandado a convertir la portada del usuario con el id " + \
                              str(id_elemento) + " a todas sus calidades"
         elif tipo_portada == TipoPortada.CREADOR_DE_CONTENIDO:
             portada = Portada.obtener_portada_creador_de_contenido(id_elemento, Calidad.ORIGINAL)
-            cliente_convertidor = ConvertidorDeImagenesCliente(id_portada=portada.id_creador_de_contenido,
+            id_portada_creador = str(portada.id_creador_de_contenido) + "PCC"
+            cliente_convertidor = ConvertidorDeImagenesCliente(id_portada=id_portada_creador,
                                                                ubicacion_archivo=portada.ruta,
                                                                extension=portada.formato.value)
             mensaje_logger = "Se ha mandado a convertir la portada del creador de contenido con el id " + \
                              str(id_elemento) + " a todas sus calidades"
         elif tipo_portada == TipoPortada.ALBUM:
             portada = Portada.obtener_portada_album(id_elemento, Calidad.ORIGINAL)
-            cliente_convertidor = ConvertidorDeImagenesCliente(id_portada=portada.id_album,
+            id_portada_album = str(portada.id_album) + "A"
+            cliente_convertidor = ConvertidorDeImagenesCliente(id_portada=id_portada_album,
                                                                ubicacion_archivo=portada.ruta,
                                                                extension=portada.formato.value)
             mensaje_logger = "Se ha mandado a convertir la portada del album con el id " + \
@@ -290,12 +293,6 @@ class ManejadorDePortadas:
         :return: None
         """
         hash256 = ""
-        if calidad == Calidad.BAJA:
-            hash256 = cliente_convertidor.informacion_archivo_calidad_baja.hash256
-        elif calidad == Calidad.MEDIA:
-            hash256 = cliente_convertidor.informacion_archivo_calidad_media.hash256
-        elif calidad == Calidad.ALTA:
-            hash256 = cliente_convertidor.informacion_archivo_calidad_alta.hash256
         if tipo_portada == TipoPortada.USUARIO:
             ManejadorDePortadas._guardar_portada_usuario_en_calidad(id_elemento, calidad, formato, hash256,
                                                                     cliente_convertidor)
@@ -329,7 +326,7 @@ class ManejadorDePortadas:
             calidad_str = "media"
         if calidad == Calidad.ALTA:
             ruta = ManejadorDeArchivos.guardar_portada_usuario(id_elemento, Calidad.ALTA, formato,
-                                                                cliente_convertidor.imagen_calidad_alta)
+                                                               cliente_convertidor.imagen_calidad_alta)
             calidad_str = "alta"
         alto = ManejadorDePortadas._obtener_alto_portada(ruta)
         ancho = ManejadorDePortadas._obtener_ancho_portada(ruta)

@@ -126,14 +126,15 @@ class ManejadorCanciones:
         return archivo.is_file()
 
     @staticmethod
-    def convertir_cancion_mp3_todas_calidades(id_cancion):
+    def convertir_cancion_wav_todas_calidades(id_cancion):
         """
         Se encarga de reconvertir la cancion con el id cancion a mp3 en todas sus calidades
         :param id_cancion: El id de la cancion a reconvertir
         :return: None
         """
         archivo_cancion_original = ArchivoAudio.obtener_archivo_audio_cancion(id_cancion, Calidad.ORIGINAL)
-        cliente_convertidor = ConvertidorDeCancionesCliente(id_cancion=archivo_cancion_original.id_cancion,
+        id_cancion_str = str(archivo_cancion_original.id_cancion) + "C"
+        cliente_convertidor = ConvertidorDeCancionesCliente(id_cancion=id_cancion_str,
                                                             ubicacion_archivo=archivo_cancion_original.ruta,
                                                             extension=archivo_cancion_original.formato.value)
         cantidad_intentos = 1
@@ -160,11 +161,11 @@ class ManejadorCanciones:
         :return: None
         """
         ManejadorCanciones._crear_archivo_audio_cancion_calidades(id_cancion, cliente_convertidor, Calidad.ALTA,
-                                                                  FormatoAudio.MP3)
+                                                                  FormatoAudio.WAV)
         ManejadorCanciones._crear_archivo_audio_cancion_calidades(id_cancion, cliente_convertidor, Calidad.MEDIA,
-                                                                  FormatoAudio.MP3)
+                                                                  FormatoAudio.WAV)
         ManejadorCanciones._crear_archivo_audio_cancion_calidades(id_cancion, cliente_convertidor, Calidad.BAJA,
-                                                                  FormatoAudio.MP3)
+                                                                  FormatoAudio.WAV)
 
     @staticmethod
     def _crear_archivo_audio_cancion_calidades(id_cancion, cliente_convertidor, calidad, formato):
@@ -201,9 +202,9 @@ class ManejadorCanciones:
             calidad_str = "alta"
         cancion_calidad = ArchivoAudio.obtener_archivo_audio_cancion(id_cancion, calidad)
         if cancion_calidad is not None:
-            cancion_calidad.editar_archivo_audio(False, FormatoAudio.MP3, ruta, hash256, tamano_cancion)
+            cancion_calidad.editar_archivo_audio(False, formato, ruta, hash256, tamano_cancion)
         else:
-            cancion_calidad = ArchivoAudio(calidad, FormatoAudio.MP3, ruta, hash256, tamano_cancion,
+            cancion_calidad = ArchivoAudio(calidad, formato, ruta, hash256, tamano_cancion,
                                            id_cancion=id_cancion)
             cancion_calidad.guardar()
         ManejadorCanciones.logger.info("Se ha gurdado la cancion en calidad " + calidad_str + " con el id " +
@@ -295,14 +296,15 @@ class ManejadorCanciones:
         return existe_archivo
 
     @staticmethod
-    def convertir_cancion_personal_mp3_todas_calidades(id_cancion):
+    def convertir_cancion_personal_wav_todas_calidades(id_cancion):
         """
         Reconvierte una cancion personal a mp3 en todas las calidades
         :param id_cancion: El id de la cancion personal a reconvertir el archivo a todas sus calidades
         :return: None
         """
         archivo_cancion_original = ArchivoAudio.obtener_archivo_audio_cancion_personal(id_cancion, Calidad.ORIGINAL)
-        cliente_convertidor = ConvertidorDeCancionesCliente(id_cancion=archivo_cancion_original.id_cancion_personal,
+        id_cancion_personal_str = str(archivo_cancion_original.id_cancion_personal) + "CP"
+        cliente_convertidor = ConvertidorDeCancionesCliente(id_cancion=id_cancion_personal_str,
                                                             ubicacion_archivo=archivo_cancion_original.ruta,
                                                             extension=archivo_cancion_original.formato.value)
         cantidad_intentos = 0
@@ -345,11 +347,11 @@ class ManejadorCanciones:
         :return: None
         """
         ManejadorCanciones._crear_archivo_audio_cancion_personal_calidades(id_cancion, cliente_convertidor,
-                                                                           Calidad.ALTA, FormatoAudio.MP3)
+                                                                           Calidad.ALTA, FormatoAudio.WAV)
         ManejadorCanciones._crear_archivo_audio_cancion_personal_calidades(id_cancion, cliente_convertidor,
-                                                                           Calidad.MEDIA, FormatoAudio.MP3)
+                                                                           Calidad.MEDIA, FormatoAudio.WAV)
         ManejadorCanciones._crear_archivo_audio_cancion_personal_calidades(id_cancion, cliente_convertidor,
-                                                                           Calidad.BAJA, FormatoAudio.MP3)
+                                                                           Calidad.BAJA, FormatoAudio.WAV)
 
     @staticmethod
     def _crear_archivo_audio_cancion_personal_calidades(id_cancion, cliente_convertidor, calidad, formato):
@@ -386,9 +388,9 @@ class ManejadorCanciones:
             calidad_str = "alta"
         cancion_calidad = ArchivoAudio.obtener_archivo_audio_cancion_personal(id_cancion, calidad)
         if cancion_calidad is not None:
-            cancion_calidad.editar_archivo_audio(False, FormatoAudio.MP3, ruta, hash256, tamano_cancion)
+            cancion_calidad.editar_archivo_audio(False, formato, ruta, hash256, tamano_cancion)
         else:
-            cancion_calidad = ArchivoAudio(calidad, FormatoAudio.MP3, ruta, hash256, tamano_cancion,
+            cancion_calidad = ArchivoAudio(calidad, formato, ruta, hash256, tamano_cancion,
                                            id_cancion_personal=id_cancion)
             cancion_calidad.guardar()
         ManejadorCanciones.logger.info("Se ha gurdado la cancion personal en calidad " + calidad_str + " con el id " +

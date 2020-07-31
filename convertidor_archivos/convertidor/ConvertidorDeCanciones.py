@@ -10,7 +10,7 @@ class ConvertidorDeCanciones:
     CALIDAD_MEDIA = "256k"
     CALIDAD_BAJA = "128k"
     CALIDAD_ORIGINAL = "original"
-    FORMATO_MP3 = "mp3"
+    FORMATO_WAV = "wav"
     TAMANO_CHUNK = 1000 * 64
 
     def __init__(self, logger):
@@ -21,7 +21,7 @@ class ConvertidorDeCanciones:
         self.ubicacion_fichero_calidad_media = None
         self.ubicacion_fichero_calidad_baja = None
 
-    def convertir_a_mp3_calidad_alta(self):
+    def convertir_a_wav_calidad_alta(self):
         """
         Convierte la cancion original a mp3 a 320kbs
         :return: El lugar en donde se guardo el archivo
@@ -31,7 +31,7 @@ class ConvertidorDeCanciones:
         self.logger.info("Se convirtio la cancion con el id " + str(self.id_cancion) + " a mp3 en calidad alta")
         return self.ubicacion_fichero_calidad_alta
 
-    def convertir_a_mp3_calidad_media(self):
+    def convertir_a_wav_calidad_media(self):
         """
         Convierte la cancion original a mp3 a 256kbs
         :return: El lugar en donde se guardo el archivo
@@ -59,8 +59,8 @@ class ConvertidorDeCanciones:
         """
         try:
             cancion = AudioSegment.from_file(self.ubicacion_fichero, channels=2)
-            ruta_cancion = str(self.id_cancion) + calidad + "." + ConvertidorDeCanciones.FORMATO_MP3
-            cancion.export(ruta_cancion, format=ConvertidorDeCanciones.FORMATO_MP3, bitrate=calidad)
+            ruta_cancion = str(self.id_cancion) + calidad + "." + ConvertidorDeCanciones.FORMATO_WAV
+            cancion.export(ruta_cancion, format=ConvertidorDeCanciones.FORMATO_WAV, bitrate=calidad)
             return ruta_cancion
         except Exception as ex:
             self.logger.info("excepcion: " + str(ex))

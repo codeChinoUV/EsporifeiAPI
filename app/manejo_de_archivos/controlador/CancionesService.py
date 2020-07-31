@@ -101,7 +101,7 @@ class CancionesServicer(ManejadorDeArchivos_pb2_grpc.CancionesServicer):
             cancion = ManejadorCanciones.obtener_archivo_audio_cancion(id_cancion, calidad)
             usuario_actual = LoginControlador.token_requerido_grpc(token)
             HistorialCancionControlador.agregar_cancion_a_historial_usuario(usuario_actual.id_usuario, id_cancion)
-            respuesta.formatoCancion = ManejadorDeArchivos_pb2.FormatoAudio.MP3
+            respuesta.formatoCancion = ManejadorDeArchivos_pb2.FormatoAudio.WAV
             for respuesta_cancion in CancionesServicer.enviar_cancion(cancion.ruta, respuesta):
                 yield respuesta_cancion
             CancionesServicer.logger.info(context.peer() + " : Cancion devuelta con id " + str(id_cancion))
@@ -125,7 +125,7 @@ class CancionesServicer(ManejadorDeArchivos_pb2_grpc.CancionesServicer):
                 yield respuesta
         else:
             cancion = ManejadorCanciones.obtener_archivo_audio_cancion_personal(id_cancion_personal, calidad)
-            respuesta.formatoCancion = ManejadorDeArchivos_pb2.FormatoAudio.MP3
+            respuesta.formatoCancion = ManejadorDeArchivos_pb2.FormatoAudio.WAV
             for respuesta_cancion in CancionesServicer.enviar_cancion(cancion.ruta, respuesta):
                 yield respuesta_cancion
             CancionesServicer.logger.info(context.peer() + " : Cancion personal devuelta con id "
