@@ -92,22 +92,15 @@ class ConvertidorDeCancionesServicer(ConvertidorDeArchivos_pb2_grpc.ConvertidorD
 class ConvertidorDeImagenesServicer(ConvertidorDeArchivos_pb2_grpc.ConvertidorDeImagenesServicer):
 
     def ConvertirImagenAPng(self, request_iterator, context):
-        hash256 = ""
         convertidor_imagenes = ConvertidorDeImagenes(logger)
         try:
             for solicitud in request_iterator:
                 convertidor_imagenes.escribir_fichero(solicitud.informacionImagen.idElemento,
                                                       solicitud.informacionImagen.extension,
                                                       solicitud.data)
-                hash256 = solicitud.informacionImagen.hash256
 
             logger.info("Se recibio la portada " + str(convertidor_imagenes.id_portada))
             respuesta = ConvertidorDeArchivos_pb2.RespuestaImagenesConvertidas()
-            if convertidor_imagenes.obtener_sha256_de_portada_original() != hash256:
-                logger.error("integridad_archivo_no_definida_" + str(convertidor_imagenes.id_portada))
-                respuesta.error.error = "integridad_archivo_no_definida"
-                respuesta.error.mensaje = "El Hash 256 del archivo recibido no coincide con el del archivo enviado"
-                return respuesta
             portada_calidad_alta = convertidor_imagenes.convertir_a_calidad_alta()
             portada_calidad_media = convertidor_imagenes.convertir_a_calidad_media()
             portada_calidad_baja = convertidor_imagenes.convertir_a_calidad_baja()
@@ -117,15 +110,11 @@ class ConvertidorDeImagenesServicer(ConvertidorDeArchivos_pb2_grpc.ConvertidorDe
                                                              convertidor_imagenes.TAMANO_CHUNK)
             bytes_del_chunk_alta = leer_archivo_por_bloques(portada_calidad_alta,
                                                             convertidor_imagenes.TAMANO_CHUNK)
-            hash256_cancion_calidad_baja = obtener_has256_de_archivo(portada_calidad_baja)
-            hash256_cancion_calidad_media = obtener_has256_de_archivo(portada_calidad_media)
-            hash256_cancion_calidad_alta = obtener_has256_de_archivo(portada_calidad_alta)
             log_baja_enviada = False
             log_media_enviada = False
             while True:
                 try:
                     respuesta.imagenCalidadBaja.data = next(bytes_del_chunk_baja)
-                    respuesta.imagenCalidadBaja.informacionImagen.hash256 = str(hash256_cancion_calidad_baja)
                     respuesta.imagenCalidadBaja.informacionImagen.extension = convertidor_imagenes.FORMATO_PNG
                 except StopIteration:
                     respuesta.imagenCalidadBaja.data = bytes()
@@ -135,7 +124,6 @@ class ConvertidorDeImagenesServicer(ConvertidorDeArchivos_pb2_grpc.ConvertidorDe
                         log_baja_enviada = True
                 try:
                     respuesta.imagenCalidadMedia.data = next(bytes_del_chunk_media)
-                    respuesta.imagenCalidadMedia.informacionImagen.hash256 = hash256_cancion_calidad_media
                     respuesta.imagenCalidadMedia.informacionImagen.extension = convertidor_imagenes.FORMATO_PNG
                 except StopIteration:
                     respuesta.imagenCalidadMedia.data = bytes()
@@ -145,7 +133,6 @@ class ConvertidorDeImagenesServicer(ConvertidorDeArchivos_pb2_grpc.ConvertidorDe
                         log_media_enviada = True
                 try:
                     respuesta.imagenCalidadAlta.data = next(bytes_del_chunk_alta)
-                    respuesta.imagenCalidadAlta.informacionImagen.hash256 = hash256_cancion_calidad_alta
                     respuesta.imagenCalidadAlta.informacionImagen.extension = convertidor_imagenes.FORMATO_PNG
                 except StopIteration:
                     logger.info("Se envio la portada " + str(convertidor_imagenes.id_portada) + "."

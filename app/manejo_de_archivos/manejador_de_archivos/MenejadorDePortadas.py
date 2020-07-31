@@ -293,12 +293,6 @@ class ManejadorDePortadas:
         :return: None
         """
         hash256 = ""
-        if calidad == Calidad.BAJA:
-            hash256 = cliente_convertidor.informacion_archivo_calidad_baja.hash256
-        elif calidad == Calidad.MEDIA:
-            hash256 = cliente_convertidor.informacion_archivo_calidad_media.hash256
-        elif calidad == Calidad.ALTA:
-            hash256 = cliente_convertidor.informacion_archivo_calidad_alta.hash256
         if tipo_portada == TipoPortada.USUARIO:
             ManejadorDePortadas._guardar_portada_usuario_en_calidad(id_elemento, calidad, formato, hash256,
                                                                     cliente_convertidor)

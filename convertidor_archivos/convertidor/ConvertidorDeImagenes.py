@@ -76,7 +76,7 @@ class ConvertidorDeImagenes:
         :param arreglo_de_bytes: Los bytes que contiene el archivo
         :return: La ubicacion en donde se guardo el achivo
         """
-        self.id_portada = int(id_portada)
+        self.id_portada = id_portada
         self.ubicacion_archivo = '/tmp/' + str(id_portada) + 'p.' + extension
         archivo = pathlib.Path(self.ubicacion_archivo)
         try:
