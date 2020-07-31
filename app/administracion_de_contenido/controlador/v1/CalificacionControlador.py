@@ -14,6 +14,20 @@ class CancionCalificacionControlador(Resource):
         self.argumentos = self.parser.parse_args()
 
     @token_requerido
+    def get(self, usuario_actual, id_cancion):
+        """
+        Se encarga de responder una solicitud GET al devolver la calificacion de una cancion
+        :param usuario_actual: El usuario logeado
+        :param id_cancion: El id de la cancion a recuperar su calificacion
+        :return: Un codigo de estato HTTP
+        """
+        error_no_existe_cancion = ValidacionCancion.validar_existe_cancion(id_cancion)
+        if error_no_existe_cancion is not None:
+            return error_no_existe_cancion, 404
+        calificacion = Calificacion.obtener_calificacion(id_cancion, usuario_actual.id_usuario)
+        return calificacion.obtener_json(), 200
+
+    @token_requerido
     def post(self, usuario_actual, id_cancion):
         """
         Se encarga responder a una solicitud POST al crear una calificacion
@@ -50,7 +64,7 @@ class CancionCalificacionControlador(Resource):
         return calificacion.obtener_json(), 202
 
     @token_requerido
-    def patch(self, usuario_actual, id_cancion):
+    def put(self, usuario_actual, id_cancion):
         """
         Se encarga de procesar una solicitud de tipo PATCH al editar la calificación de la cancion
         :param usuario_actual: El usuario logeado

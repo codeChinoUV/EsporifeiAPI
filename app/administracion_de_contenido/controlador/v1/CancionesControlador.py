@@ -133,7 +133,7 @@ class CreadorDeContenidoAlbumCancion(Resource):
 
     @token_requerido
     @solo_creador_de_contenido
-    def patch(self, usuario_actual, id_album, id_cancion):
+    def put(self, usuario_actual, id_album, id_cancion):
         """
         Se encarga de procesar una solictud PATCH al editar la informacion de la cancion
         :param usuario_actual: El usuario logeado
@@ -274,7 +274,8 @@ class CreadoresDeContenidoAlbumesCanciones(Resource):
         canciones = []
         album = Album.obtener_album_por_id(id_album)
         for cancion in album.canciones:
-            canciones.append(cancion.obtener_json_con_creadores())
+            if not cancion.eliminada:
+                canciones.append(cancion.obtener_json_con_creadores())
         return canciones, 200
 
 
@@ -331,7 +332,7 @@ class CreadorDeContenidoAlbumesCancionCreadorDeContenidoControlador(Resource):
                                                                                                 id_creador_contenido)
         if error_no_tiene_creador_contenido is not None:
             return error_no_tiene_creador_contenido, 404
-        creador_de_contenido = CreadorDeContenido.obtener_creador_de_contenido_por_id_usuario(id_creador_contenido)
+        creador_de_contenido = CreadorDeContenido.obtener_creador_de_contenido_por_id(id_creador_contenido)
         cancion.eliminar_creador_de_contenido(creador_de_contenido)
         return creador_de_contenido.obtener_json(), 202
 

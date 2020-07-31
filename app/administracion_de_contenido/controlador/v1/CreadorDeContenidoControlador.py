@@ -60,7 +60,7 @@ class CreadorDeContenidoControlador(Resource):
 
     @token_requerido
     @solo_creador_de_contenido
-    def patch(self, usuario_actual):
+    def put(self, usuario_actual):
         """
         Se encarga de responder a las peticiones de tipo put, su funcion es editar la información de un creador de
         contenido

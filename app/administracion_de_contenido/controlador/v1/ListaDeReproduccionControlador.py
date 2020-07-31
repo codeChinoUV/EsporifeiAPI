@@ -84,7 +84,7 @@ class ListaDeReproduccionControlador(Resource):
         return lista_de_reproduccion.obtener_json(), 200
 
     @token_requerido
-    def patch(self, usuario_actual, id_lista_de_reproduccion):
+    def put(self, usuario_actual, id_lista_de_reproduccion):
         """
         Se encarga de procesar una solicitud PATCH al editar la información de la lista de reproduccion
         :param usuario_actual: El usuario logeado

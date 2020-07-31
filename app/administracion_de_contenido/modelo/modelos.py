@@ -505,7 +505,7 @@ class Cancion(base_de_datos.Model):
         creadores_de_contenido = []
         for creador_de_contenido in self.creadores_de_contenido:
             creadores_de_contenido.append(creador_de_contenido.obtener_json_sin_genero())
-        diccionario = {'id: ': self.id_cancion, 'nombre': self.nombre,
+        diccionario = {'id': self.id_cancion, 'nombre': self.nombre,
                        'duracion': self.duracion_en_segundos,
                        'cantidad_de_reproducciones': self.cantidad_de_reproducciones,
                        'creadores_de_contenido': creadores_de_contenido,
@@ -608,6 +608,8 @@ class Cancion(base_de_datos.Model):
         :return: None
         """
         self.eliminada = True
+        if self.albumes is not None:
+            self.albumes[0].duracion_total -= self.duracion_en_segundos
         base_de_datos.session.commit()
 
     def agregar_genero(self, genero):
@@ -667,17 +669,21 @@ class Cancion(base_de_datos.Model):
         :param pagina: El numero de pagina el cual se desea recuperar, el valor por defecto es 1
         :return: Una lista con las canciones que coinciden con la cadena de busqueda
         """
+        canciones_no_eliminadas = []
         expresion_regular_de_busqueda = "%" + cadena_busqueda + "%"
         cantidad_total = cantidad * pagina
         canciones = Cancion.query. \
             filter(Cancion.nombre.ilike(expresion_regular_de_busqueda)).order_by(Cancion.cantidad_de_reproducciones) \
             .limit(cantidad_total).all()
-        if len(canciones) > (cantidad * (pagina - 1)):
+        for cancion in canciones:
+            if not cancion.albumes[0].eliminado:
+                canciones_no_eliminadas.append(cancion)
+        if len(canciones_no_eliminadas) > (cantidad * (pagina - 1)):
             canciones_de_la_pagina = []
             for i in range(cantidad):
                 posicion = i + (cantidad * (pagina - 1))
                 try:
-                    canciones_de_la_pagina.append(canciones[posicion])
+                    canciones_de_la_pagina.append(canciones_no_eliminadas[posicion])
                 except IndexError:
                     break
             return canciones_de_la_pagina
@@ -1014,6 +1020,7 @@ class ListaDeReproduccion(base_de_datos.Model):
         :param cancion: La cancion a quitar
         :return: None
         """
+        self.duracion_total -= cancion.duracion_en_segundos
         self.canciones.remove(cancion)
         base_de_datos.session.commit()
 
@@ -1220,7 +1227,7 @@ class CancionPersonal(base_de_datos.Model):
         :return: Un diccionario
         """
         diccionario = {'id': self.id_cancion_personal, 'nombre': self.nombre, 'artistas': self.artistas,
-                       'album': self.album}
+                       'album': self.album, 'duracion': self.duracion_en_segundos}
         return diccionario
 
     @staticmethod
