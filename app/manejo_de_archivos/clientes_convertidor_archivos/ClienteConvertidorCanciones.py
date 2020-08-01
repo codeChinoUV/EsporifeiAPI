@@ -50,7 +50,7 @@ class ConvertidorDeCancionesCliente:
 
     def enviar_cancion(self):
         with open(self.ubicacion_archivo, 'rb') as archivo:
-            solicitud = ConvertidorDeArchivos_pb2.SolicitudConvertirCancionMp3()
+            solicitud = ConvertidorDeArchivos_pb2.SolicitudConvertirCancion()
             solicitud.informacionArchivo.idElemento = self.id_cancion
             solicitud.informacionArchivo.extension = self.extension
             solicitud.informacionArchivo.hash256 = self.informacion_archivo.hash256
