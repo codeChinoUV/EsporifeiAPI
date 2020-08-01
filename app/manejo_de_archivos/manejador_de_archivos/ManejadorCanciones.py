@@ -161,11 +161,11 @@ class ManejadorCanciones:
         :return: None
         """
         ManejadorCanciones._crear_archivo_audio_cancion_calidades(id_cancion, cliente_convertidor, Calidad.ALTA,
-                                                                  FormatoAudio.WAV)
+                                                                  FormatoAudio.MP3)
         ManejadorCanciones._crear_archivo_audio_cancion_calidades(id_cancion, cliente_convertidor, Calidad.MEDIA,
-                                                                  FormatoAudio.WAV)
+                                                                  FormatoAudio.MP3)
         ManejadorCanciones._crear_archivo_audio_cancion_calidades(id_cancion, cliente_convertidor, Calidad.BAJA,
-                                                                  FormatoAudio.WAV)
+                                                                  FormatoAudio.MP3)
 
     @staticmethod
     def _crear_archivo_audio_cancion_calidades(id_cancion, cliente_convertidor, calidad, formato):
@@ -347,11 +347,11 @@ class ManejadorCanciones:
         :return: None
         """
         ManejadorCanciones._crear_archivo_audio_cancion_personal_calidades(id_cancion, cliente_convertidor,
-                                                                           Calidad.ALTA, FormatoAudio.WAV)
+                                                                           Calidad.ALTA, FormatoAudio.MP3)
         ManejadorCanciones._crear_archivo_audio_cancion_personal_calidades(id_cancion, cliente_convertidor,
-                                                                           Calidad.MEDIA, FormatoAudio.WAV)
+                                                                           Calidad.MEDIA, FormatoAudio.MP3)
         ManejadorCanciones._crear_archivo_audio_cancion_personal_calidades(id_cancion, cliente_convertidor,
-                                                                           Calidad.BAJA, FormatoAudio.WAV)
+                                                                           Calidad.BAJA, FormatoAudio.MP3)
 
     @staticmethod
     def _crear_archivo_audio_cancion_personal_calidades(id_cancion, cliente_convertidor, calidad, formato):

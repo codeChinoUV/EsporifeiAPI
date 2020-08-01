@@ -48,7 +48,7 @@ message RespuestaImagenesConvertidas {
 }
 
 service ConvertidorDeCanciones{
-  rpc ConvertirCancionWAV(stream SolicitudConvertirCancion) returns (stream RespuestaCancionesConvertidas) {};
+  rpc ConvertirCancionAMP3(stream SolicitudConvertirCancion) returns (stream RespuestaCancionesConvertidas) {};
 }
 
 service ConvertidorDeImagenes{

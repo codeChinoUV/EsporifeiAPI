@@ -10,7 +10,7 @@ class ConvertidorDeCanciones:
     CALIDAD_MEDIA = "256k"
     CALIDAD_BAJA = "128k"
     CALIDAD_ORIGINAL = "original"
-    FORMATO_WAV = "wav"
+    FORMATO_MP3 = "mp3"
     TAMANO_CHUNK = 1000 * 64
 
     def __init__(self, logger):
@@ -59,8 +59,8 @@ class ConvertidorDeCanciones:
         """
         try:
             cancion = AudioSegment.from_file(self.ubicacion_fichero, channels=2)
-            ruta_cancion = str(self.id_cancion) + calidad + "." + ConvertidorDeCanciones.FORMATO_WAV
-            cancion.export(ruta_cancion, format=ConvertidorDeCanciones.FORMATO_WAV, bitrate=calidad)
+            ruta_cancion = str(self.id_cancion) + calidad + "." + ConvertidorDeCanciones.FORMATO_MP3
+            cancion.export(ruta_cancion, format=ConvertidorDeCanciones.FORMATO_MP3, bitrate=calidad)
             return ruta_cancion
         except Exception as ex:
             self.logger.info("excepcion: " + str(ex))
@@ -73,7 +73,7 @@ class ConvertidorDeCanciones:
         :param arreglo_de_bytes: Los bytes que contiene el archivo
         :return: La ubicacion en donde se guardo el achivo
         """
-        self.id_cancion = int(id_cancion)
+        self.id_cancion = str(id_cancion)
         self.ubicacion_fichero = '/tmp/' + str(id_cancion) + '.' + extension
         archivo = pathlib.Path(self.ubicacion_fichero)
         try:

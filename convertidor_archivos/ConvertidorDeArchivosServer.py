@@ -54,30 +54,30 @@ class ConvertidorDeCancionesServicer(ConvertidorDeArchivos_pb2_grpc.ConvertidorD
                 try:
                     respuesta.cancionCalidadBaja.data = next(bytes_del_chunk_baja)
                     respuesta.cancionCalidadBaja.informacionArchivo.hash256 = str(hash256_cancion_calidad_baja)
-                    respuesta.cancionCalidadBaja.informacionArchivo.extension = convertidor_de_canciones.FORMATO_WAV
+                    respuesta.cancionCalidadBaja.informacionArchivo.extension = convertidor_de_canciones.FORMATO_MP3
                 except StopIteration:
                     respuesta.cancionCalidadBaja.data = bytes()
                     if not log_baja_enviada:
                         logger.info("Se envio la cancion " + str(convertidor_de_canciones.id_cancion) + "."
-                                    + convertidor_de_canciones.FORMATO_WAV + " en calidad baja")
+                                    + convertidor_de_canciones.FORMATO_MP3 + " en calidad baja")
                         log_baja_enviada = True
                 try:
                     respuesta.cancionCalidadMedia.data = next(bytes_del_chunk_media)
                     respuesta.cancionCalidadMedia.informacionArchivo.hash256 = hash256_cancion_calidad_media
-                    respuesta.cancionCalidadMedia.informacionArchivo.extension = convertidor_de_canciones.FORMATO_WAV
+                    respuesta.cancionCalidadMedia.informacionArchivo.extension = convertidor_de_canciones.FORMATO_MP3
                 except StopIteration:
                     respuesta.cancionCalidadMedia.data = bytes()
                     if not log_media_enviada:
                         logger.info("Se envio la cancion " + str(convertidor_de_canciones.id_cancion) + "."
-                                    + convertidor_de_canciones.FORMATO_WAV + " en calidad media")
+                                    + convertidor_de_canciones.FORMATO_MP3 + " en calidad media")
                         log_media_enviada = True
                 try:
                     respuesta.cancionCalidadAlta.data = next(bytes_del_chunk_alta)
                     respuesta.cancionCalidadAlta.informacionArchivo.hash256 = hash256_cancion_calidad_alta
-                    respuesta.cancionCalidadAlta.informacionArchivo.extension = convertidor_de_canciones.FORMATO_WAV
+                    respuesta.cancionCalidadAlta.informacionArchivo.extension = convertidor_de_canciones.FORMATO_MP3
                 except StopIteration:
                     logger.info("Se envio la cancion " + str(convertidor_de_canciones.id_cancion) + "."
-                                + convertidor_de_canciones.FORMATO_WAV + " en calidad alta")
+                                + convertidor_de_canciones.FORMATO_MP3 + " en calidad alta")
                     break
                 yield respuesta
             convertidor_de_canciones.limpiar_archivos()

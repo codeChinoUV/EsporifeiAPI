@@ -4,7 +4,6 @@ class FormatoAudio(Enum):
     MP3 = "mp3"
     M4A = "m4a"
     FLAC = "flac"
-    WAV = "wav"
 
 class Calidad(Enum):
     ALTA = 1

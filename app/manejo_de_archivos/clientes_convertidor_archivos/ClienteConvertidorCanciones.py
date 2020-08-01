@@ -11,7 +11,7 @@ from app.manejo_de_archivos.protos_convertidor_de_archivos import ConvertidorDeA
 class ConvertidorDeCancionesCliente:
 
     def __init__(self, id_cancion, ubicacion_archivo, extension):
-        self.id_cancion = id_cancion
+        self.id_cancion = str(id_cancion)
         self.extension = extension
         # Tamaño de 64 Kb
         self.tamano_chunk = 1000 * 64
@@ -85,7 +85,7 @@ class ConvertidorDeCancionesCliente:
         cantidad_intentos = 0
         # Valida si no ocurrio un error al convertir la cancion, si ocurrio lo reintenta tres veces
         while cantidad_intentos < 3:
-            for respuesta in cliente.ConvertirCancionWAV(self.enviar_cancion()):
+            for respuesta in cliente.ConvertirCancionAMP3(self.enviar_cancion()):
                 self.recibir_cancion(respuesta)
                 if self.error is not None:
                     cantidad_intentos += 1
