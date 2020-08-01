@@ -609,7 +609,7 @@ class Cancion(base_de_datos.Model):
         """
         self.eliminada = True
         if self.albumes is not None:
-            self.albumes[0].duracion_total -= self.duracion_en_segundos
+            self.albumes[0].duracion_total_segundos -= self.duracion_en_segundos
         base_de_datos.session.commit()
 
     def agregar_genero(self, genero):
