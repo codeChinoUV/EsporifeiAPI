@@ -13,7 +13,7 @@ global logger
 
 class ConvertidorDeCancionesServicer(ConvertidorDeArchivos_pb2_grpc.ConvertidorDeCancionesServicer):
 
-    def ConvertirCancionWAV(self, request_iterator, context):
+    def ConvertirCancionAMP3(self, request_iterator, context):
         """
         Se encarga de convertir una cancion mp3 a los 3 calidades disponibles:
         :param request_iterator: Un iterador de solicitudes por parte del cliente
