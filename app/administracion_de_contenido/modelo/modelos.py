@@ -217,7 +217,9 @@ class Genero(base_de_datos.Model):
     id_genero = base_de_datos.Column(base_de_datos.Integer, primary_key=True, autoincrement=True)
     genero = base_de_datos.Column(base_de_datos.String(30), nullable=False)
     lista_generos = ['Electronic Dance', 'Rock', 'Jazz', 'Dubstep', 'R&B', 'Techno', 'Musica country',
-                     'Electro', 'Indie Rock', 'Pop', 'Hip-Hop', 'Heavy Metal', 'Musica clásica']
+                     'Electro', 'Indie Rock', 'Pop', 'Hip-Hop', 'Heavy metal', 'Musica clásica', 'Pop rock',
+                     'Electropop', 'Rock electrónico', 'Reggaeton', 'Alternativa', 'Funk', 'Soft rock',
+                     'Britpop', 'Rock alternativo']
 
     @staticmethod
     def recuperar_todos_los_generos():
@@ -225,20 +227,20 @@ class Genero(base_de_datos.Model):
         Recupera de la base de datos todos los generos registrados
         :return: Una lista con los generos registrados
         """
-        cantidad_generos = Genero.query.count()
-        if cantidad_generos == 0:
-            Genero._guardar_generos()
+        Genero._validar_se_encuentran_todos_los_generos()
         generos = Genero.query.all()
         return generos
 
     @staticmethod
-    def _guardar_generos():
+    def _validar_se_encuentran_todos_los_generos():
         """
-        Agrega a la base de datos los generos que tendra
+        Valida que todos los generos de la lista se encuentren registrados y registra los que hacen falta
         """
-        for genero in Genero.lista_generos:
-            genero_objeto = Genero(genero=genero)
-            base_de_datos.session.add(genero_objeto)
+        generos_registrados = Genero.query.all()
+        if len(generos_registrados) != len(Genero.lista_generos):
+            for i in range(len(generos_registrados), len(Genero.lista_generos)):
+                genero_a_registrar = Genero(genero=Genero.lista_generos[i])
+                base_de_datos.session.add(genero_a_registrar)
         base_de_datos.session.commit()
 
     @staticmethod
@@ -454,6 +456,18 @@ class Album(base_de_datos.Model):
         """
         diccionario_del_objeto = {'id': self.id_album, 'nombre': self.nombre, 'anio_lanzamiento': self.anio_lanzamiento,
                                   'duracion_total': self.duracion_total_segundos}
+        return diccionario_del_objeto
+
+    def obtener_json_con_canciones(self):
+        """
+        Crea un diccionario con los atributos del objeto
+        :return: Un diccionario con los atributos del objeto
+        """
+        canciones = []
+        for cancion in self.canciones:
+            canciones.append(cancion.obtener_json_con_creadores())
+        diccionario_del_objeto = {'id': self.id_album, 'nombre': self.nombre, 'anio_lanzamiento': self.anio_lanzamiento,
+                                  'duracion_total': self.duracion_total_segundos, 'canciones': canciones}
         return diccionario_del_objeto
 
     def agregar_cancion(self, cancion, creador_de_contenido):

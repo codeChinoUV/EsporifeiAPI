@@ -43,7 +43,7 @@ class CreadorDeContenidoAlbumes(Resource):
         albumes = Album.obtener_abumes_creador_de_contenido(creador_de_contenido.id_creador_de_contenido)
         lista_de_albumes = []
         for album in albumes:
-            lista_de_albumes.append(album.obtener_json())
+            lista_de_albumes.append(album.obtener_json_con_canciones())
         return lista_de_albumes, 200
 
 
@@ -65,7 +65,7 @@ class CreadorDeContenidoAlbum(Resource):
         album = Album.obtener_album_por_id(id_album)
         if album is None:
             return None, 404
-        return album.obtener_json()
+        return album.obtener_json_con_canciones()
 
     @token_requerido
     @solo_creador_de_contenido
@@ -120,7 +120,7 @@ class AlbumesPublicoControlador(Resource):
         albumes_del_creador_de_contenido = Album.obtener_abumes_creador_de_contenido(id_creador_de_contenido)
         lista_de_albumes = []
         for album in albumes_del_creador_de_contenido:
-            lista_de_albumes.append(album.obtener_json())
+            lista_de_albumes.append(album.obtener_json_con_canciones())
         return lista_de_albumes
 
 
@@ -135,5 +135,5 @@ class AlbumBuscarControlador(Resource):
         albumes_diccionario = []
         if len(albumes) > 0:
             for album in albumes:
-                albumes_diccionario.append(album.obtener_json())
+                albumes_diccionario.append(album.obtener_json_con_canciones())
         return albumes_diccionario

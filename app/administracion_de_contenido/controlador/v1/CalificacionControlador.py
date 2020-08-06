@@ -25,6 +25,8 @@ class CancionCalificacionControlador(Resource):
         if error_no_existe_cancion is not None:
             return error_no_existe_cancion, 404
         calificacion = Calificacion.obtener_calificacion(id_cancion, usuario_actual.id_usuario)
+        if calificacion is None:
+            return {}, 404
         return calificacion.obtener_json(), 200
 
     @token_requerido
