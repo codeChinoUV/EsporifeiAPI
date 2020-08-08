@@ -465,7 +465,8 @@ class Album(base_de_datos.Model):
         """
         canciones = []
         for cancion in self.canciones:
-            canciones.append(cancion.obtener_json_con_creadores())
+            if not cancion.eliminada:
+                canciones.append(cancion.obtener_json_con_creadores())
         diccionario_del_objeto = {'id': self.id_album, 'nombre': self.nombre, 'anio_lanzamiento': self.anio_lanzamiento,
                                   'duracion_total': self.duracion_total_segundos, 'canciones': canciones}
         return diccionario_del_objeto
@@ -1200,13 +1201,14 @@ class HistorialCancion(base_de_datos.Model):
         historial_canciones = HistorialCancion.obtener_todas_las_canciones_reproducidas(id_usuario)
         for historial_cancion in historial_canciones:
             cancion = Cancion.obtener_cancion_por_id(historial_cancion.id_cancion)
-            for genero in cancion.generos:
-                if genero.id_genero == id_genero:
-                    if cancion not in canciones_reproducidas:
-                        canciones_reproducidas.append(cancion)
-                        canciones_recuperadas += 1
-            if canciones_recuperadas == cantidad_de_canciones:
-                break
+            if cancion is not None:
+                for genero in cancion.generos:
+                    if genero.id_genero == id_genero:
+                        if cancion not in canciones_reproducidas:
+                            canciones_reproducidas.append(cancion)
+                            canciones_recuperadas += 1
+                if canciones_recuperadas == cantidad_de_canciones:
+                    break
         return canciones_reproducidas
 
 

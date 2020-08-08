@@ -223,8 +223,9 @@ class CreadorDeContenidoAlbumCancionGeneros(Resource):
             return errores_permiso
         cancion = Cancion.obtener_cancion_por_id(id_cancion)
         generos = []
-        for genero in cancion.generos:
-            generos.append(genero.obtener_json())
+        if cancion is not None:
+            for genero in cancion.generos:
+                generos.append(genero.obtener_json())
         return generos, 200
 
 
