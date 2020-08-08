@@ -24,5 +24,6 @@ class RadioControlador(Resource):
         radio = sample(radio, k=len(radio))
         lista_de_canciones = []
         for cancion in radio:
-            lista_de_canciones.append(cancion.obtener_json_con_album())
+            if cancion is not None:
+                lista_de_canciones.append(cancion.obtener_json_con_album())
         return lista_de_canciones, 200

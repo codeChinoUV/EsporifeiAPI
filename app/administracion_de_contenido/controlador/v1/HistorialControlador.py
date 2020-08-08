@@ -37,7 +37,7 @@ class HistorialCancionControlador(Resource):
         canciones_dicionario = []
         for cancion in canciones:
             cancion_recuperada = Cancion.obtener_cancion_por_id(cancion.id_cancion)
-            if cancion is not None:
+            if cancion_recuperada is not None:
                 canciones_dicionario.append(cancion_recuperada.obtener_json_con_album())
         return canciones_dicionario, 200
 
