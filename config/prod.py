@@ -1,5 +1,5 @@
 from .default import *
 
-SECRET_KEY = '5e04a4955d8878191923e86fe6a0dfb24edb226c87d6c7787f35ba4698afc86e95cae409aebd47f7'
+SECRET_KEY = 'putyoursecretkeyhere'
 APP_ENV = APP_ENV_PRODUCTION
-SQLALCHEMY_DATABASE_URI = "postgresql://espotifeiapi:123456@psql_db:5432/espotifei"
+SQLALCHEMY_DATABASE_URI = "postgresql://username:password@host:5432/databse"
