@@ -3,9 +3,9 @@ version: '3'
 services:
   psql_db:
     environment:
-      POSTGRES_USER: espotifeiapi
-      POSTGRES_PASSWORD: 123456
-      POSTGRES_DB: espotifei
+      POSTGRES_USER: PON_UN_USUARIO
+      POSTGRES_PASSWORD: PON_UNA_CONTRASENA
+      POSTGRES_DB: PON_UNA_BD
     image: postgres:latest
     ports:
       - 5432:5432
